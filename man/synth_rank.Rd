@@ -12,7 +12,7 @@ synth_rank(obj, ...)
 \arguments{
 \item{obj}{A \code{list} of \code{vector} objects which reperesent a sequence.}
 
-\item{ties}{The way in which ties are handled per the \link[stats]{rank()} function. The default is \code{"average"}.}
+\item{...}{\code{ties} The way in which ties are handled per the \code{\link{rank()}} function. The default is \code{"ties = average"}.}
 }
 \value{
 A single vector containing the synthesized ranking.

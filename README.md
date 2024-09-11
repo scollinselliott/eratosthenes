@@ -8,9 +8,9 @@
 
 The `R` package `eratosthenes` offers tools for estimating uncertain
 archaeological or historical dates subject to relational conditions and
-absolute constraits. The primary function of the package derives
-marginal densities of each event from the full, joint conditional
-distribution, provided relative sequences (derived via seriation or
+absolute constraits. The primary function of the package derives the
+marginal density of each event from the full, joint conditional
+distribution, provided relative sequences (via seriation or
 stratigraphic relationships) and external dating sources (such as
 radiocarbon dates, datable artifacts, or other known historical events).
 Absolute dates as derived from extrinsic information is stipulated as

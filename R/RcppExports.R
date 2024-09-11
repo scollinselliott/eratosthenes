@@ -3,8 +3,6 @@
 
 #' @useDynLib eratosthenes
 #' @importFrom Rcpp sourceCpp
-#' @rdname gibbs_ad
-#' @export
 gibbs_ad_cpp <- function(a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx) {
     .Call('_eratosthenes_gibbs_ad_cpp', PACKAGE = 'eratosthenes', a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx)
 }

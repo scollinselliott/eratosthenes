@@ -44,7 +44,7 @@ seq_check.list <- function(obj) {
 #' Using a \code{list} two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
 #'
 #' @param obj A \code{list} of \code{vector} objects which reperesent a sequence.    
-#' @param ties The way in which ties are handled per the \link[stats]{rank()} function. The default is \code{"average"}.
+#' @param ... `ties` The way in which ties are handled per the \code{\link{rank()}} function. The default is \code{"ties = average"}.
 #' 
 #' @examples 
 #' x <- c("A", "B", "C", "D", "E")
@@ -232,7 +232,7 @@ seq_adj.character <- function(input, target) {
         y <- y_pos[names(x)]
         x <- c(0, x, length(x_pos) + 1)
         y <- c(0, y, length(y_pos) + 1)
-        interp <- approx(x, y, n = length(x_pos) + 2)
+        interp <- stats::approx(x, y, n = length(x_pos) + 2)
         result <- interp$y[1:length(x_pos)+1]
         names(result) <- input
         result <- input[order(result)]
@@ -250,7 +250,7 @@ seq_adj.character <- function(input, target) {
 #'
 #' @param sequences A \code{list} of relative sequences of elements (e.g., contexts).
 #' @param finds Optional. A \code{list} of finds related to (contained in) the elements of `sequences`. If one includes this ob
-#' @param n Number of samples. Default is \code{10^5}.
+#' @param samples Number of samples. Default is \code{10^5}.
 #' @param tpq A \code{list} containing \emph{termini post quem}. Each object in the list consists of:
 #'   * \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
 #'   * \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated. 
@@ -259,8 +259,8 @@ seq_adj.character <- function(input, target) {
 #'   * \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
 #'   * \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated. 
 #'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-#' @param alpha An initial \emph{t.p.q.} to catch any elements which may occur before the first \emph{t.p.q.} Default is \code{-5000}.
-#' @param omega A final \emph{t.a.q.} to catch any elements which may occur after the after the last \emph{t.a.q.} Default is {1950}.
+#' @param alpha An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
+#' @param omega A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param trim A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be ommitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha} and \code{omega}). Default is \code{TRUE}.
 #' 
 #' @returns A \code{list} object of class \code{marginals} which contains the following:
@@ -363,7 +363,7 @@ gibbs_ad.list <- function(sequences, finds = NULL, samples = 10^5, tpq = NULL, t
             }     
             L <- max(a, na.rm = TRUE)
             U <- min(p, na.rm = TRUE)
-            s <- runif(1, L, U)
+            s <- stats::runif(1, L, U)
             sampled[[i]][1] <- s
         }
 
@@ -410,7 +410,6 @@ gibbs_ad.list <- function(sequences, finds = NULL, samples = 10^5, tpq = NULL, t
             }
         }
 
-        
         gibbs <- gibbs_ad_cpp(gibbs, tpq_idxs, PhiMatrix, tpq , taq_idxs, PsiMatrix, taq, proceed_idx)
 
         deposition <- list()
@@ -533,7 +532,7 @@ gibbs_ad.list <- function(sequences, finds = NULL, samples = 10^5, tpq = NULL, t
 
                         L <- type_prev_dep[i, ]
                         U <- t(cols)
-                        out <- runif(samples, L, U)
+                        out <- stats::runif(samples, L, U)
                     } else {
                         out <- matrix(0, nrow = nrow(cols), ncol = ncol(cols))
 
@@ -541,7 +540,7 @@ gibbs_ad.list <- function(sequences, finds = NULL, samples = 10^5, tpq = NULL, t
                             for (j in 1:samples) {
                                 L <- type_prev_dep[i, j]
                                 U <- cols[k,j]
-                                s <-  runif(1, L, U)
+                                s <- stats::runif(1, L, U)
                                 out[k , j] <- s
                            
                             }
@@ -560,7 +559,7 @@ gibbs_ad.list <- function(sequences, finds = NULL, samples = 10^5, tpq = NULL, t
 
                         L <- type_prev_dep[i, ]
                         U <- type_earliest_dep[i, ]
-                        out <- runif(samples, L, U)
+                        out <- stats::runif(samples, L, U)
                         
                         production[[findstypes[i]]] <- out
                 }

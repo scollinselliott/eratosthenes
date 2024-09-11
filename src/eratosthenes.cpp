@@ -3,8 +3,6 @@ using namespace Rcpp;
 
 //' @useDynLib eratosthenes
 //' @importFrom Rcpp sourceCpp
-//' @rdname gibbs_ad
-//' @export
 // [[Rcpp::export]]
 Rcpp::NumericMatrix gibbs_ad_cpp(Rcpp::NumericMatrix a, Rcpp::IntegerVector tpq_idx, Rcpp::IntegerMatrix phi, Rcpp::List phiList, Rcpp::IntegerVector taq_idx, Rcpp::IntegerMatrix psi, Rcpp::List psiList, Rcpp::IntegerVector prc_idx) {
 
