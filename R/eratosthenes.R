@@ -44,7 +44,7 @@ seq_check.list <- function(obj) {
 #' Using a \code{list} two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
 #'
 #' @param obj A \code{list} of \code{vector} objects which reperesent a sequence.    
-#' @param ... `ties` The way in which ties are handled per the \code{\link{rank()}} function. The default is \code{"ties = average"}.
+#' @param ties The way in which ties are handled per the \code{\link{rank}} function. The default is \code{"ties = average"}.
 #' 
 #' @examples 
 #' x <- c("A", "B", "C", "D", "E")
@@ -56,7 +56,7 @@ seq_check.list <- function(obj) {
 #' @returns A single vector containing the synthesized ranking.
 #' 
 #' @export
-synth_rank <- function(obj, ...) {
+synth_rank <- function(obj, ties = "average") {
     UseMethod("synth_rank")
 }
 
@@ -262,6 +262,7 @@ seq_adj.character <- function(input, target) {
 #' @param alpha An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param trim A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be ommitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha} and \code{omega}). Default is \code{TRUE}.
+#' @param rule The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context,  or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.
 #' 
 #' @returns A \code{list} object of class \code{marginals} which contains the following:
 #'    * \code{deposition} A \code{list} of samples from the marginal density of each context's depositional date.
@@ -295,7 +296,7 @@ seq_adj.character <- function(input, target) {
 
 
 #' @export
-gibbs_ad <- function(sequences, ...) {
+gibbs_ad <- function(sequences, finds = NULL, samples = 10^5, tpq = NULL, taq = NULL, alpha = -5000, omega = 1950, trim = TRUE, rule = "naive") {
     UseMethod("gibbs_ad")
 }
 

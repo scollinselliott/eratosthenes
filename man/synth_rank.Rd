@@ -5,14 +5,14 @@
 \alias{synth_rank.list}
 \title{Synthetic Ranking}
 \usage{
-synth_rank(obj, ...)
+synth_rank(obj, ties = "average")
 
 \method{synth_rank}{list}(obj, ties = "average")
 }
 \arguments{
 \item{obj}{A \code{list} of \code{vector} objects which reperesent a sequence.}
 
-\item{...}{\code{ties} The way in which ties are handled per the \code{\link{rank()}} function. The default is \code{"ties = average"}.}
+\item{ties}{The way in which ties are handled per the \code{\link{rank}} function. The default is \code{"ties = average"}.}
 }
 \value{
 A single vector containing the synthesized ranking.

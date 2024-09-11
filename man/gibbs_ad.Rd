@@ -5,7 +5,17 @@
 \alias{gibbs_ad.list}
 \title{Gibbs Sampler for Archaeological Dating}
 \usage{
-gibbs_ad(sequences, ...)
+gibbs_ad(
+  sequences,
+  finds = NULL,
+  samples = 10^5,
+  tpq = NULL,
+  taq = NULL,
+  alpha = -5000,
+  omega = 1950,
+  trim = TRUE,
+  rule = "naive"
+)
 
 \method{gibbs_ad}{list}(
   sequences,
@@ -45,6 +55,8 @@ gibbs_ad(sequences, ...)
 \item{omega}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
 \item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be ommitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha} and \code{omega}). Default is \code{TRUE}.}
+
+\item{rule}{The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context,  or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.}
 }
 \value{
 A \code{list} object of class \code{marginals} which contains the following:
