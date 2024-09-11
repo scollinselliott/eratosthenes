@@ -1,0 +1,148 @@
+---
+title: "Gibbs Sampling for Archaeological Dates"
+bibliography: "REFERENCES.bib"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{gibbs-sampling-for-archaeological-dates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(eratosthenes)
+require(Rcpp)
+```
+
+A central function of the `eratosthenes` package is the `gibbs_ad()` function, which takes in information about relative sequences and absolute dating constraints, and then samples marginal probability densities for events from the full, joint conditional density, using a Gibbs sampler. This vignette provides details on the use of this function.
+
+The function operates on a continuous timeline. Any calendrical scale is possible, but here it is conventional for CE/AD dates to be positive and BCE/BCE dates to be negative.
+
+The Gibbs sampler is a common Markov Chain Monte Carlo (MCMC) technique, widely used in estimating posterior probabilities in Bayesian inference (a mainstay of calibrating and refining radiocarbon dates) as well as in computing marginal densities. For more information, see for example @geman_stochastic_1984, @buck_bayesian_1996, and @lunn_bugs_2013.
+
+## Inputs
+
+The core inputs for the `gibbs_ad()` function are the following:
+
+* relative sequence(s) of contexts
+* finds (optional), associated with a context and type/class (also optional)
+* absolute constraints (_termini post/ante quem)
+
+### Relative Sequences of Contexts
+
+Relative sequences of contexts must be in the form of a `list`, with each object in the list being a vector whose ordering of elements is in agreement with all other elements. See the vignette **Aligning Relative Sequences** for more information.
+
+The following object `contexts` provides an example of a valid set of relative sequences:
+
+```{r}
+x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- c("B", "D", "G", "H", "K")
+z <- c("F", "K", "L", "M")
+contexts <- list(x, y, z)
+
+seq_check(contexts) # check if the sequences are in agreement
+```
+
+### Finds
+
+Data on finds (i.e., any elements which pertain to a given context) are optional. Each find must be in the form of a `list` with the following structure:
+
+* `id`: An id number or string of the find, such as an inventory number or bibliographic reference.
+* `assoc`: The context to which the find belongs, which must be contained in the relative sequences of contexts.
+* `type`: An optional vector or element denoting any types, subtypes, classes, etc., to which the find pertains. If not present, a `NULL` value must be given.
+
+Each find must in turn be stored in a single `list` object:
+```{r}
+f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
+f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- list(id = "find05", assoc = "I", type = "type2")
+f6 <- list(id = "find06", assoc = "H", type = NULL)
+artifacts <- list(f1, f2, f3, f4, f5, f6)
+```
+
+Missing information on types should be supplied with a `NULL` value.
+
+Finds should have no absolute dating constrains on them. If they do, they should be specified as an absolute constraint.
+
+### Absolute Constraints
+
+Absolute constraints are predicated on whether they provide a _terminus post quem_ (_t.p.q._) for a context or a _terminus ante quem_ (_t.a.q._) for a context. The information on these absolute dates is regarded as external or extrinsic information. For example, a radiocarbon date provides for information on when the sample died, not when its context was formed; a coin type may be known to have had a range of production dates, but the production date of _that particular coin_ may be affected by the stratigraphic context in which it is found. Such constraints may take a variety of forms.
+
+The formatting for a _t.p.q._ or a _t.a.q_  is the same, as a `list` in which each constraint contains:
+
+* `id`: An id number or string of the find, such as an inventory number or bibliographic reference.
+* `assoc`: The context to which the find belongs, which must be contained in the relative sequences of contexts.
+* `type`: An optional vector or element denoting any types, subtypes, classes, etc., to which the find pertains. If not present, a `NULL` value must be given.
+* `samples`: A `numeric` vector or element containing potential dates of the _t.p.q._ or _t.a.q._, i.e., a sample of the probability density function which expresses when that constraint occurred. Common densities would include:
+  * A single `numeric` if the constraint is known precisely and certainly.
+  * Samples of $n$ size from a continuous uniform distribution, `runif(n, a, b)`, if known between two bounds $a$ and $b$, without any more or less certainty about any one date.
+  * Samples of $n$ size from a bespoke probability density, such as a calibrated radiocarbon date.
+
+Constraints must be contained in two separate `list` objects, one for _t.p.q._ and the other for _t.a.q._:
+
+```{r}
+# external
+coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = runif(100,37,41))
+destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+
+tpq_info <- list(coin1, coin2)
+taq_info <- list(destr)
+```
+
+## Additional Arguments
+
+Additional arguments are necessary for the `gibbs_ad()` function:
+
+* `samples`: the number of Gibbs samples to take (i.e., the number of estimates of any one event). By default set at `10^5`.
+* `alpha`: the constraint on the earliest possible date to sample. By default set at `-5000`.
+* `omega`: the constraint on the latest possible date to sample. By default set at `1950`.
+* `trim`: takes a logical value as input, `trim` specifies whether to remove contexts from the result which lie earlier than the earliest given _t.p.q._ or later than the latest _t.a.q._, i.e., contexts whose estimation depends on `alpha` and `omega`. By default set at `TRUE`.
+* `rule`: the rule for how to estimate production dates for artifact types, which is described in the following section. By default set at `"naive"`.
+
+### Rules for Estimating Production Dates
+
+Since archaeologists are typically interested in dates of production and use as much as deposition, the `gibbs_ad()` function will return the marginal densities for both production and deposition (from which the estimation of a use date can then be derived).
+
+Estimating the date of the production of a find or find-type however necessitates some assumption, since in principle the absence of evidence is not viewed as evidence of absence. Without stipulating a rule, the earliest production date of any artifact could reach back endlessly into time, since an artifact does not need to have been produced after the initial occupation of a site where it has been found. 
+
+Here, two basic rules have been included for determining production dates of finds:
+
+* `"naive"`: The earliest potential threshold of a find-type occurs sometime before the first deposition of that type, and after the deposition of the next earliest context. A production date is then chosen uniformly at random between that threshold and the depositional date of that artifact.
+* `"earliest"`: The earliest potential date of a find-type occurs sometime before the first deposition of that type, and after the deposition of the next earliest context. A production date is then chosen uniformly at random between those two dates.
+
+The `"earliest"` option will constrain the date of production to the earliest possible instances, while the `"naive"` option (the default) will select any date between an earliest threshold and the depositional date of the particular find.
+
+If no finds are included in the `gibbs_ad()` arguments, then only depositional dates for contexts, not production dates, are estimated.
+
+## Functionality
+
+The `gibbs_ad()` function at its core uses a Gibbs sampler, drawing from the full joint conditional density in order to sample marginal densities for dates of deposition (of contexts and finds) and production (of finds).
+
+First, samples are drawn from any _t.p.q_ and _t.a.q._. Then, for convenience, the Gibbs sampler proceeds in order of a sequence of contexts based on the merged ranking of all contexts (via `synth_rank()`). The sampler will identify all contexts and constraints prior and subsequent to any one context, and then will identify the largest prior date and smallest subsequent date, in between which it will uniformly sample a date. One can adjust the number of samples drawn with the `samples` argument of the function:
+
+```{r}
+dates <- gibbs_ad(contexts, finds = artifacts, samples = 10^4, tpq = tpq_info, taq = taq_info)
+```
+
+## Output
+
+The output of the `gibbs_ad()` function will be a `list` of class `marginals` containing the marginal densities of the depositional dates of contexts and finds, if included; production dates are given for finds types, again, if included.  Marginal densities are also given for each _t.p.q._ and each _t.a.q._, which expresses the probability of their dating _given_ the conditions of the relative sequences of contexts (not independent of them).
+
+* `$deposition` contains the depositional dates of contexts included in the sequences input
+* `$externals` contains the dates of the absolute constraints taking the full joint conditional density into account
+* `$production` contains the dates of production of artifact types
+
+```{r}
+str(dates)
+```
+
+## References

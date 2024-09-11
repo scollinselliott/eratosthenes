@@ -1,0 +1,112 @@
+---
+title: "Aligning Relative Sequences"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{aligning-relative-sequences}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(eratosthenes)
+```
+
+## Introduction
+
+This vignette outlines functions that check and align multiple relative sequences of events using `eratosthenes`. Not all sequences are however of the same informational value. Some sequences may be based on ideal or optimal theoretical assumptions, as with frequency or contextual seriation, and others they may be based on physical relationships, as with soil stratigraphy. It is clear that such theoretical sequences should yield to those based on physical relationships, but this raises the problem of how to coerce one or more theoretical sequences which may contain events that also have physical relationships. For example, one can produce an ideal seriation of contexts that includes discrete, single deposits on the one hand (say a number of separate pits with no overlap) and on the other stratified deposits. In such an optimal seriation, it is possible for those stratified deposits to be seriated "out of order" with respect to their stratified sequence (i.e., the stratigraphy may have been perturbed at one more moments so that their finds assemblages are not well stratified). Accordingly, it is desirable to take the optimal order achieved via seriation and constrain it back to agree with the soil stratigraphy.
+
+## Checking Sequence Agreement
+
+To check whether two or more sequences of events agree with one another in their order, the `seq_check()` function is used. Sequences should run in the same direction from left to right (i.e., the earliest element of all sequences should be the first element), and be contained in a `list` object. The `seq_check()` function returns a logical output if all sequences have the same elements in the same order.
+
+Both sequences `x` and `y` contain the same events in the same order:
+
+```{r}
+x <- c("A", "B", "C", "D", "E")
+y <- c("B", "D", "F", "E")
+a <- list(x, y)
+seq_check(a)
+```
+
+But sequence `z` contains events `"F"` and `"C"` out of order with respect to `x` and `y`:
+
+```{r}
+z <- c("B", "F", "C")
+b <- list(x, y, z)
+seq_check(b)
+```
+
+## Merging Sequences
+
+The `synth_rank()` function will use recursion in order to produce a single, "merged" or "synthesized" sequence from two or more sequences.  This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via the `quae_postea()` function, on which see below). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
+
+```{r}
+x <- c("A", "B", "C", "D", "H", "E")
+y <- c("B", "D", "F", "G", "E")
+a <- list(x, y)
+synth_rank(a)
+```
+
+Producing a single merged or synthesized sequence is a matter of procedural convenience for the `gibbs_ad()` function (see the vignette on **Gibbs Sampling for Archaeological Dates**). To be sure, events missing from one sequence or another could occur at different points in the merged sequence. In the example above, `"H"` could occur at any point after `"D"` and before `"E"`, but the `synth_rank()` function has situated it in between `"F"` and `"G"`.
+
+If sequences disagree, a `NULL` value is returned for the `synth_rank()` function.
+
+## Adjusting Sequences
+
+As mentioned above, one may have sequences which are derived via theoretical considerations (e.g., frequency or contextual seriation), and some which are known (e.g., soil stratigraphy or historical documentation). The `seq_adj()` function will take an "input" sequence and adjust its ordering to fit with another "target" sequence of smaller size.
+
+For example, the input sequence might be an ordering obtained from a contextual seriation which is based on artifact types found in both tomb assemblages as well as stratified deposits, from one or more sites. And the target sequence might be a known stratigraphic sequence. One wants to maintain the ordering of the target sequence, adjusting the input into agreement:
+
+```{r}
+# input
+seriated <- c("S1", "T1", "T2", "S3", "S4", "T4", "T5", "T6", "S5", "T7", "S2")
+# target
+stratigraphic <- c("S1", "S2", "S3", "S4", "S5")
+# input adjusted to agree with the target
+seq_adj(seriated, stratigraphic)
+```
+
+To achieve this the `seq_adj()` function performs a linear interpolation between jointly attested events, placing the input sequence along the $x$ axis and the target sequence along the $y$ axis, coercing the order of all elements to the $y$ axis:
+
+```{r, echo = FALSE, fig.dim = c(12, 10), out.width = "100%", fig.align = 'center'}
+u <- unique(c(seriated, stratigraphic))
+
+x <- match(u, seriated)
+y <- match(u, stratigraphic)
+
+input <- x[!is.na(y)]
+target <- y[!is.na(y)]
+
+interp <- approx(input, target, n = length(x) )
+
+plot(interp, xlab = "input (seriated)", ylab = "target (stratigraphic)", type = "l")
+points(interp, pch = 16)
+for (i in 1:length(x)) {
+  arrows(x0 = interp$x[i], y0 = interp$y[i], x1 = 0.8, y1 = interp$y[i], length = 0.1, angle = 20  )
+  text(interp$x[i], interp$y[i], seriated[i], pos = 4, offset = 0.3)
+}
+```
+
+For multiple stratigraphic sequences, the `seq_adj()` function can be re-run, taking a new target sequence and using the previous result as the new input sequence. If both input and target sequences agree, the input sequence will be returned.
+
+## All Earlier Events, All Later Events
+
+A core need of the `gibbs_ad()` function is to determine, for each event,  _all_ events which come later and earlier than that event. The functions `quae_postea()` and `quae_antea()` achieve this need for later events and earlier events respectively. Hence, there is no need for determining a single sequence or ordering as an input, which takes the form of a `list` object containing sequences. The output is a `list` indexed with each element, containing the vector of contexts which precede or follow that element.
+
+For `quae_antea()`, a dummy element of `"alpha"` is included in all vectors, and for `quae_postea()`, a dummy element of `"omega"` is included. The elements of `"alpha"` and `"omega"` are necesary as they constitute the fixed lower and upper limits in which estimates are made in `gibbs_ad()`.
+
+```{r}
+x <- c("A", "B", "C", "D", "H", "E")
+y <- c("B", "D", "F", "G", "E")
+a <- list(x, y)
+quae_postea(a)
+quae_antea(a)
+```
+

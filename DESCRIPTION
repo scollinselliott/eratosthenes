@@ -1,0 +1,21 @@
+Package: eratosthenes
+Title: Tools for Archaeological Synchronism
+Version: 0.0.1
+Authors@R: 
+    person(c("Stephen", "A."), "Collins-Elliott", , "sce@utk.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-5642-6903"))
+Description: Functions to estimate unknown historical or archaeological dates, subject to relationships with other dates and absolute constraints. Estimates are derived as marginal densities from the full joint conditional distribution.
+License: GPL (>= 3)
+Imports:
+    Rcpp,
+    Rdpack
+RdMacros: Rdpack
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+LinkingTo: 
+    Rcpp
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
