@@ -21,12 +21,12 @@ latest bounds. Ancillary functions include checking for discrepancies in
 sequences of events and constraining optimal seriations to known
 sequences.
 
-While software exists for sampling radiocarbon dates subject to
-relational constructs, such as [BCal](https://bcal.shef.ac.uk/) (Buck,
+While software exists for calibrating and conditioning radiocarbon dates upon
+relative constraints, such as [BCal](https://bcal.shef.ac.uk/) (Buck,
 Christen, and James 1999) and
 [OxCal](https://c14.arch.ox.ac.uk/oxcal.html) (Bronk Ramsey 2009), the
 aim of `eratosthenes` is to extend the application of probability theory
-to dating all archaeological phenomena, especially the production dates
+more generally to dating all archaeological phenomena, especially the production dates
 of artifact types. `Rcpp` is required for faster Gibbs sampling.
 
 The package is named after Eratosthenes of Cyrene, author of the
