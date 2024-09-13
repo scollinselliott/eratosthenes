@@ -21,21 +21,13 @@ latest bounds. Ancillary functions include checking for discrepancies in
 sequences of events and constraining optimal seriations to known
 sequences.
 
-Dates are estimated for the following types of events:
-
-- **deposition**: the marginal density of the date of the final
-  deposition of a context or find-type.
-- **externals**: the marginal density of date of any *terminus post
-  quem* or *terminus ante quem*, as affected by depositional variates in
-  the joint conditional distribution.
-- **production**: the marginal density of the production date of a given
-  type or class of artifact, given the stipulation that the type’s
-  earliest date of production lies before its earliest date of
-  deposition and after the depositional date of the context immediately
-  prior.
-
-See vignettes for more information on the package functionality. The
-package requires `Rcpp` for faster Gibbs sampling.
+While software exists for sampling radiocarbon dates subject to
+relational constructs, such as [BCal](https://bcal.shef.ac.uk/) (C. E.
+Buck, Christen, and James 1999) and
+[OxCal](https://c14.arch.ox.ac.uk/oxcal.html) (Bronk Ramsey 2009), the
+aim of `eratosthenes` is to extend the application of probability theory
+to dating all archaeological phenomena, especially the production dates
+of artifact types. `Rcpp` is required for faster Gibbs sampling.
 
 The package is named after Eratosthenes of Cyrene, author of the
 *Chronographiai*.
@@ -49,3 +41,167 @@ install the package in the `R` command line with `devtools`:
 library(devtools)
 install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignettes = TRUE) 
 ```
+
+## Usage
+
+The following comments are intended as a general introduction. See
+vignettes for more information on the package functionality.
+
+The basic objects of interest in `eratosthenes` are sequences of
+relative events, typically stratigraphic deposits, but also isolated
+contexts such as may be part of a frequency or contextual seriation.
+
+The function `seq_check()` sees whether partial sequences agree in their
+relative ordering of elements. The function `seq_adj()` provides the
+means to coerce an “input” sequence to a discrepant “target” sequence
+which contains fewer elements. E.g., if one has obtained an optimal
+seriation of contexts (of both single, unrelated deposits and
+stratigraphic deposits) as determined by the presence/absence of
+find-types, which conflicts with a sequence obtained from a
+stratigraphic sequence whose physical relationships are certain, this
+function will reorder the optimal seriation accordingly, fitting any
+single deposits missing from the stratigraphic sequence accordingly. The
+package `eratosthenes` does not have functionality to produce serations,
+as packages `seriation`, `vegan`, and `lakhesis` can perform this task
+already.
+
+At the core of `eratosthenes` is a Gibbs sampler, a common Markov Chain
+Monte Carlo (MCMC) techinque Lunn et al. (2013). Estimating marginal
+densities is accomplished by the function `gibbs_ad()`, which will yield
+samples for dates of deposition, production, and any absolute
+constraints themselves (that is, the density of that extrinsic date as
+impacted by all other events in the joint distribution).
+
+### Input
+
+The function `gibbs_ad()` takes as inputs the following objects:
+
+- `sequences`: A `list` of relative sequences of contexts or events.
+- `finds`: A `list` of any elements which belong to a context or event,
+  which may be assigned a given type.
+- `tpq` and `taq`: Separate `lists` that indicate any elements that
+  provide extrinsic (i.e., absolute) chronological information, as
+  *termini post* and *ante quem*.
+- `alpha` and `omega`: lowest and highest bounds within which to sample.
+- `trim`: whether to remove contexts from the output that are before or
+  after user-provided *t.p.q.* and *t.a.q.* (i.e., those which depend on
+  `alpha` and `omega`).
+- `rule`: the rule for determining the earliest date of production of an
+  artifact type. Initial threshold boundaries are first established
+  between the earliest depositional context containing an aritfact of
+  that type and the next earliest context which lacks it. Then, the
+  following rules will sample a date accordingly:
+  - `naive`: samples are drawn between the initial threshold sample and
+    the depositional date of that artifact
+  - `earliest`: samples are drawn within the initial threshold
+    boundaries
+
+Absolute dates can take any form:
+
+- Single dates, e.g., `79` for 79 CE.
+- Samples between two potential dates for a date range, e.g.,
+  `runif(10^5, -91, -88)` for 91-88 BCE.
+- Samples from a bespoke density, e.g., from a calibrated radiocarbon
+  date. `eratosthenes` does not provide functionality for calibrating
+  dates, which can be accomplished using preexisting software or
+  directly from a calibration curve. As a brief example, given an
+  uncalibrated date and its standard deviation, a crude sample of
+  calibrated dates can be drawn from the IntCal20 curve data, available
+  from IntCal [here](https://www.intcal.org/curves/intcal20.14c) (Reimer
+  et al. 2020), using the following script:
+
+``` r
+require(Rcpp)
+intcal20 <- read.csv("../path/to/intcal20.14c")
+
+# 14c date mean and st.dev.
+mu <- 2040  
+sigma <- 30
+
+# samples of 14c date
+uncalib <- round(rnorm(10^5, mu, sigma))
+
+calib <- c()
+
+for (i in 1:length(uncalib)) {
+  x <- intcal20$CAL.BP[ intcal20$X14C.age == uncalib[i] ] 
+  #g <- intcal20$Sigma[ intcal20$X14C.age == uncalib[i] ]
+
+  if (length(x) > 0) {
+    for (j in 1:length(x)) {
+      calib <- c(calib, x[j])  
+    }
+  }
+}
+
+# samples of cal BC date
+calBC <- 1950 - calib
+hist(calBC, breaks = 100)
+```
+
+### Output
+
+Results are given in a `list` object of class `marginals` contianing the
+following objects:
+
+- `deposition`: a `list` of the marginal densities of the date of the
+  final deposition of contexts and finds.
+- `externals`: a `list` of the the marginal densities of date of any
+  *terminus post quem* or *terminus ante quem*, as affected by
+  depositional variates in the joint conditional distribution.
+- `production`: a `list` of the marginal densities of the production
+  date of a given type or class of artifact, given the rule stipulated
+  in the input.
+
+## Bibliography
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-bronk_ramsey_bayesian_2009" class="csl-entry">
+
+Bronk Ramsey, C. 2009. “Bayesian Analysis of Radiocarbon Dates.”
+*Radiocarbon* 51: 337–60.
+
+</div>
+
+<div id="ref-buck_bayesian_1996" class="csl-entry">
+
+Buck, C. E., W. G. Cavanagh, and C. D. Litton. 1996. *Bayesian Approach
+to Interpreting Archaeological Data*. Chichester: John Wiley & Sons.
+
+</div>
+
+<div id="ref-buck_bcal_1999" class="csl-entry">
+
+Buck, C. E, J. A. Christen, and G. N. James. 1999. “BCal: An On-Line
+Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
+<https://intarch.ac.uk/journal/issue7/buck/>.
+
+</div>
+
+<div id="ref-geman_stochastic_1984" class="csl-entry">
+
+Geman, S., and D. Geman. 1984. “Stochastic Relaxation, Gibbs
+Distributions, and the Bayesian Restoration of Images.” *IEEE
+Transactions on Pattern Analysis and Machine Intelligence* 6: 721–41.
+
+</div>
+
+<div id="ref-lunn_bugs_2013" class="csl-entry">
+
+Lunn, D., C. Jackson, N. Best, A. Thomas, and D. Spiegelhalter. 2013.
+*The BUGS Book: A Practical Introduction to Bayesian Analysis*. Boca
+Raton, FL: CRC Press.
+
+</div>
+
+<div id="ref-reimer_intcal20_2020" class="csl-entry">
+
+Reimer, P. J., W. E. N. Austin, E. Bard, A. Bayliss, P. G. Blackwell, C.
+Bronk Ramsey, M. Butzin, et al. 2020. “The IntCal20 Northern Hemisphere
+Radiocarbon Age Calibration Curve (0–55 Cal
+<span class="nocase">kBP</span>).” *Radiocarbon* 62: 725–57.
+
+</div>
+
+</div>
