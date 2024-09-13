@@ -48,23 +48,32 @@ install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignet
 The following comments are intended as a general introduction. See
 vignettes for more information on the package functionality.
 
-The basic objects of interest in `eratosthenes` are sequences of
-relative events, typically stratigraphic deposits, but also isolated
-contexts such as may be part of a frequency or contextual seriation.
+The basic objects of interest in `eratosthenes` are:
 
-The function `seq_check()` sees whether partial sequences agree in their
-relative ordering of elements. The function `seq_adj()` provides the
-means to coerce an “input” sequence to a discrepant “target” sequence
-which contains fewer elements. E.g., if one has obtained an optimal
-seriation of contexts (of both single, unrelated deposits and
-stratigraphic deposits) as determined by the presence/absence of
-find-types, which conflicts with a sequence obtained from a
-stratigraphic sequence whose physical relationships are certain, this
-function will reorder the optimal seriation accordingly, fitting any
-single deposits missing from the stratigraphic sequence accordingly. The
-package `eratosthenes` does not have functionality to produce serations,
-as packages `seriation`, `vegan`, and `lakhesis` can perform this task
-already.
+- sequences of relative events, typically stratigraphic deposits, but
+  also isolated contexts such as may be part of a frequency or
+  contextual seriation
+- finds, elements which belong to those events, typically artifacts
+- absolute constraints, as either *termini post* or *ante quem*,
+  expressed as samples from a probability density
+
+Some functions related to relative sequences:
+
+- `seq_check()` sees whether partial sequences agree in their relative
+  ordering of elements.
+- `seq_adj()` provides the means to coerce an “input” sequence to a
+  discrepant “target” sequence which contains fewer elements. E.g., if
+  one has obtained an optimal seriation of contexts (of both single,
+  unrelated deposits and stratigraphic deposits) as determined by the
+  presence/absence of find-types, which conflicts with a sequence
+  obtained from a stratigraphic sequence whose physical relationships
+  are certain, this function will reorder the optimal seriation
+  accordingly, fitting any single deposits missing from the
+  stratigraphic sequence accordingly.
+
+The package `eratosthenes` does not have functionality to produce
+serations, as packages `seriation`, `vegan`, and `lakhesis` can perform
+this task already.
 
 At the core of `eratosthenes` is a Gibbs sampler, a common Markov Chain
 Monte Carlo (MCMC) techinque (Geman and Geman 1984; Buck, Cavanagh, and
@@ -106,11 +115,13 @@ Absolute dates can take any form:
 - Samples from a bespoke density, e.g., from a calibrated radiocarbon
   date. `eratosthenes` does not provide functionality for calibrating
   dates, which can be accomplished using preexisting software or
-  directly from a calibration curve. As a brief example, given an
-  uncalibrated date and its standard deviation, a crude sample of
-  calibrated dates can be drawn from the IntCal20 curve data, available
-  from IntCal [here](https://www.intcal.org/curves/intcal20.14c) (Reimer
-  et al. 2020), using the following script:
+  directly from a calibration curve. The `R` package `Bchron` (Haslett
+  and Parnell 2008) provides functions for calibrating dates. As a brief
+  example, given an uncalibrated date and its standard deviation, a
+  crude sample of calibrated dates can be drawn from the IntCal20 curve
+  data, available from IntCal
+  [here](https://www.intcal.org/curves/intcal20.14c) (Reimer et al.
+  2020), using the following script:
 
 ``` r
 intcal20 <- read.csv("../path/to/intcal20.14c")
@@ -185,6 +196,15 @@ Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
 Geman, S., and D. Geman. 1984. “Stochastic Relaxation, Gibbs
 Distributions, and the Bayesian Restoration of Images.” *IEEE
 Transactions on Pattern Analysis and Machine Intelligence* 6: 721–41.
+
+</div>
+
+<div id="ref-haslett_simple_2008" class="csl-entry">
+
+Haslett, J., and A. C. Parnell. 2008. “A Simple Monotone Process with
+Application to Radiocarbon-Dated Depth Chronologies.” *Journal of the
+Royal Statistical Society: Series C (Applied Statistics)* 57 (4):
+399–418.
 
 </div>
 

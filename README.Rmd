@@ -38,9 +38,18 @@ install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignet
 
 The following comments  are intended as a general introduction. See vignettes for more information on the package functionality. 
 
-The basic objects of interest in `eratosthenes` are sequences of relative events, typically stratigraphic deposits, but also isolated contexts such as may be part of a frequency or contextual seriation. 
+The basic objects of interest in `eratosthenes` are:
 
-The function `seq_check()` sees whether partial sequences agree in their relative ordering of elements. The function `seq_adj()` provides the means to coerce an "input" sequence to a discrepant "target" sequence which contains fewer elements. E.g., if one has obtained an optimal seriation of contexts (of both single, unrelated deposits and stratigraphic deposits) as determined by the presence/absence of find-types, which conflicts with a sequence obtained from a stratigraphic sequence whose physical relationships are certain, this function will reorder the optimal seriation accordingly, fitting any single deposits missing from the stratigraphic sequence accordingly. The package `eratosthenes` does not have functionality to produce serations, as packages `seriation`, `vegan`, and `lakhesis` can perform this task already.
+* sequences of relative events, typically stratigraphic deposits, but also isolated contexts such as may be part of a frequency or contextual seriation
+* finds, elements which belong to those events, typically artifacts
+* absolute constraints, as either _termini post_ or _ante quem_, expressed as samples from a probability density
+
+Some functions related to relative sequences:
+
+* `seq_check()` sees whether partial sequences agree in their relative ordering of elements.
+* `seq_adj()` provides the means to coerce an "input" sequence to a discrepant "target" sequence which contains fewer elements. E.g., if one has obtained an optimal seriation of contexts (of both single, unrelated deposits and stratigraphic deposits) as determined by the presence/absence of find-types, which conflicts with a sequence obtained from a stratigraphic sequence whose physical relationships are certain, this function will reorder the optimal seriation accordingly, fitting any single deposits missing from the stratigraphic sequence accordingly.
+
+The package `eratosthenes` does not have functionality to produce serations, as packages `seriation`, `vegan`, and `lakhesis` can perform this task already.
 
 At the core of `eratosthenes` is a Gibbs sampler, a common Markov Chain Monte Carlo (MCMC) techinque [@geman_stochastic_1984; @buck_bayesian_1996; @lunn_bugs_2013]. Estimating marginal densities is accomplished by the function `gibbs_ad()`, which will yield samples for dates of deposition, production, and any absolute constraints themselves (that is, the density of that extrinsic date as impacted by all other events in the joint distribution).
 
@@ -61,7 +70,7 @@ Absolute dates can take any form:
 
 * Single dates, e.g., `79` for 79 CE.
 * Samples between two potential dates for a date range, e.g., `runif(10^5, -91, -88)` for 91-88 BCE.
-* Samples from a bespoke density, e.g., from a calibrated radiocarbon date. `eratosthenes` does not provide functionality for calibrating dates, which can be accomplished using preexisting software or directly from a calibration curve. As a brief example, given an uncalibrated date and its standard deviation, a crude sample of calibrated dates can be drawn from the IntCal20 curve data, available from IntCal [here](https://www.intcal.org/curves/intcal20.14c) [@reimer_intcal20_2020], using the following script:
+* Samples from a bespoke density, e.g., from a calibrated radiocarbon date. `eratosthenes` does not provide functionality for calibrating dates, which can be accomplished using preexisting software or directly from a calibration curve. The `R` package `Bchron` [@haslett_simple_2008] provides functions for calibrating dates. As a brief example, given an uncalibrated date and its standard deviation, a crude sample of calibrated dates can be drawn from the IntCal20 curve data, available from IntCal [here](https://www.intcal.org/curves/intcal20.14c) [@reimer_intcal20_2020], using the following script:
 
 ``` r
 intcal20 <- read.csv("../path/to/intcal20.14c")
