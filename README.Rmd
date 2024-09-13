@@ -64,7 +64,6 @@ Absolute dates can take any form:
 * Samples from a bespoke density, e.g., from a calibrated radiocarbon date. `eratosthenes` does not provide functionality for calibrating dates, which can be accomplished using preexisting software or directly from a calibration curve. As a brief example, given an uncalibrated date and its standard deviation, a crude sample of calibrated dates can be drawn from the IntCal20 curve data, available from IntCal [here](https://www.intcal.org/curves/intcal20.14c) [@reimer_intcal20_2020], using the following script:
 
 ``` r
-require(Rcpp)
 intcal20 <- read.csv("../path/to/intcal20.14c")
 
 # 14c date mean and st.dev.

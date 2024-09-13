@@ -111,7 +111,6 @@ Absolute dates can take any form:
   et al. 2020), using the following script:
 
 ``` r
-require(Rcpp)
 intcal20 <- read.csv("../path/to/intcal20.14c")
 
 # 14c date mean and st.dev.
