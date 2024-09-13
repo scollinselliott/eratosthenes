@@ -21,13 +21,14 @@ latest bounds. Ancillary functions include checking for discrepancies in
 sequences of events and constraining optimal seriations to known
 sequences.
 
-While software exists for calibrating and conditioning radiocarbon dates upon
-relative constraints, such as [BCal](https://bcal.shef.ac.uk/) (Buck,
-Christen, and James 1999) and
+While software exists for calibrating and conditioning radiocarbon dates
+upon relative constraints, such as [BCal](https://bcal.shef.ac.uk/)
+(Buck, Christen, and James 1999) and
 [OxCal](https://c14.arch.ox.ac.uk/oxcal.html) (Bronk Ramsey 2009), the
 aim of `eratosthenes` is to extend the application of probability theory
-more generally to dating all archaeological phenomena, especially the production dates
-of artifact types. `Rcpp` is required for faster Gibbs sampling.
+more generally to dating all archaeological phenomena, especially the
+production dates of artifact types. `Rcpp` is required for faster Gibbs
+sampling.
 
 The package is named after Eratosthenes of Cyrene, author of the
 *Chronographiai*.
@@ -66,12 +67,12 @@ as packages `seriation`, `vegan`, and `lakhesis` can perform this task
 already.
 
 At the core of `eratosthenes` is a Gibbs sampler, a common Markov Chain
-Monte Carlo (MCMC) techinque (Geman and Geman
-1984,buck_bayesian_1996,lunn_bugs_2013). Estimating marginal densities
-is accomplished by the function `gibbs_ad()`, which will yield samples
-for dates of deposition, production, and any absolute constraints
-themselves (that is, the density of that extrinsic date as impacted by
-all other events in the joint distribution).
+Monte Carlo (MCMC) techinque (Geman and Geman 1984; Buck, Cavanagh, and
+Litton 1996; Lunn et al. 2013). Estimating marginal densities is
+accomplished by the function `gibbs_ad()`, which will yield samples for
+dates of deposition, production, and any absolute constraints themselves
+(that is, the density of that extrinsic date as impacted by all other
+events in the joint distribution).
 
 ### Input
 
@@ -164,6 +165,13 @@ Bronk Ramsey, C. 2009. “Bayesian Analysis of Radiocarbon Dates.”
 
 </div>
 
+<div id="ref-buck_bayesian_1996" class="csl-entry">
+
+Buck, C. E., W. G. Cavanagh, and C. D. Litton. 1996. *Bayesian Approach
+to Interpreting Archaeological Data*. Chichester: John Wiley & Sons.
+
+</div>
+
 <div id="ref-buck_bcal_1999" class="csl-entry">
 
 Buck, C. E., J. A. Christen, and G. N. James. 1999. “BCal: An On-Line
@@ -177,6 +185,14 @@ Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
 Geman, S., and D. Geman. 1984. “Stochastic Relaxation, Gibbs
 Distributions, and the Bayesian Restoration of Images.” *IEEE
 Transactions on Pattern Analysis and Machine Intelligence* 6: 721–41.
+
+</div>
+
+<div id="ref-lunn_bugs_2013" class="csl-entry">
+
+Lunn, D., C. Jackson, N. Best, A. Thomas, and D. Spiegelhalter. 2013.
+*The BUGS Book: A Practical Introduction to Bayesian Analysis*. Boca
+Raton, FL: CRC Press.
 
 </div>
 
