@@ -9,8 +9,20 @@ quae_antea(obj)
 quae_antea(obj)
 }
 \arguments{
-\item{obj}{A \code{list} of \code{vector} objects which reperesent a sequence.}
+\item{obj}{A \code{list} of \code{vector} objects which reperesent ordered sequences.}
+}
+\value{
+A \code{list} of \code{vector} objects, which contain the elements that occur before any one given element in the input sequences.
 }
 \description{
-For a \code{list} of partial sequences (of \code{vector} objects), generate another \code{list} which contains all elements that occur before it ("\emph{quae antea}"), i.e., analogous to a recursive trace through all partial sequences. An element \code{"alpha"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_postea}}.
+For a \code{list} of multple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives the elements that occur before it ("\emph{quae antea}"), i.e., analogous to a recursive trace through all partial sequences from right to left. An element \code{"alpha"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_postea}}.
+}
+\examples{
+x <- c("A", "B", "C")
+y <- c("B", "D", "E", "C", "F")
+z <- c("C", "G")
+a <- list(x, y, z)
+
+quae_antea(a)
+
 }

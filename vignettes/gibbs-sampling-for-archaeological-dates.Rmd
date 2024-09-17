@@ -32,7 +32,7 @@ The core inputs for the `gibbs_ad()` function are the following:
 
 * relative sequence(s) of contexts
 * finds (optional), associated with a context and type/class (also optional)
-* absolute constraints (_termini post/ante quem)
+* absolute constraints (_termini post/ante quem_)
 
 ### Relative Sequences of Contexts
 

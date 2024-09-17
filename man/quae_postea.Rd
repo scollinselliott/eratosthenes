@@ -10,8 +10,20 @@ quae_postea(obj)
 \method{quae_postea}{list}(obj)
 }
 \arguments{
-\item{obj}{A \code{list} of \code{vector} objects which reperesent a sequence.}
+\item{obj}{A \code{list} of \code{vector} objects which reperesent ordered sequences.}
+}
+\value{
+A \code{list} of \code{vector} objects, which contain the elements that occur after any one given element in the input sequences.
 }
 \description{
-For a \code{list} of partial sequences (of \code{vector} objects), generate another \code{list} which contains all elements that occur after it ("\emph{quae postea}"), i.e., analogous to a recursive trace through all partial sequences. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
+For a \code{list} of multple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives the elements that occur after it ("\emph{quae postea}"), i.e., analogous to a recursive trace through all partial sequences from left to right. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
+}
+\examples{
+x <- c("A", "B", "C")
+y <- c("B", "D", "E", "C", "F")
+z <- c("C", "G")
+a <- list(x, y, z)
+
+quae_postea(a)
+
 }

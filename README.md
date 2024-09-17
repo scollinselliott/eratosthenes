@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# <img src="man/figures/logo.png" align="right" width="150px"/> eratosthenes: Tools for Archaeological Synchronism
+# <img src="man/figures/logo.png" align="right" width="150px"/> eratosthenes: Archaeological Synchronism
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -153,7 +153,7 @@ hist(calBC, breaks = 100)
 
 ### Output
 
-Results are given in a `list` object of class `marginals` contianing the
+Results are given in a `list` object of class `marginals` containing the
 following objects:
 
 - `deposition`: a `list` of the marginal densities of the date of the
