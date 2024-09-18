@@ -157,13 +157,18 @@ Results are given in a `list` object of class `marginals` containing the
 following objects:
 
 - `deposition`: a `list` of the marginal densities of the date of the
-  final deposition of contexts and finds.
+  final deposition of contexts.
 - `externals`: a `list` of the the marginal densities of date of any
   *terminus post quem* or *terminus ante quem*, as affected by
   depositional variates in the joint conditional distribution.
 - `production`: a `list` of the marginal densities of the production
   date of a given type or class of artifact, given the rule stipulated
   in the input.
+
+In order to estimate a date of use for any one artifact, one can use the
+`gibbs_ad()` function again, taking the production date of the artifact
+type from the `marginals` object as a *t.p.q.* and its depositional
+context as a *t.a.q.*.
 
 ## Bibliography
 
