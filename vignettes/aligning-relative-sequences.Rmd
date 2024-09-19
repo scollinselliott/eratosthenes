@@ -45,7 +45,7 @@ seq_check(b)
 
 ## Merging Sequences
 
-The `synth_rank()` function will use recursion in order to produce a single, "merged" or "synthesized" sequence from two or more sequences.  This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via the `quae_postea()` function, on which see below). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
+The `synth_rank()` function will use recursion in order to produce a single, "merged" or "synthesized" sequence from two or more sequences.  This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via the `quae_postea()` function, on which see below). If partial sequences are inconsistent in their rankings, a `NULL` value is returned.
 
 ```{r}
 x <- c("A", "B", "C", "D", "H", "E")
@@ -98,7 +98,7 @@ For multiple stratigraphic sequences, the `seq_adj()` function can be re-run, ta
 
 ## All Earlier Events, All Later Events
 
-A core need of the `gibbs_ad()` function is to determine, for each event,  _all_ events which come later and earlier than that event. The functions `quae_postea()` and `quae_antea()` achieve this need for later events and earlier events respectively. Hence, there is no need for determining a single sequence or ordering as an input, which takes the form of a `list` object containing sequences. The output is a `list` indexed with each element, containing the vector of contexts which precede or follow that element.
+A core need of the `gibbs_ad()` function is to determine, for each event,  _all_ events which come later and earlier than that event. The functions `quae_postea()` and `quae_antea()` achieve this need for later events and earlier events respectively. Hence, there is no need to determine only one, single sequence or ordering as an input. Instead, a  `list` object which contains multiple (partial or incomplete) sequences. The output is a `list` indexed with each element, containing the vector of contexts which precede or follow that element.
 
 For `quae_antea()`, a dummy element of `"alpha"` is included in all vectors, and for `quae_postea()`, a dummy element of `"omega"` is included. The elements of `"alpha"` and `"omega"` are necesary as they constitute the fixed lower and upper limits in which estimates are made in `gibbs_ad()`.
 
@@ -110,3 +110,4 @@ quae_postea(a)
 quae_antea(a)
 ```
 
+The function `seq_check()`, which checks to see if sequences contain any discrepant orderings, relies on `quae_postea()`.

@@ -1,6 +1,6 @@
 Package: eratosthenes
 Title: Archaeological Synchronism
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person(c("Stephen", "A."), "Collins-Elliott", , "sce@utk.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5642-6903"))

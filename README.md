@@ -168,7 +168,7 @@ following objects:
 In order to estimate a date of use for any one artifact, one can use the
 `gibbs_ad()` function again, taking the production date of the artifact
 type from the `marginals` object as a *t.p.q.* and its depositional
-context as a *t.a.q.*.
+context as a *t.a.q.*
 
 ## Bibliography
 
