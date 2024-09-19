@@ -67,9 +67,9 @@ Some functions related to relative sequences:
   unrelated deposits and stratigraphic deposits) as determined by the
   presence/absence of find-types, which conflicts with a sequence
   obtained from a stratigraphic sequence whose physical relationships
-  are certain, this function will reorder the optimal seriation
-  accordingly, fitting any single deposits missing from the
-  stratigraphic sequence accordingly.
+  are certain, this function will reorder the optimal seriation, fitting
+  any single deposits missing from the stratigraphic sequence
+  accordingly.
 
 The package `eratosthenes` does not have functionality to produce
 serations, as packages `seriation`, `vegan`, and `lakhesis` can perform
