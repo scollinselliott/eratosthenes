@@ -36,14 +36,14 @@ gibbs_ad(
 
 \item{samples}{Number of samples. Default is \code{10^5}.}
 
-\item{tpq}{A \code{list} containing \emph{termini post quem}. Each object in the list consists of:
+\item{tpq}{A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
 \itemize{
 \item \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
 \item \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated.
 \item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
 }}
 
-\item{taq}{A \code{list} containing \emph{termini ante quem}. Each object in the list consists of:
+\item{taq}{A \code{list} containing \emph{termini ante quos}. Each object in the list consists of:
 \itemize{
 \item \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
 \item \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated.
@@ -67,7 +67,7 @@ A \code{list} object of class \code{marginals} which contains the following:
 }
 }
 \description{
-A Gibbs sampler for archaeological dating, to fit relative sequences to absolute, calendrical dates. Elements can be associated with \emph{termini post quem} (\emph{t.p.q.}) and \emph{termini ante quem} (\emph{t.a.q.}), which are treated as a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radicarbon dates). Inputs of this function take samples drawn from their respective density functions.
+A Gibbs sampler for archaeological dating, to fit relative sequences to absolute, calendrical dates. Elements can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are treated as a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radicarbon dates). Inputs of this function take samples drawn from their respective density functions.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")

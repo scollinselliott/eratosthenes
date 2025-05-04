@@ -12,7 +12,7 @@ all relevant sources of information on uncertain archaeological or
 historical dates. Archaeological dates are often subject to relational
 conditions (via seriation or stratigraphic relationships) and absolute
 constraints (such as radiocarbon dates, datable artifacts, or other
-known historical events, as *termini post* or *ante quem*), which prompt
+known historical events, as *termini post* or *ante quos*), which prompt
 the use of a joint conditional probability density to convey those
 relationships. The date of any one event can then be marginalized from
 that full, joint conditional distribution, which is achieved using a
@@ -54,7 +54,7 @@ The basic objects of interest in `eratosthenes` are:
   also isolated contexts such as may be part of a frequency or
   contextual seriation
 - finds, elements which belong to those events, typically artifacts
-- absolute constraints, as either *termini post* or *ante quem*,
+- absolute constraints, as either *termini post* or *ante quos*,
   expressed as samples from a probability density
 
 Some functions related to relative sequences:
@@ -92,7 +92,7 @@ The function `gibbs_ad()` takes as inputs the following objects:
   which may be assigned a given type.
 - `tpq` and `taq`: Separate `lists` that indicate any elements that
   provide extrinsic (i.e., absolute) chronological information, as
-  *termini post* and *ante quem*.
+  *termini post* and *ante quos*.
 - `alpha` and `omega`: lowest and highest bounds within which to sample.
 - `trim`: whether to remove contexts from the output that are before or
   after user-provided *t.p.q.* and *t.a.q.* (i.e., those which depend on
@@ -130,7 +130,7 @@ intcal20 <- read.csv("../path/to/intcal20.14c")
 mu <- 2040  
 sigma <- 30
 
-# samples of 14c date
+# samples of 14c dates
 uncalib <- round(rnorm(10^5, mu, sigma))
 
 calib <- c()
