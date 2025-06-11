@@ -3,7 +3,31 @@
 
 #' @useDynLib eratosthenes
 #' @importFrom Rcpp sourceCpp
+quae_postea_matrix_cpp <- function(elem, obj) {
+    .Call('_eratosthenes_quae_postea_matrix_cpp', PACKAGE = 'eratosthenes', elem, obj)
+}
+
+#' @useDynLib eratosthenes
+#' @importFrom Rcpp sourceCpp
+quae_antea_matrix_cpp <- function(elem, obj) {
+    .Call('_eratosthenes_quae_antea_matrix_cpp', PACKAGE = 'eratosthenes', elem, obj)
+}
+
+#' @useDynLib eratosthenes
+#' @importFrom Rcpp sourceCpp
 gibbs_ad_cpp <- function(a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx) {
     .Call('_eratosthenes_gibbs_ad_cpp', PACKAGE = 'eratosthenes', a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx)
+}
+
+#' @useDynLib eratosthenes
+#' @importFrom Rcpp sourceCpp
+gibbs_ad_init_cpp <- function(a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx) {
+    .Call('_eratosthenes_gibbs_ad_init_cpp', PACKAGE = 'eratosthenes', a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx)
+}
+
+#' @useDynLib eratosthenes
+#' @importFrom Rcpp sourceCpp
+gibbs_ad_initial_cpp <- function(a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx, subsample) {
+    .Call('_eratosthenes_gibbs_ad_initial_cpp', PACKAGE = 'eratosthenes', a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx, subsample)
 }
 

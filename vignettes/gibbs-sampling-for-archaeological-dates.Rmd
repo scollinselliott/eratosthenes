@@ -130,7 +130,7 @@ The `gibbs_ad()` function at its core uses a Gibbs sampler, drawing from the ful
 First, samples are drawn from any _t.p.q_ and _t.a.q._. Then, for convenience, the Gibbs sampler proceeds in order of a sequence of contexts based on the merged ranking of all contexts (via `synth_rank()`). The sampler will identify all contexts and constraints prior and subsequent to any one context, and then will identify the largest prior date and smallest subsequent date, in between which it will uniformly sample a date. One can adjust the number of samples drawn with the `samples` argument of the function:
 
 ```{r}
-dates <- gibbs_ad(contexts, finds = artifacts, samples = 10^4, tpq = tpq_info, taq = taq_info)
+dates <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 ```
 
 ## Output

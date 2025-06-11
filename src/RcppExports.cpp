@@ -10,6 +10,30 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// quae_postea_matrix_cpp
+Rcpp::IntegerMatrix quae_postea_matrix_cpp(int elem, Rcpp::List obj);
+RcppExport SEXP _eratosthenes_quae_postea_matrix_cpp(SEXP elemSEXP, SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type elem(elemSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(quae_postea_matrix_cpp(elem, obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// quae_antea_matrix_cpp
+Rcpp::IntegerMatrix quae_antea_matrix_cpp(int elem, Rcpp::List obj);
+RcppExport SEXP _eratosthenes_quae_antea_matrix_cpp(SEXP elemSEXP, SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type elem(elemSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(quae_antea_matrix_cpp(elem, obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gibbs_ad_cpp
 Rcpp::NumericMatrix gibbs_ad_cpp(Rcpp::NumericMatrix a, Rcpp::IntegerVector tpq_idx, Rcpp::IntegerMatrix phi, Rcpp::List phiList, Rcpp::IntegerVector taq_idx, Rcpp::IntegerMatrix psi, Rcpp::List psiList, Rcpp::IntegerVector prc_idx);
 RcppExport SEXP _eratosthenes_gibbs_ad_cpp(SEXP aSEXP, SEXP tpq_idxSEXP, SEXP phiSEXP, SEXP phiListSEXP, SEXP taq_idxSEXP, SEXP psiSEXP, SEXP psiListSEXP, SEXP prc_idxSEXP) {
@@ -28,9 +52,50 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gibbs_ad_init_cpp
+Rcpp::NumericMatrix gibbs_ad_init_cpp(Rcpp::NumericMatrix a, Rcpp::IntegerVector tpq_idx, Rcpp::IntegerMatrix phi, Rcpp::List phiList, Rcpp::IntegerVector taq_idx, Rcpp::IntegerMatrix psi, Rcpp::List psiList, Rcpp::IntegerVector prc_idx);
+RcppExport SEXP _eratosthenes_gibbs_ad_init_cpp(SEXP aSEXP, SEXP tpq_idxSEXP, SEXP phiSEXP, SEXP phiListSEXP, SEXP taq_idxSEXP, SEXP psiSEXP, SEXP psiListSEXP, SEXP prc_idxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type a(aSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type tpq_idx(tpq_idxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type phiList(phiListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type taq_idx(taq_idxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type psiList(psiListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type prc_idx(prc_idxSEXP);
+    rcpp_result_gen = Rcpp::wrap(gibbs_ad_init_cpp(a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gibbs_ad_initial_cpp
+Rcpp::NumericVector gibbs_ad_initial_cpp(Rcpp::NumericVector a, Rcpp::IntegerVector tpq_idx, Rcpp::IntegerMatrix phi, Rcpp::List phiList, Rcpp::IntegerVector taq_idx, Rcpp::IntegerMatrix psi, Rcpp::List psiList, Rcpp::IntegerVector prc_idx, int subsample);
+RcppExport SEXP _eratosthenes_gibbs_ad_initial_cpp(SEXP aSEXP, SEXP tpq_idxSEXP, SEXP phiSEXP, SEXP phiListSEXP, SEXP taq_idxSEXP, SEXP psiSEXP, SEXP psiListSEXP, SEXP prc_idxSEXP, SEXP subsampleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type a(aSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type tpq_idx(tpq_idxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type phiList(phiListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type taq_idx(taq_idxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type psiList(psiListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type prc_idx(prc_idxSEXP);
+    Rcpp::traits::input_parameter< int >::type subsample(subsampleSEXP);
+    rcpp_result_gen = Rcpp::wrap(gibbs_ad_initial_cpp(a, tpq_idx, phi, phiList, taq_idx, psi, psiList, prc_idx, subsample));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_eratosthenes_quae_postea_matrix_cpp", (DL_FUNC) &_eratosthenes_quae_postea_matrix_cpp, 2},
+    {"_eratosthenes_quae_antea_matrix_cpp", (DL_FUNC) &_eratosthenes_quae_antea_matrix_cpp, 2},
     {"_eratosthenes_gibbs_ad_cpp", (DL_FUNC) &_eratosthenes_gibbs_ad_cpp, 8},
+    {"_eratosthenes_gibbs_ad_init_cpp", (DL_FUNC) &_eratosthenes_gibbs_ad_init_cpp, 8},
+    {"_eratosthenes_gibbs_ad_initial_cpp", (DL_FUNC) &_eratosthenes_gibbs_ad_initial_cpp, 9},
     {NULL, NULL, 0}
 };
 

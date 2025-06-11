@@ -8,11 +8,13 @@
 gibbs_ad(
   sequences,
   finds = NULL,
-  samples = 10^5,
+  max_samples = 10^5,
+  size = 10^3,
+  mcse_crit = 0.5,
   tpq = NULL,
   taq = NULL,
-  alpha = -5000,
-  omega = 1950,
+  alpha_ = -5000,
+  omega_ = 1950,
   trim = TRUE,
   rule = "naive"
 )
@@ -20,11 +22,13 @@ gibbs_ad(
 \method{gibbs_ad}{list}(
   sequences,
   finds = NULL,
-  samples = 10^5,
+  max_samples = 10^5,
+  size = 10^3,
+  mcse_crit = 0.5,
   tpq = NULL,
   taq = NULL,
-  alpha = -5000,
-  omega = 1950,
+  alpha_ = -5000,
+  omega_ = 1950,
   trim = TRUE,
   rule = "naive"
 )
@@ -32,9 +36,13 @@ gibbs_ad(
 \arguments{
 \item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts).}
 
-\item{finds}{Optional. A \code{list} of finds related to (contained in) the elements of \code{sequences}. If one includes this ob}
+\item{finds}{Optional. A \code{list} of finds related to (contained in) the elements of \code{sequences}.}
 
-\item{samples}{Number of samples. Default is \code{10^5}.}
+\item{max_samples}{Maximum number of samples to run. Default is \code{10^5}.}
+
+\item{size}{The number of samples to take on each iteration of the main Gibbs sampler. Default is \code{10^3}.}
+
+\item{mcse_crit}{Criterion for the Monte Carlo standard error to stop the Gibbs sampler.}
 
 \item{tpq}{A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
 \itemize{
@@ -50,13 +58,13 @@ gibbs_ad(
 \item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
 }}
 
-\item{alpha}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
+\item{alpha_}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
 
-\item{omega}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
+\item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
-\item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be ommitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha} and \code{omega}). Default is \code{TRUE}.}
+\item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be ommitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.}
 
-\item{rule}{The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context,  or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.}
+\item{rule}{The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context, or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.}
 }
 \value{
 A \code{list} object of class \code{marginals} which contains the following:
@@ -64,10 +72,22 @@ A \code{list} object of class \code{marginals} which contains the following:
 \item \code{deposition} A \code{list} of samples from the marginal density of each context's depositional date.
 \item \code{externals} A \code{list} of samples of the marginal density of each constrant (\emph{t.p.q.} and \emph{t.a.q.]}), as conditioned upon the occurrence of other depositional
 \item \code{production} If a \code{finds} object has been input, samples of the marginal density of the production date of finds types will be included in the output.
+\item \code{mcse} The Monte Carlo standard errors (MCSE) of the random variates (fixed t.p./a.q. will have a MCSE of 0.)
 }
 }
 \description{
-A Gibbs sampler for archaeological dating, to fit relative sequences to absolute, calendrical dates. Elements can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are treated as a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radicarbon dates). Inputs of this function take samples drawn from their respective density functions.
+A Gibbs sampler for archaeological dating, to fit relative sequences to absolute, calendrical dates, along with rule-based production dates of artifact types. Relative events can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are entered as samples from a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radicarbon dates). Relative events are modeled on a continuous uniform density between the latest antecedent event and earliest subsequent event.
+}
+\details{
+Gibbs sampling is a coventional method for calibrating and estimating radiocarbon dates in light of absolute constraints and relative sequences: see \insertCite{buck_bayesian_1996,buck_bcal_1999,bronk_ramsey_bayesian_2009;textual}{eratosthenes}, the latter of which uses a mixture of Metropolis-Hastings and Gibbs.
+
+In this implementation, two phases of Gibbs sampling are performed: an initial phase for selecting starting values and then the main sampler, with convergence evaluated using Monte Carlo standard errors (MCSE).
+
+The initial Gibbs sampler results in a vector of starting values randomly sampled for each event up to \eqn{\sqrt{k}} runs, where \eqn{k} is the total number of events. Starting values may therefore take some time to assign, but this inital sampling is necessary to avoid a catastrophic collapse due to floating point errors in the initial selection of random values and will also result in closer starting values with respect to marginal densities.
+
+The main Gibbs sampler uses consistent batch means (CBM) determine convergence and hence when to end the main sampling run: there is no motivation to remove burn-in from the main sampling run nor to run multiple chains. CBM is assured to converge in distribution, see \insertCite{jones_fixed-width_2006,flegal_markov_2008;textual}{eratosthenes}. A stopping point for the main sampler is therefore determined using the mean of the Monte Carlo standard errors (MCSE) across all random variates, which is the input of \code{mcse_crit} (the mean MCSE for all events). The input \code{max_samples} indicates the maximum number of simulations to run, but the sampler will stop if the specified criterion of \code{mcse_crit} is passed. The default mean MCSE is set at \code{msce_crit = 0.5}, as the MCSE is measured in years (i.e. to allow for an error +/- 1 year), but, to be sure, individual events will have higher or lower MCSE than this mean criterion, whose primary purpose is as a stopping rule. Depending on the conditional structure of the relative sequences and the timescale of investigation, higher or lower MCSE may be more desireable or acceptable.
+
+For the use dates of artifact types, see the \code{\link[eratosthenes]{use_dates}} function.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -85,12 +105,17 @@ f6 <- list(id = "find06", assoc = "H", type = NULL)
 artifacts <- list(f1, f2, f3, f4, f5, f6)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = runif(100,37,41))
+coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300)))
+coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+  # seq(37, 41, length = 100) is equivalent in concept to runif(100, 37, 41)) 
 destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
 
 tpq_info <- list(coin1, coin2)
 taq_info <- list(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, samples = 10^4, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+
+}
+\references{
+\insertAllCited{}
 }
