@@ -7,8 +7,10 @@ Authors@R:
 Description: Estimates unknown historical or archaeological dates subject to relationships with other dates and absolute constraints, derived as marginal densities from the full joint conditional distribution. Includes rule-based estimation of the production dates of artifact types. Collins-Elliott (2024) <https://volweb.utk.edu/~scolli46/sceGUTChronology.pdf>.
 License: GPL (>= 3)
 Imports:
+    stats,
     Rcpp,
-    Rdpack
+    Rdpack,
+    ggplot2
 RdMacros: Rdpack
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
