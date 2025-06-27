@@ -335,6 +335,9 @@ gibbs_ad_use(result, artifacts, id = c("find04", "find05"))
 gibbs_ad_use(result, artifacts, type = "type1")
 ```
 
+Adjusting the values of `max_samples` and `mcse_crit` is recommended to
+reduce computational time.
+
 The result is an object of the class `use_marginals`, which contains
 information on the density of the date of use as well as the MCSE of the
 type specified, in the same fashion as the result of the `gibbs_ad()`

@@ -103,7 +103,7 @@ taq_info <- list(destr)
 
 result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 
-result_msd <- msd(result, contexts, finds = artifacts,
-                  mcse_crit = 1, tpq = tpq_info, taq = taq_info)
+result_msd <- msd(result, contexts, finds = artifacts, max_samples = 5000,
+                  mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
 }

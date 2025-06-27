@@ -3,7 +3,7 @@
 \name{gibbs_ad_use}
 \alias{gibbs_ad_use}
 \alias{gibbs_ad_use.marginals}
-\title{Gibbs Sampling for Archaeological Dates: Artifact Use}
+\title{Gibbs Sampler for Archaeological Dates: Artifact Use}
 \usage{
 gibbs_ad_use(
   marginalized,
@@ -81,9 +81,9 @@ taq_info <- list(destr)
 result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 
 # use dates by specifying ids
-gibbs_ad_use(result, artifacts, id = c("find04", "find05"))
+gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 5000, mcse_crit = 2)
 
 # use dates by specifying types
-gibbs_ad_use(result, artifacts, type = "type1")
+gibbs_ad_use(result, artifacts, type = "type1", max_samples = 5000, mcse_crit = 2)
 
 }

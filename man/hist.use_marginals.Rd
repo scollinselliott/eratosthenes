@@ -5,7 +5,7 @@
 \title{Histogram of Marginal Densities (Artifact Type Production, Use, and Deposition)}
 \usage{
 \method{hist}{use_marginals}(
-  marginalized,
+  x,
   aspect = c("production", "use", "deposition"),
   display_name = "Type",
   breaks = "Freedman-Diaconis",
@@ -18,7 +18,7 @@
 )
 }
 \arguments{
-\item{marginalized}{A \code{list} object of class \code{use_marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
+\item{x}{A \code{list} object of class \code{use_marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
 
 \item{aspect}{A vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.}
 

@@ -677,7 +677,7 @@ gibbs_ad.list <- function(sequences, finds = NULL, max_samples = 10^5, size = 10
 
 
 
-#' Gibbs Sampling for Archaeological Dates: Artifact Use
+#' Gibbs Sampler for Archaeological Dates: Artifact Use
 #'
 #' Using the results of \code{\link[eratosthenes]{gibbs_ad}}, estimate a single density for the date of use of an artifact or artifact type. Multiple artifacts and types can be given, which will be pooled into a single type. For example, one can input several individual finds via their id number as comprising a type, or multiple (sub)types/classes as a single type, (e.g., "MGS V amphora", "MGS VI amphora", "MGS V/VI amphora" to construct one group).
 #' 
@@ -720,10 +720,10 @@ gibbs_ad.list <- function(sequences, finds = NULL, max_samples = 10^5, size = 10
 #' result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 #' 
 #' # use dates by specifying ids
-#' gibbs_ad_use(result, artifacts, id = c("find04", "find05"))
+#' gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 5000, mcse_crit = 2)
 #'
 #' # use dates by specifying types
-#' gibbs_ad_use(result, artifacts, type = "type1")
+#' gibbs_ad_use(result, artifacts, type = "type1", max_samples = 5000, mcse_crit = 2)
 #' 
 #' @returns A \code{list} of class \code{use_marginals} of the density of a use date, conditional upon production and depositional dates.
 #' 
@@ -1074,7 +1074,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' 
 #' Also see also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
-#' @param marginalized A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
+#' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
 #' @param events A vector or element of the event names to plot. Maximum number of events is 12.
 #' @param breaks The number or method of breaks in the histogram. Default is \code{"Freedman-Diaconis"}. See \code{\link[graphics]{hist}} for more.
 #' @param xlim The limits of the x-axis. Default is set to the min/max values of all samples.
@@ -1125,9 +1125,9 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @returns A density histogram of the selected events.
 #' 
 #' @export
-hist.marginals <- function(marginalized, events = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
+hist.marginals <- function(x, events = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
     if (is.vector(events)) {
-        master <- tidy_marginals(marginalized)
+        master <- tidy_marginals(x)
     } else {
         stop('Events must be a single element or vector.')
     }
@@ -1167,7 +1167,7 @@ hist.marginals <- function(marginalized, events = NULL, breaks = "Freedman-Diaco
 #' 
 #' See \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
-#' @param marginalized A \code{list} object of class \code{use_marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
+#' @param x A \code{list} object of class \code{use_marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
 #' @param aspect A vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.
 #' @param display_name The name of the artifact type to display in the histogram legend. Default is \code{"Type"}.
 #' @param breaks The number or method of breaks in the histogram. Default is \code{"Freedman-Diaconis"}. See \code{\link[graphics]{hist}} for more.
@@ -1209,7 +1209,7 @@ hist.marginals <- function(marginalized, events = NULL, breaks = "Freedman-Diaco
 #' @returns A density histogram of the selected aspects of production, use, and deposition.
 #' 
 #' @export
-hist.use_marginals <- function(marginalized, aspect = c("production", "use", "deposition"), display_name = "Type", breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright") {
+hist.use_marginals <- function(x, aspect = c("production", "use", "deposition"), display_name = "Type", breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright") {
 
     if ((!("production" %in% aspect) | !("use" %in% aspect) ) | !("deposition" %in% aspect))  {
         stop("At least one or more event types (production, use, deposition) must be selected.")
@@ -1221,9 +1221,9 @@ hist.use_marginals <- function(marginalized, aspect = c("production", "use", "de
 
     dat <- c(year = c(), aspect = c())
 
-    dep_samples <- marginalized$use$deposition_date
-    prd_samples <- marginalized$use$production_date
-    use_samples <- marginalized$use$use_date
+    dep_samples <- x$use$deposition_date
+    prd_samples <- x$use$production_date
+    use_samples <- x$use$use_date
 
 
     if ("production" %in% aspect) {
@@ -1543,8 +1543,8 @@ ids_of_types.list <- function(input, type = NULL) {
 #' 
 #' result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 #' 
-#' result_msd <- msd(result, contexts, finds = artifacts,
-#'                   mcse_crit = 1, tpq = tpq_info, taq = taq_info)
+#' result_msd <- msd(result, contexts, finds = artifacts, max_samples = 5000,
+#'                   mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 #'
 #' @returns Output is a list containing a data frame \code{MSD_stats} giving the mean MC date, the MCSE, the MSD, the variance of the squared displacements (not the standard error), and sample size, as well as a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 #' 
@@ -1765,11 +1765,11 @@ print.msd_data <- function(x, ...) {
 #' 
 #' # squared displacement for depositional context "E"
 #' E_sqdisp <- sq_disp(result, target = "E", sequences = contexts, 
-#'                     max_samples = 20000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+#'                     max_samples = 5000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 #'
 #' # squared displacement for production of artifact type "type1"
 #' type1_sqdisp <- sq_disp(result, target = "type1", sequences = contexts, finds = artifacts,
-#'                         max_samples = 20000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+#'                         max_samples = 5000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 #'
 #' @returns Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 #' 

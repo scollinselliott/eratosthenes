@@ -5,7 +5,7 @@
 \title{Histogram of Marginal Densities}
 \usage{
 \method{hist}{marginals}(
-  marginalized,
+  x,
   events = NULL,
   breaks = "Freedman-Diaconis",
   xlim = NULL,
@@ -17,7 +17,7 @@
 )
 }
 \arguments{
-\item{marginalized}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
+\item{x}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
 
 \item{events}{A vector or element of the event names to plot. Maximum number of events is 12.}
 
