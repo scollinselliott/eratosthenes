@@ -3,6 +3,18 @@
 
 #' @useDynLib eratosthenes
 #' @importFrom Rcpp sourceCpp
+gibbs_ad_use_cpp <- function(marginal, tpq_list, taq_list) {
+    .Call('_eratosthenes_gibbs_ad_use_cpp', PACKAGE = 'eratosthenes', marginal, tpq_list, taq_list)
+}
+
+#' @useDynLib eratosthenes
+#' @importFrom Rcpp sourceCpp
+gibbs_ad_use_init_cpp <- function(tpq_list, taq_list, n_samples) {
+    .Call('_eratosthenes_gibbs_ad_use_init_cpp', PACKAGE = 'eratosthenes', tpq_list, taq_list, n_samples)
+}
+
+#' @useDynLib eratosthenes
+#' @importFrom Rcpp sourceCpp
 quae_postea_matrix_cpp <- function(elem, obj) {
     .Call('_eratosthenes_quae_postea_matrix_cpp', PACKAGE = 'eratosthenes', elem, obj)
 }

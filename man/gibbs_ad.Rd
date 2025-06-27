@@ -3,7 +3,7 @@
 \name{gibbs_ad}
 \alias{gibbs_ad}
 \alias{gibbs_ad.list}
-\title{Gibbs Sampler for Archaeological Dating}
+\title{Gibbs Sampler for Archaeological Dates}
 \usage{
 gibbs_ad(
   sequences,
@@ -42,7 +42,7 @@ gibbs_ad(
 
 \item{size}{The number of samples to take on each iteration of the main Gibbs sampler. Default is \code{10^3}.}
 
-\item{mcse_crit}{Criterion for the Monte Carlo standard error to stop the Gibbs sampler.}
+\item{mcse_crit}{Criterion for the Monte Carlo standard error to stop the Gibbs sampler, as based on depositional dates and absolute constraints. The number of Monte Carlo samples for production dates is identical to that depositional dates.}
 
 \item{tpq}{A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
 \itemize{
@@ -62,7 +62,7 @@ gibbs_ad(
 
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
-\item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be ommitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.}
+\item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.}
 
 \item{rule}{The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context, or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.}
 }
@@ -70,24 +70,26 @@ gibbs_ad(
 A \code{list} object of class \code{marginals} which contains the following:
 \itemize{
 \item \code{deposition} A \code{list} of samples from the marginal density of each context's depositional date.
-\item \code{externals} A \code{list} of samples of the marginal density of each constrant (\emph{t.p.q.} and \emph{t.a.q.]}), as conditioned upon the occurrence of other depositional
-\item \code{production} If a \code{finds} object has been input, samples of the marginal density of the production date of finds types will be included in the output.
+\item \code{externals} A \code{list} of samples of the marginal density of each constraint (\emph{t.p.q.} and \emph{t.a.q.]}), as conditioned upon the occurrence of other depositional
+\item \code{production} If a \code{finds} object has been input, samples of the marginal density of the production date of finds types will be included in the output. If types are attested in trimmed contexts,
 \item \code{mcse} The Monte Carlo standard errors (MCSE) of the random variates (fixed t.p./a.q. will have a MCSE of 0.)
 }
 }
 \description{
-A Gibbs sampler for archaeological dating, to fit relative sequences to absolute, calendrical dates, along with rule-based production dates of artifact types. Relative events can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are entered as samples from a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radicarbon dates). Relative events are modeled on a continuous uniform density between the latest antecedent event and earliest subsequent event.
+A Gibbs sampler for dating archaeological events, to fit relative sequences to absolute, calendrical dates, along with rule-based production dates of artifact types. Relative events can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are entered as samples from a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radiocarbon dates). Relative events are modeled on a continuous uniform density between the latest antecedent event and earliest subsequent event.
 }
 \details{
-Gibbs sampling is a coventional method for calibrating and estimating radiocarbon dates in light of absolute constraints and relative sequences: see \insertCite{buck_bayesian_1996,buck_bcal_1999,bronk_ramsey_bayesian_2009;textual}{eratosthenes}, the latter of which uses a mixture of Metropolis-Hastings and Gibbs.
+Gibbs sampling is a conventional method for calibrating and estimating radiocarbon dates in light of absolute constraints and relative sequences: see \insertCite{buck_bayesian_1996,buck_bcal_1999,bronk_ramsey_bayesian_2009;textual}{eratosthenes}, the latter of which uses a mixture of Metropolis-Hastings and Gibbs.
 
 In this implementation, two phases of Gibbs sampling are performed: an initial phase for selecting starting values and then the main sampler, with convergence evaluated using Monte Carlo standard errors (MCSE).
 
-The initial Gibbs sampler results in a vector of starting values randomly sampled for each event up to \eqn{\sqrt{k}} runs, where \eqn{k} is the total number of events. Starting values may therefore take some time to assign, but this inital sampling is necessary to avoid a catastrophic collapse due to floating point errors in the initial selection of random values and will also result in closer starting values with respect to marginal densities.
+The initial Gibbs sampler results in a vector of starting values randomly sampled for each event up to \eqn{\sqrt{k}} runs, where \eqn{k} is the total number of events. Starting values may therefore take some time to assign, but this initial sampling is necessary to avoid a catastrophic collapse due to floating point errors in the initial selection of random values and will also result in closer starting values with respect to marginal densities.
 
-The main Gibbs sampler uses consistent batch means (CBM) determine convergence and hence when to end the main sampling run: there is no motivation to remove burn-in from the main sampling run nor to run multiple chains. CBM is assured to converge in distribution, see \insertCite{jones_fixed-width_2006,flegal_markov_2008;textual}{eratosthenes}. A stopping point for the main sampler is therefore determined using the mean of the Monte Carlo standard errors (MCSE) across all random variates, which is the input of \code{mcse_crit} (the mean MCSE for all events). The input \code{max_samples} indicates the maximum number of simulations to run, but the sampler will stop if the specified criterion of \code{mcse_crit} is passed. The default mean MCSE is set at \code{msce_crit = 0.5}, as the MCSE is measured in years (i.e. to allow for an error +/- 1 year), but, to be sure, individual events will have higher or lower MCSE than this mean criterion, whose primary purpose is as a stopping rule. Depending on the conditional structure of the relative sequences and the timescale of investigation, higher or lower MCSE may be more desireable or acceptable.
+The main Gibbs sampler uses consistent batch means (CBM) determine convergence and hence when to end the main sampling run: there is no motivation to remove burn-in from the main sampling run nor to run multiple chains. CBM is assured to converge in distribution, see \insertCite{jones_fixed-width_2006,flegal_markov_2008;textual}{eratosthenes}. A stopping point for the main sampler is therefore determined using the mean of the Monte Carlo standard errors (MCSE) across all random variates, which is the input of \code{mcse_crit} (the mean MCSE for all events). The input \code{max_samples} indicates the maximum number of simulations to run, but the sampler will stop if the specified criterion of \code{mcse_crit} is passed. The default mean MCSE is set at \code{mcse_crit = 0.5}, as the MCSE is measured in years (i.e. to allow for an error +/- 1 year), but, to be sure, individual events will have higher or lower MCSE than this mean criterion, whose primary purpose is as a stopping rule.
 
-For the use dates of artifact types, see the \code{\link[eratosthenes]{use_dates}} function.
+Note that the MCSE criterion is applied as a stopping rule for depositional dates and external constraints. The number of Monte Carlo samples for production dates of types is chosen to be identical to that need to pass \code{mcse_crit}, such that ultimately the final mean MCSE of all variates may differ from that of the criterion. Depending on the conditional structure of the relative sequences and the timescale of investigation, higher or lower MCSE may be more desirable or acceptable.
+
+For the use dates of artifact type production, use, and deposition, see the \code{\link[eratosthenes]{gibbs_ad_use}} function.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -105,7 +107,7 @@ f6 <- list(id = "find06", assoc = "H", type = NULL)
 artifacts <- list(f1, f2, f3, f4, f5, f6)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300)))
+coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
 coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
   # seq(37, 41, length = 100) is equivalent in concept to runif(100, 37, 41)) 
 destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)

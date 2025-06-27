@@ -16,7 +16,7 @@ finds_l2d(input)
 A three-column data frame of contexts (first column) and find-types attested in that context (second column), along with the id number (third column).
 }
 \description{
-Performs the opposite of \code{\link[eratosthenes]{finds_d2l}}. Takes a \code{list} object of finds and their types, used as input in \code{\link[eratosthenes]{gibbs_ad}]}, and returns a \code{data.frame} of two columns, containing the context in the first and the find-type in the second, and the \code{id} of the object in the third.
+Performs the opposite of \code{\link[eratosthenes]{finds_d2l}}. Takes a \code{list} object of finds and their types, used as input in \code{\link[eratosthenes]{gibbs_ad}}, and returns a \code{data.frame} of two columns, containing the context in the first and the find-type in the second, and the \code{id} of the object in the third.
 }
 \examples{
 f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))

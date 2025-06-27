@@ -16,7 +16,7 @@ quae_postea(obj)
 A \code{list} of \code{vector} objects, which contain the elements that occur after any one given element in the input sequences.
 }
 \description{
-For a \code{list} of multple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives all elements that occur after it ("\emph{quae postea}"). This is analogous to a recursive trace through all partial sequences from left to right. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
+For a \code{list} of multiple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives all elements that occur after it ("\emph{quae postea}"). This is analogous to a recursive trace through all partial sequences from left to right. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
 }
 \examples{
 x <- c("A", "B", "C")

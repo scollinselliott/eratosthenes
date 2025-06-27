@@ -1,16 +1,18 @@
 Package: eratosthenes
 Title: Archaeological Synchronism
-Version: 0.0.3
+Version: 0.0.9
 Authors@R: 
     person(c("Stephen", "A."), "Collins-Elliott", , "sce@utk.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5642-6903"))
-Description: Estimates unknown historical or archaeological dates subject to relationships with other dates and absolute constraints, derived as marginal densities from the full joint conditional distribution. Includes rule-based estimation of the production dates of artifact types. Collins-Elliott (2024) <https://volweb.utk.edu/~scolli46/sceGUTChronology.pdf>.
+Description: Estimation of unknown historical or archaeological dates subject to relationships with other relative dates and absolute constraints, derived as marginal densities from the full joint conditional, using a two-stage Gibbs sampler with consistent batch means (CBM) to assess convergence. Features reporting on Monte Carlo standard errors, as well as tools for rule-based estimation of dates of production and use of artifact types, aligning and checking relative sequences, and evaluating the impact of the omission of relative/absolute events upon one another. Collins-Elliott (2024) <https://volweb.utk.edu/~scolli46/sceGUTChronology.pdf>.
 License: GPL (>= 3)
 Imports:
     stats,
+    graphics,
+    grDevices,
     Rcpp,
     Rdpack,
-    ggplot2
+    paletteer
 RdMacros: Rdpack
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -10,7 +10,7 @@ synth_rank(obj, ties = "average")
 \method{synth_rank}{list}(obj, ties = "average")
 }
 \arguments{
-\item{obj}{A \code{list} of \code{vector} objects which reperesent a sequence.}
+\item{obj}{A \code{list} of \code{vector} objects which represent a sequence.}
 
 \item{ties}{The way in which ties are handled per the \code{\link{rank}} function. The default is \code{"ties = average"}.}
 }

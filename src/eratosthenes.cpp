@@ -1,6 +1,94 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+//' @useDynLib eratosthenes
+//' @importFrom Rcpp sourceCpp
+// [[Rcpp::export]]
+NumericVector gibbs_ad_use_cpp(Rcpp::NumericMatrix marginal, Rcpp::List tpq_list, Rcpp::List taq_list) {
+
+    //block 1 - tpq, block 2 - taq, block3 - use
+    Rcpp::NumericMatrix prd ( tpq_list.length(), marginal.ncol()  );
+    Rcpp::NumericMatrix dep ( tpq_list.length(), marginal.ncol()  );
+    Rcpp::NumericMatrix use ( tpq_list.length(), marginal.ncol()  );
+
+    for (int i = 0; i < tpq_list.length(); i++) {
+        prd(i, 0) = marginal(i , 0);
+        dep(i, 0) = marginal(i + tpq_list.length() , 0);
+        use(i, 0) = marginal(i + 2 * tpq_list.length() , 0);
+    }
+
+    for (int k = 1; k < marginal.ncol(); k++) {
+        for (int i = 0; i < tpq_list.length(); i++) {
+            Rcpp::NumericVector tpq0_ = Rcpp::as<NumericVector>(tpq_list[i]);
+            Rcpp::NumericVector tpq1_ = tpq0_[tpq0_ < use(i ,k-1)];
+            double L = Rcpp::sample(tpq1_, 1).at(0);
+            prd(i, k) = L;
+            Rcpp::NumericVector taq0_ = Rcpp::as<NumericVector>(taq_list[i]);
+            Rcpp::NumericVector taq1_ = taq0_[taq0_ > use(i ,k-1)];
+            double U = Rcpp::sample(taq1_, 1).at(0);
+            dep(i, k) = U;
+            Rcpp::NumericVector s = Rcpp::runif(1, L, U);
+            use(i, k) = s[0];
+        }
+    }
+
+    for (int i = 0; i < tpq_list.length(); i++) {
+        marginal(i , _) = prd(i , _);
+        marginal(i + tpq_list.length() , _) = dep(i , _);
+        marginal(i + 2 * tpq_list.length() , _) = use(i, _);
+    }
+
+    return marginal;
+}
+
+
+
+//' @useDynLib eratosthenes
+//' @importFrom Rcpp sourceCpp
+// [[Rcpp::export]]
+NumericVector gibbs_ad_use_init_cpp(Rcpp::List tpq_list, Rcpp::List taq_list, int n_samples) {
+    Rcpp::NumericMatrix marginal ( tpq_list.length()*3, n_samples  );
+
+    //block 1 - tpq, block 2 - taq, block3 - use
+    Rcpp::NumericMatrix prd ( tpq_list.length(), n_samples  );
+    Rcpp::NumericMatrix dep ( tpq_list.length(), n_samples  );
+    Rcpp::NumericMatrix use ( tpq_list.length(), n_samples  );
+
+    for (int i = 0; i < tpq_list.length(); i++) {
+        Rcpp::NumericVector tpq0_ = Rcpp::as<NumericVector>(tpq_list[i]);
+        double L = min(tpq0_);
+        prd(i, 0) = L;
+        Rcpp::NumericVector taq0_ = Rcpp::as<NumericVector>(taq_list[i]);
+        double U = max(taq0_);
+        dep(i, 0) = U;
+        Rcpp::NumericVector s = Rcpp::runif(1, L, U);
+        use(i, 0) = s[0];
+    }
+    for (int k = 1; k < n_samples; k++) {
+        for (int i = 0; i < tpq_list.length(); i++) {
+            Rcpp::NumericVector tpq0_ = Rcpp::as<NumericVector>(tpq_list[i]);
+            Rcpp::NumericVector tpq1_ = tpq0_[tpq0_ < use(i ,k-1)];
+            double L = Rcpp::sample(tpq1_, 1).at(0);
+            prd(i, k) = L;
+            Rcpp::NumericVector taq0_ = Rcpp::as<NumericVector>(taq_list[i]);
+            Rcpp::NumericVector taq1_ = taq0_[taq0_ > use(i ,k-1)];
+            double U = Rcpp::sample(taq1_, 1).at(0);
+            dep(i, k) = U;
+            Rcpp::NumericVector s = Rcpp::runif(1, L, U);
+            use(i, k) = s[0];
+        }
+    }
+
+    for (int i = 0; i < tpq_list.length(); i++) {
+        marginal(i , _) = prd(i , _);
+        marginal(i + tpq_list.length() , _) = dep(i , _);
+        marginal(i + 2 * tpq_list.length() , _) = use(i, _);
+    }
+
+    return marginal;
+}
+
+
 
 //' @useDynLib eratosthenes
 //' @importFrom Rcpp sourceCpp
@@ -223,8 +311,6 @@ for (int m = 1; m < a.ncol(); m++) {
         }
         double U = Rcpp::min(post);
 
-
-
         int alength = 0;
         for(int ii = 0; ii < psi.ncol(); ii++) {
             if (psi( idx , ii ) == 1 ) {
@@ -257,7 +343,6 @@ for (int m = 1; m < a.ncol(); m++) {
 
 return a;
 }
-
 
 
 
@@ -395,10 +480,7 @@ for (int m = 1; m < a.ncol(); m++) {
 
 return a;
 }
-
     
-
-
 
 
 //' @useDynLib eratosthenes

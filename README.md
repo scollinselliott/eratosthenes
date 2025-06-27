@@ -32,7 +32,12 @@ production dates of artifact types. The method of sampling employed in
 performing iterative routines of Gibbs sampling to determine the initial
 value for the main sampler, which uses consistent batch means (CBM) and
 Monte Carlo standard errors (MCSE) to determine convergence (Flegal,
-Haran, and Jones 2008). `Rcpp` is required for faster Gibbs sampling.
+Haran, and Jones 2008). Furthermore, `eratosthenes` provides tools for
+analyzing the impact of events on each other with the conditional
+structure stipulated by the investigator, by implementing a
+jackknife-style estimator of squared displacement (how much the date of
+one event shifts when another is omitted, squared). `Rcpp` is required
+for faster Gibbs sampling.
 
 The package is named after Eratosthenes of Cyrene, author of the
 *Chronographiai*.
@@ -78,7 +83,8 @@ z <- c("F", "K", "L", "M")
 contexts <- list(x, y, z)
 ```
 
-See also the section “Evaluating Sequences” below.
+See also the section [Evaluating Sequences](#evaluating-sequences)
+below.
 
 ### Finds
 
@@ -182,7 +188,8 @@ method is as follows:
 - Relative events are put into a single sequence for the purpose of
   sampling.
 - To select the initial date for each relative event, a sample is drawn
-  between its upper and lower constraints (absolute and relative).
+  uniformly at random between its upper and lower constraints (absolute
+  and relative).
   - For each initial date, a subroutine of Gibbs sampling is performed
     in order to avoid catastrophic collapse of dates due to floating
     point errors (e.g., if one has a high number of events compressed
@@ -210,8 +217,12 @@ There are two functions in `eratosthenes` for estimating dates:
   dates of deposition, production, and any absolute constraints
   themselves (that is, the density of that extrinsic date as impacted by
   all other events in the joint distribution).
-- `use_dates()` is the secondary function, for estimating the date of
+- `gibbs_ad_use()` is the secondary function, for estimating the date of
   use of a find given its production and depositional date.
+
+See the section [Evaluating Displacement](#evaluating-displacement)
+below for tools on assessing the effective influence of events upon each
+other within the joint conditional density.
 
 ### Dates of Production and Deposition
 
@@ -294,7 +305,7 @@ to evaluate them as a single type (e.g., pooling the labels of “Late
 Greco-Italic amphora”, “MGS V amphora”, “MGS VI amphora” into a single
 type).
 
-The `use_dates()` function, takes the following inputs, similar to
+The `gibbs_ad_use()` function, takes the following inputs, similar to
 `gibbs_ad()`, but with a field for either `id` or `type` (only one or
 the other field must be used):
 
@@ -318,16 +329,25 @@ following types is computed using the `use_dates()` function as follows:
 
 ``` r
 # use dates by specifying ids
-use_dates(result, artifacts, id = c("find04", "find05"))
+gibbs_ad_use(result, artifacts, id = c("find04", "find05"))
 
 # use dates by speciifying types
-use_dates(result, artifacts, type = "type1")
+gibbs_ad_use(result, artifacts, type = "type1")
 ```
 
 The result is an object of the class `use_marginals`, which contains
 information on the density of the date of use as well as the MCSE of the
 type specified, in the same fashion as the result of the `gibbs_ad()`
 function.
+
+## Graphics
+
+Base R graphics are provided by `eratosthenes` to examine traceplots of
+the results of `gibbs_ad()`, as well as produce density histograms of
+the results of `gibbs_ad()` and `gibbs_ad_use()`. For `gibbs_ad()`,
+histograms may contain up to 12 distinct events. For `gibbs_ad_use()`,
+the production, use, and deposition of the stipulated artifact type are
+shown.
 
 ## Evaluating Sequences
 
@@ -357,6 +377,71 @@ The package `eratosthenes` does not have functionality to produce
 seriations or ordinations, as packages `seriation`, `vegan`, and
 `lakhesis` can perform this task already.
 
+## Evaluating Displacement
+
+As real-world joint condition densities will comprise hundreds of events
+or more, it is easy for an investigator to loose track of which
+relative/absolute events are determinative or influential upon others,
+in terms of the estimation of their date. `eratosthenes` assess such
+influence within the conditional structure via the estimation of
+“displacement.” That is, given the omission of an event $j$ (either a
+depositional event or an absolute constraint) from the set of all
+events, how much does the estimation of the date of another event
+change?
+
+The squared displacement $\delta^2(i,j)$ of a target event $i$ caused by
+the omission of $j$ is computed as follows. Let $x_i$ be the estimated
+marginalized Monte Carlo mean date using all events within the full
+joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the “jackknife”
+estimated date, when event $j$ has been omitted from all sequences and
+absolute constraints. Squared displacement of $j$ upon $i$ is then:
+\begin{equation\*} ^2(i,j) = (\_i^{(-j)} - x_i)^2 \end{equation} If
+squared displacement is high, then the omission of $j$ has greatly
+shifted the date of $i$. If squared displacement is low, then the
+omission of $j$ has not altered the date of $i$ much. Squared
+displacement is measured in continuous time, whichever scale the
+investigator is using (typically years).
+
+Conversely, one can estimate the effective influence of an event $j$
+upon all others by taking the mean squared displacement (MSD). This
+involves taking the mean of the squared displacements of all others
+events when $j$ is omitted. Where $\Theta$ represents the set of all
+relative and absolute events, the MSD is defined as \begin{equation\*} =
+\_{i , i j} ^2 (i,j) \end{equation}
+
+The squared displacement and MSD are computed in `eratosthenes` after
+running the `gibbs_ad()` function, as follows. Note that squared
+displacement may be computed for any event $i$ that represents a
+relative or absolute constraint, as well as an artifact production date,
+while $j$ can only be a relative event or absolute constraint (it would
+make no sense to omit an artifact production date, since these are
+conditional upon relaive/absolute dates to begin with). Similarly, MSD
+can only be computed for relative/absolute events.
+
+Objects in the example below are provided from the section
+[Usage](#usage) above. As these routines are fairly intensive,
+computational time can be reduced by lowering the values of
+`max_samples` and/or raising `mcse_crit`.
+
+``` r
+# run gibbs_ad() first
+result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+
+# squared displacement is estimated for a target event ("j" above) and all other events
+
+# squared displacement for depositional context "E"
+sq_disp(result, target = "E", sequences = contexts, 
+        max_samples = 20000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+
+# squared displacement for production of artifact type "type1"
+sq_disp(result, target = "type1", sequences = contexts, finds = artifacts,
+        max_samples = 20000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+        
+# mean squared displacement (MSD) is estimated for all relative and absolute dates
+result_msd <- msd(result, contexts, finds = artifacts,
+                  mcse_crit = 1, tpq = tpq_info, taq = taq_info)
+```
+
 ## Bibliography
 
 <div id="refs" class="references csl-bib-body hanging-indent">
@@ -371,7 +456,7 @@ Bronk Ramsey, C. 2009. “Bayesian Analysis of Radiocarbon Dates.”
 <div id="ref-buck_bayesian_1996" class="csl-entry">
 
 Buck, C. E., W. G. Cavanagh, and C. D. Litton. 1996. *Bayesian Approach
-to Interpreting Archaeological Data*. Chichester: John Wiley & Sons.
+to Interpreting Archaeological Data*. Chichester: John Wiley; Sons.
 
 </div>
 
