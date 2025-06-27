@@ -397,7 +397,7 @@ estimated date, when event $j$ has been omitted from all sequences and
 absolute constraints. Squared displacement of $j$ upon $i$ is then:
 
 $$
-$\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
+\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
 $$
 
 If squared displacement is high, then the omission of $j$ has greatly
