@@ -81,9 +81,9 @@ taq_info <- list(destr)
 result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 
 # use dates by specifying ids
-gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 5000, mcse_crit = 2)
+gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 2000, mcse_crit = 2)
 
 # use dates by specifying types
-gibbs_ad_use(result, artifacts, type = "type1", max_samples = 5000, mcse_crit = 2)
+gibbs_ad_use(result, artifacts, type = "type1", max_samples = 2000, mcse_crit = 2)
 
 }

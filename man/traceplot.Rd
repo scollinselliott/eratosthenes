@@ -56,7 +56,7 @@ traceplot(
 A traceplot of the Gibbs samples of the selected events.
 }
 \description{
-Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{hist.marginals}} for plotting a density histogram of events.
+Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}} for plotting a density histogram of events.
 }
 \details{
 Also see \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.

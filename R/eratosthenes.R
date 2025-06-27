@@ -720,10 +720,10 @@ gibbs_ad.list <- function(sequences, finds = NULL, max_samples = 10^5, size = 10
 #' result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 #' 
 #' # use dates by specifying ids
-#' gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 5000, mcse_crit = 2)
+#' gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 2000, mcse_crit = 2)
 #'
 #' # use dates by specifying types
-#' gibbs_ad_use(result, artifacts, type = "type1", max_samples = 5000, mcse_crit = 2)
+#' gibbs_ad_use(result, artifacts, type = "type1", max_samples = 2000, mcse_crit = 2)
 #' 
 #' @returns A \code{list} of class \code{use_marginals} of the density of a use date, conditional upon production and depositional dates.
 #' 
@@ -977,7 +977,7 @@ summary.use_marginals <- function(object, digits = 2, ...) {
 
 #' Traceplot of Gibbs Samples
 #' 
-#' Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{hist.marginals}} for plotting a density histogram of events.
+#' Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}} for plotting a density histogram of events.
 #' 
 #' Also see \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
@@ -1070,12 +1070,14 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 
 #' Histogram of Marginal Densities
 #' 
-#' Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{hist.use_marginals}} for plotting a single histogram of an artifact type production, use, and deposition.
+#' Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_use}]}.
 #' 
 #' Also see also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
-#' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
-#' @param events A vector or element of the event names to plot. Maximum number of events is 12.
+#' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{use_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_use}]}.
+#' @param events If plotting a \code{marginals} object, a vector or element of the event names to plot. Maximum number of events is 12.
+#' @param aspect If plotting a \code{use_marginals} object, that is, the output of \code{\link[eratosthenes]{gibbs_ad_use}}, a vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.
+#' @param display_name If plotting a \code{use_marginals} object, the name of the artifact type to display in the histogram legend. Default is \code{"Type"}.
 #' @param breaks The number or method of breaks in the histogram. Default is \code{"Freedman-Diaconis"}. See \code{\link[graphics]{hist}} for more.
 #' @param xlim The limits of the x-axis. Default is set to the min/max values of all samples.
 #' @param ylim The limits of the y-axis. This may need to be adjusted if densities have an extremely narrow interval.
@@ -1083,7 +1085,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @param palette A vector providing the color palette of the histogram. The default is \code{"colorBlindness::paletteMartin"} (see \code{\link[paletteer]{palettes_d}}).
 #' @param opacity The opacity/transparency of the histograms for visualizing overlapping events, a value between 0 and 1 (default).
 #' @param legend_pos The position of the legend in the plot. Default is \code{"topright"}.
-#' @returns A density histogram of the selected events.
+#' @returns A density histogram of the selected events/aspects.
 #' 
 #' @examples 
 #' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -1111,21 +1113,29 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 #' 
 #' # deposition of "B"
-#' hist(result, "B")
+#' histogram(result, "B")
 #' 
 #' # deposition of "coin2" and deposition of "G"
-#' hist(result, c("coin2", "G"), opacity = 0.5)
-#' 
-#' # deposition of "B", "D", and "H", adjusting y-axis
-#' hist(result, c("B", "D", "H"), ylim = c(0,0.05), opacity = 0.5)
+#' histogram(result, c("coin2", "G"), opacity = 0.5)
 #' 
 #' # production of "type2" and deposition of "H"
-#' hist(result, c("H", "type2"), opacity = 0.5)
+#' histogram(result, c("H", "type2"), opacity = 0.5)
 #' 
-#' @returns A density histogram of the selected events.
+#' # production, use, and deposition of "type1"
+#' type1_use <- gibbs_ad_use(result, artifacts, type = "type1",
+#'                           max_samples = 1000, size = 500, mcse_crit = 2)
+#' histogram(type1_use)
+#' 
+#' @returns A density histogram of the selected events/aspect.
 #' 
 #' @export
-hist.marginals <- function(x, events = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
+histogram <- function(x, events = NULL, aspect = c("production", "use", "deposition"), display_name = "Type",  breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
+    UseMethod("histogram")
+}
+#' 
+#' @rdname histogram
+#' @export
+histogram.marginals <- function(x, events = NULL, aspect = NULL, display_name = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
     if (is.vector(events)) {
         master <- tidy_marginals(x)
     } else {
@@ -1156,60 +1166,10 @@ hist.marginals <- function(x, events = NULL, breaks = "Freedman-Diaconis", xlim 
     }
     graphics::legend(legend_pos, legend = events, col = palette[1:length(events)], pt.cex = 2.5, pch = 15)
 }
-
-
-
-#' Histogram of Marginal Densities (Artifact Type Production, Use, and Deposition)
 #' 
-#' Wrapper around \code{\link[graphics]{hist}} to plot density histograms of the production, use, and deposition events of an artifact type, from the results of \code{\link[eratosthenes]{gibbs_ad_use}]}, in a single plot. As with \code{\link[eratosthenes]{gibbs_ad_use}]}, production dates and depositional dates are the pooled densities of each individual artifact appertaining to that type.
-#' 
-#' See \code{\link[eratosthenes]{hist.marginals}} for plotting multiple production, deposition, and absolute constraints in a single histogram. 
-#' 
-#' See \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
-#' 
-#' @param x A \code{list} object of class \code{use_marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
-#' @param aspect A vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.
-#' @param display_name The name of the artifact type to display in the histogram legend. Default is \code{"Type"}.
-#' @param breaks The number or method of breaks in the histogram. Default is \code{"Freedman-Diaconis"}. See \code{\link[graphics]{hist}} for more.
-#' @param xlim The limits of the x-axis. Default is set to the min/max values of all samples.
-#' @param ylim The limits of the y-axis. This may need to be adjusted if densities have an extremely narrow interval.
-#' @param xlab Label for the x-axis. Default is \code{"Year"}.
-#' @param palette A vector providing the color palette of the histogram. The default is \code{"colorBlindness::paletteMartin"} (see \code{\link[paletteer]{palettes_d}}).
-#' @param opacity The opacity/transparency of the histograms for visualizing overlapping events, a value between 0 and 1. Default is set at 0.5.
-#' @param legend_pos The position of the legend in the plot. Default is \code{"topright"}.
-#' 
-#' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
-#' 
-#' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-#' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-#' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-#' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-#' f5 <- list(id = "find05", assoc = "I", type = "type2")
-#' f6 <- list(id = "find06", assoc = "H", type = NULL)
-#' 
-#' artifacts <- list(f1, f2, f3, f4, f5, f6)
-#'  
-#' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
-#' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
-#' 
-#' result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
-#' 
-#' hist(result, "B")
-#' hist(result, c("B", "D", "H"), ylim = c(0,0.05), opacity = 0.5)
-#' 
-#' @returns A density histogram of the selected aspects of production, use, and deposition.
-#' 
+#' @rdname histogram
 #' @export
-hist.use_marginals <- function(x, aspect = c("production", "use", "deposition"), display_name = "Type", breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright") {
+histogram.use_marginals <- function(x, events = NULL, aspect = c("production", "use", "deposition"), display_name = "Type", breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright") {
 
     if ((!("production" %in% aspect) | !("use" %in% aspect) ) | !("deposition" %in% aspect))  {
         stop("At least one or more event types (production, use, deposition) must be selected.")
@@ -1765,11 +1725,11 @@ print.msd_data <- function(x, ...) {
 #' 
 #' # squared displacement for depositional context "E"
 #' E_sqdisp <- sq_disp(result, target = "E", sequences = contexts, 
-#'                     max_samples = 5000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+#'                     max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 #'
 #' # squared displacement for production of artifact type "type1"
 #' type1_sqdisp <- sq_disp(result, target = "type1", sequences = contexts, finds = artifacts,
-#'                         max_samples = 5000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+#'                         max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 #'
 #' @returns Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 #' 

@@ -110,10 +110,10 @@ result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 
 # squared displacement for depositional context "E"
 E_sqdisp <- sq_disp(result, target = "E", sequences = contexts, 
-                    max_samples = 5000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+                    max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
 # squared displacement for production of artifact type "type1"
 type1_sqdisp <- sq_disp(result, target = "type1", sequences = contexts, finds = artifacts,
-                        max_samples = 5000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
+                        max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
 }
