@@ -88,10 +88,10 @@ below.
 
 ### Finds
 
-Finds should be formatted as a `list` of `list`s, each of which contains
+Finds should be formatted as a `list` of `lists`, each of which contains
 the entries of the following:
 
-- `id` : a unique identifcation number or code
+- `id` : a unique identification number or code
 - `assoc` : an element in the sequences `list` to which that find or
   element pertains
 - `type` : optional – one or more types, attributes, features, or
@@ -113,9 +113,9 @@ artifacts <- list(f1, f2, f3, f4, f5, f6)
 
 ### Absolute Constraints
 
-Constraints should be given as two separate `list`s , one for *termini
+Constraints should be given as two separate `lists`, one for *termini
 post quos* and the other for *termini ante quos*. These take the same
-form as the finds object, as a `list` of `list`s, with the same
+form as the finds object, as a `list` of `lists`, with the same
 headings, but include one additional heading of `samples` which contains
 the absolute dates pertinent to that *t.p.q.* or *t.a.q*.
 
@@ -294,8 +294,8 @@ conditional on the production and depositional dates.
 Only one type at a time can be estimated with `use_dates()`. A type can
 be defined on the basis of:
 
-- One or more `id`s in the finds list.
-- One or more `type`s in the finds list.
+- One or more `id` in the finds list.
+- One or more `type` in the finds list.
 
 That is, one can pool together multiple finds as a type on the basis of
 their `id`, even if they were not so explicitly given a `type` in the
@@ -379,10 +379,10 @@ seriations or ordinations, as packages `seriation`, `vegan`, and
 
 ## Evaluating Displacement
 
-As real-world joint condition densities will comprise hundreds of events
-or more, it is easy for an investigator to loose track of which
+As real-world joint conditional densities will comprise hundreds of
+events or more, it is easy for an investigator to loose track of which
 relative/absolute events are determinative or influential upon others,
-in terms of the estimation of their date. `eratosthenes` assess such
+in terms of the estimation of their date. `eratosthenes` assesses such
 influence within the conditional structure via the estimation of
 “displacement.” That is, given the omission of an event $j$ (either a
 depositional event or an absolute constraint) from the set of all
@@ -395,8 +395,8 @@ marginalized Monte Carlo mean date using all events within the full
 joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the “jackknife”
 estimated date, when event $j$ has been omitted from all sequences and
 absolute constraints. Squared displacement of $j$ upon $i$ is then:
-\begin{equation\*} ^2(i,j) = (\_i^{(-j)} - x_i)^2 \end{equation} If
-squared displacement is high, then the omission of $j$ has greatly
+
+If squared displacement is high, then the omission of $j$ has greatly
 shifted the date of $i$. If squared displacement is low, then the
 omission of $j$ has not altered the date of $i$ much. Squared
 displacement is measured in continuous time, whichever scale the
@@ -404,10 +404,9 @@ investigator is using (typically years).
 
 Conversely, one can estimate the effective influence of an event $j$
 upon all others by taking the mean squared displacement (MSD). This
-involves taking the mean of the squared displacements of all others
+involves taking the mean of the squared displacements of all other
 events when $j$ is omitted. Where $\Theta$ represents the set of all
-relative and absolute events, the MSD is defined as \begin{equation\*} =
-\_{i , i j} ^2 (i,j) \end{equation}
+relative and absolute events, the MSD is defined as
 
 The squared displacement and MSD are computed in `eratosthenes` after
 running the `gibbs_ad()` function, as follows. Note that squared
@@ -415,7 +414,7 @@ displacement may be computed for any event $i$ that represents a
 relative or absolute constraint, as well as an artifact production date,
 while $j$ can only be a relative event or absolute constraint (it would
 make no sense to omit an artifact production date, since these are
-conditional upon relaive/absolute dates to begin with). Similarly, MSD
+conditional upon relative/absolute dates to begin with). Similarly, MSD
 can only be computed for relative/absolute events.
 
 Objects in the example below are provided from the section
