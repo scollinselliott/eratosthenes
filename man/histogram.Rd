@@ -117,7 +117,8 @@ histogram(result, c("coin2", "G"), opacity = 0.5)
 histogram(result, c("H", "type2"), opacity = 0.5)
 
 # production, use, and deposition of "type1"
-type1_use <- gibbs_ad_use(result, artifacts, type = "type1", max_samples = 1000, size = 500, mcse_crit = 2)
+type1_use <- gibbs_ad_use(result, artifacts, type = "type1",
+                          max_samples = 1000, size = 500, mcse_crit = 2)
 histogram(type1_use)
 
 }
