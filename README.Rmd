@@ -229,18 +229,18 @@ As real-world joint conditional densities will comprise hundreds of events or mo
 
 The squared displacement $\delta^2(i,j)$ of a target event $i$ caused by the omission of $j$ is computed as follows. Let $x_i$ be the estimated marginalized Monte Carlo mean date using all events within the full joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the "jackknife" estimated date, when event $j$ has been omitted from all sequences and absolute constraints. Squared displacement of $j$ upon $i$ is then:
 
-\begin{equation*}
-\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
-\end{equation*}
+$$
+$\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
+$$
 
 If squared displacement is high, then the omission of $j$ has greatly shifted the date of $i$. If squared displacement is low, then the omission of $j$ has not altered the date of $i$ much. Squared displacement is measured in continuous time, whichever scale the investigator is using (typically years). 
 
 Conversely, one can estimate the effective influence of an event $j$ upon all others by taking the mean squared 
 displacement (MSD). This involves taking the mean of the squared displacements of all other events when $j$ is omitted. Where $\Theta$ represents the set of all relative and absolute events, the MSD is defined as
 
-\begin{equation*}
+$$
 \text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j)
-\end{equation*}
+$$
 
 The squared displacement and MSD are computed in `eratosthenes` after running the `gibbs_ad()` function, as follows. Note that squared displacement may be computed for any event $i$ that represents a relative or absolute constraint, as well as an artifact production date, while $j$ can only be a relative event or absolute constraint (it would make no sense to omit an artifact production date, since these are conditional upon relative/absolute dates to begin with). Similarly, MSD can only be computed for relative/absolute events.
 

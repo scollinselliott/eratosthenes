@@ -396,6 +396,10 @@ joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the “jackknife”
 estimated date, when event $j$ has been omitted from all sequences and
 absolute constraints. Squared displacement of $j$ upon $i$ is then:
 
+$$
+$\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
+$$
+
 If squared displacement is high, then the omission of $j$ has greatly
 shifted the date of $i$. If squared displacement is low, then the
 omission of $j$ has not altered the date of $i$ much. Squared
@@ -407,6 +411,10 @@ upon all others by taking the mean squared displacement (MSD). This
 involves taking the mean of the squared displacements of all other
 events when $j$ is omitted. Where $\Theta$ represents the set of all
 relative and absolute events, the MSD is defined as
+
+$$
+\text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j)
+$$
 
 The squared displacement and MSD are computed in `eratosthenes` after
 running the `gibbs_ad()` function, as follows. Note that squared
