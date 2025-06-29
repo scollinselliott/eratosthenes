@@ -7,7 +7,6 @@
 \usage{
 gibbs_ad(
   sequences,
-  finds = NULL,
   max_samples = 10^5,
   size = 10^3,
   mcse_crit = 0.5,
@@ -15,13 +14,11 @@ gibbs_ad(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  trim = TRUE,
-  rule = "naive"
+  trim = TRUE
 )
 
 \method{gibbs_ad}{list}(
   sequences,
-  finds = NULL,
   max_samples = 10^5,
   size = 10^3,
   mcse_crit = 0.5,
@@ -29,14 +26,11 @@ gibbs_ad(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  trim = TRUE,
-  rule = "naive"
+  trim = TRUE
 )
 }
 \arguments{
 \item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts).}
-
-\item{finds}{Optional. A \code{list} of finds related to (contained in) the elements of \code{sequences}.}
 
 \item{max_samples}{Maximum number of samples to run. Default is \code{10^5}.}
 
@@ -55,7 +49,7 @@ gibbs_ad(
 \itemize{
 \item \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
 \item \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated.
-\item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
+\item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.a.q.}
 }}
 
 \item{alpha_}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
@@ -63,8 +57,6 @@ gibbs_ad(
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
 \item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.}
-
-\item{rule}{The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context, or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.}
 }
 \value{
 A \code{list} object of class \code{marginals} which contains the following:
@@ -76,10 +68,10 @@ A \code{list} object of class \code{marginals} which contains the following:
 }
 }
 \description{
-A Gibbs sampler for dating archaeological events, to fit relative sequences to absolute, calendrical dates, along with rule-based production dates of artifact types. Relative events can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are entered as samples from a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radiocarbon dates). Relative events are modeled on a continuous uniform density between the latest antecedent event and earliest subsequent event.
+A Gibbs sampler for dating archaeological events, to fit relative sequences to absolute, calendrical dates. Relative events can be associated with \emph{termini post quos} (\emph{t.p.q.}) and \emph{termini ante quos} (\emph{t.a.q.}), which are entered as samples from a given probability density function \eqn{f(t)}. This function may take any form, a single date (i.e., with a probability of 1), a continuous uniform distribution (any time between two dates), or a bespoke density (as with calibrated radiocarbon dates). Relative events are modeled on a continuous uniform density between the latest antecedent event and earliest subsequent event.
 }
 \details{
-Gibbs sampling is a conventional method for calibrating and estimating radiocarbon dates in light of absolute constraints and relative sequences: see \insertCite{buck_bayesian_1996,buck_bcal_1999,bronk_ramsey_bayesian_2009;textual}{eratosthenes}, the latter of which uses a mixture of Metropolis-Hastings and Gibbs.
+Gibbs sampling is a conventional method for calibrating and estimating radiocarbon dates in light of absolute constraints and relative sequences: see \insertCite{buck_bayesian_1996,buck_bcal_1999,bronk_ramsey_bayesian_2009;textual}{eratosthenes}.
 
 In this implementation, two phases of Gibbs sampling are performed: an initial phase for selecting starting values and then the main sampler, with convergence evaluated using Monte Carlo standard errors (MCSE).
 
@@ -89,22 +81,13 @@ The main Gibbs sampler uses consistent batch means (CBM) determine convergence a
 
 Note that the MCSE criterion is applied as a stopping rule for depositional dates and external constraints. The number of Monte Carlo samples for production dates of types is chosen to be identical to that need to pass \code{mcse_crit}, such that ultimately the final mean MCSE of all variates may differ from that of the criterion. Depending on the conditional structure of the relative sequences and the timescale of investigation, higher or lower MCSE may be more desirable or acceptable.
 
-For the use dates of artifact type production, use, and deposition, see the \code{\link[eratosthenes]{gibbs_ad_use}} function.
+For the use dates of artifact type production, use, and deposition, see the \code{\link[eratosthenes]{gibbs_ad_type}} function.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
 y <- c("B", "D", "G", "H", "K")
 z <- c("F", "K", "L", "M")
 contexts <- list(x, y, z)
-
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
-
-artifacts <- list(f1, f2, f3, f4, f5, f6)
  
 # external constraints
 coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
@@ -115,7 +98,7 @@ destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
 tpq_info <- list(coin1, coin2)
 taq_info <- list(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
 }
 \references{

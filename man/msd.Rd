@@ -8,37 +8,31 @@
 msd(
   marginalized,
   sequences,
-  finds = NULL,
   max_samples = 10^5,
   size = 10^3,
   mcse_crit = 0.5,
   tpq = NULL,
   taq = NULL,
   alpha_ = -5000,
-  omega_ = 1950,
-  rule = "naive"
+  omega_ = 1950
 )
 
 \method{msd}{marginals}(
   marginalized,
   sequences,
-  finds = NULL,
   max_samples = 10^5,
   size = 10^3,
   mcse_crit = 0.5,
   tpq = NULL,
   taq = NULL,
   alpha_ = -5000,
-  omega_ = 1950,
-  rule = "naive"
+  omega_ = 1950
 )
 }
 \arguments{
-\item{marginalized}{The results of \code{\link[eratosthenes]{gibbs_ad}}.\code{\link[eratosthenes]{gibbs_ad}}.}
+\item{marginalized}{An object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
 
 \item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.}
-
-\item{finds}{Optional. A \code{list} of finds related to (contained in) the elements of \code{sequences}.}
 
 \item{max_samples}{Maximum number of samples to run. Default is \code{10^5}.}
 
@@ -53,14 +47,12 @@ msd(
 \item{alpha_}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
 
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
-
-\item{rule}{The rule for computing an estimated date of production. See \code{\link[eratosthenes]{gibbs_ad}} for details.}
 }
 \value{
 Output is a list containing a data frame \code{MSD_stats} giving the mean MC date, the MCSE, the MSD, the variance of the squared displacements (not the standard error), and sample size, as well as a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 }
 \description{
-Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}.
+Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}. MSD is not intended for finds, as production, use, and depositional dates, as these are themselves contingent upon the relative/absolute events.
 }
 \details{
 The MSD entails the following jackknife/leave-one-out style routine:
@@ -101,9 +93,9 @@ destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
 tpq_info <- list(coin1, coin2)
 taq_info <- list(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
-result_msd <- msd(result, contexts, finds = artifacts, max_samples = 5000,
+result_msd <- msd(result, contexts, max_samples = 5000,
                   mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
 }

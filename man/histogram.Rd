@@ -3,14 +3,13 @@
 \name{histogram}
 \alias{histogram}
 \alias{histogram.marginals}
-\alias{histogram.use_marginals}
+\alias{histogram.type_marginals}
 \title{Histogram of Marginal Densities}
 \usage{
 histogram(
   x,
   events = NULL,
   aspect = c("production", "use", "deposition"),
-  display_name = "Type",
   breaks = "Freedman-Diaconis",
   xlim = NULL,
   ylim = NULL,
@@ -24,7 +23,6 @@ histogram(
   x,
   events = NULL,
   aspect = NULL,
-  display_name = NULL,
   breaks = "Freedman-Diaconis",
   xlim = NULL,
   ylim = NULL,
@@ -34,11 +32,10 @@ histogram(
   legend_pos = "topright"
 )
 
-\method{histogram}{use_marginals}(
+\method{histogram}{type_marginals}(
   x,
   events = NULL,
   aspect = c("production", "use", "deposition"),
-  display_name = "Type",
   breaks = "Freedman-Diaconis",
   xlim = NULL,
   ylim = NULL,
@@ -49,13 +46,11 @@ histogram(
 )
 }
 \arguments{
-\item{x}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{use_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_use}]}.}
+\item{x}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{type_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_type}]}.}
 
 \item{events}{If plotting a \code{marginals} object, a vector or element of the event names to plot. Maximum number of events is 12.}
 
-\item{aspect}{If plotting a \code{use_marginals} object, that is, the output of \code{\link[eratosthenes]{gibbs_ad_use}}, a vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.}
-
-\item{display_name}{If plotting a \code{use_marginals} object, the name of the artifact type to display in the histogram legend. Default is \code{"Type"}.}
+\item{aspect}{If plotting a \code{type_marginals} object, that is, the output of \code{\link[eratosthenes]{gibbs_ad_type}}, a vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.}
 
 \item{breaks}{The number or method of breaks in the histogram. Default is \code{"Freedman-Diaconis"}. See \code{\link[graphics]{hist}} for more.}
 
@@ -77,7 +72,7 @@ A density histogram of the selected events/aspects.
 A density histogram of the selected events/aspect.
 }
 \description{
-Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_use}]}.
+Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_type}]}.
 }
 \details{
 Also see also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
@@ -90,7 +85,7 @@ contexts <- list(x, y, z)
 
 f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
 f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
+f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
 f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
 f5 <- list(id = "find05", assoc = "I", type = "type2")
 f6 <- list(id = "find06", assoc = "H", type = NULL)
@@ -105,7 +100,7 @@ destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
 tpq_info <- list(coin1, coin2)
 taq_info <- list(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
 # deposition of "B"
 histogram(result, "B")
@@ -113,12 +108,9 @@ histogram(result, "B")
 # deposition of "coin2" and deposition of "G"
 histogram(result, c("coin2", "G"), opacity = 0.5)
 
-# production of "type2" and deposition of "H"
-histogram(result, c("H", "type2"), opacity = 0.5)
-
 # production, use, and deposition of "type1"
-type1_use <- gibbs_ad_use(result, artifacts, type = "type1",
-                          max_samples = 1000, size = 500, mcse_crit = 2)
-histogram(type1_use)
+result_type1 <- gibbs_ad_type(contexts, artifacts, type = "type1",
+                          max_samples = 3000, mcse_crit = 2)
+histogram(result_type1)
 
 }

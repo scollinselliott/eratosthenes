@@ -6,38 +6,39 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The `R` package `eratosthenes` aims to provide a coherent foundation for
-archaeological chronology-building by incorporating, computationally,
-all relevant sources of information on uncertain archaeological or
-historical dates. Archaeological dates are often subject to relational
-conditions (via seriation or stratigraphic relationships) and absolute
-constraints (such as radiocarbon dates, datable artifacts, or other
-known historical events, as *termini post* or *ante quos*), which prompt
-the use of a joint conditional probability density to convey those
-relationships. The date of any one event can then be marginalized from
-that full, joint conditional distribution, which is achieved using a
-two-stage Gibbs sampler to draw estimates uniformly between potential
-earliest and latest bounds. Ancillary functions include checking for
-discrepancies in sequences of events and constraining optimal seriations
-to known sequences.
+The `R` package `eratosthenes` aims to provide a general, flexible
+toolkit for archaeological chronology-building by incorporating,
+computationally, all relevant sources of information on uncertain
+archaeological or historical dates. Archaeological dates are subject to
+relational conditions (via seriation or stratigraphic relationships) and
+absolute constraints (such as radiocarbon dates, datable artifacts, or
+other known historical events, as *termini post* or *ante quos*), which
+prompt the use of a joint conditional probability density to convey
+those relationships. The date of any one event can then be marginalized
+from that full, joint conditional distribution.
 
 While software exists for calibrating and conditioning radiocarbon dates
-upon relative constraints, such as [BCal](https://bcal.shef.ac.uk/)
-(Buck, Christen, and James 1999) and
-[OxCal](https://c14.arch.ox.ac.uk/oxcal.html) (Bronk Ramsey 2009), the
-aim of `eratosthenes` is to extend the application of probability theory
-more generally to dating all archaeological phenomena, especially the
-production dates of artifact types. The method of sampling employed in
-`eratosthenes` involves a two-step process, which entails first
-performing iterative routines of Gibbs sampling to determine the initial
-value for the main sampler, which uses consistent batch means (CBM) and
-Monte Carlo standard errors (MCSE) to determine convergence (Flegal,
-Haran, and Jones 2008). Furthermore, `eratosthenes` provides tools for
-analyzing the impact of events on each other with the conditional
-structure stipulated by the investigator, by implementing a
-jackknife-style estimator of squared displacement (how much the date of
-one event shifts when another is omitted, squared). `Rcpp` is required
-for faster Gibbs sampling.
+upon relative constraints, such as `OxCal` (Bronk Ramsey 2009) and
+`BCal` (Buck, Christen, and James 1999), as well as R packages `oxcAAR`
+(Hinz et al. 2021), `Bchron` (Haslett and Parnell 2008), and `rcarbon`
+(Crema, Bevan, and Shennan 2017), along with software for general
+chronological modeling like `Chronomodel` (Lanos and Philippe 2017) and
+`ChronoLog` (Levy et al. 2021), formal methods for dating artifacts and
+artifact types are lacking. One of the major goals of `eratosthenes` is
+advance the synchronism of chronologies and the crafting of large-scale
+chronological relationships, which are heavily reliant upon artifact
+typologies. The package therefore facilitates the marginalization of
+dates of a type’s production, use, and deposition. The method of
+sampling employed in `eratosthenes` involves a two-step process of Gibbs
+sampling, using consistent batch means (CBM) and Monte Carlo standard
+errors (MCSE) to determine convergence Flegal, Haran, and Jones (2008).
+Finaly, `eratosthenes` provides tools for analyzing the impact of events
+on each other with the conditional structure stipulated by the
+investigator, by implementing a jackknife-style estimator of squared
+displacement (how much the date of one event shifts when another is
+omitted). Ancillary functions include checking for discrepancies in
+sequences of events and constraining optimal seriations to known
+sequences. `Rcpp` is required for faster Gibbs sampling.
 
 The package is named after Eratosthenes of Cyrene, author of the
 *Chronographiai*.
@@ -96,6 +97,10 @@ the entries of the following:
   element pertains
 - `type` : optional – one or more types, attributes, features, or
   aspects that pertain to that find (`NULL` if none)
+- `residual` : optional – if `TRUE`, it means that the find is
+  considered residual to the context (the sequential event) in which it
+  was found, and will not be considered when estimating aspects of the
+  date of a type (production, use, and deposition).
 
 In the following example, the `artifacts` object contains six artifacts
 which pertain to elements of the sequences contained in `contexts`
@@ -104,7 +109,7 @@ above”
 ``` r
 f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
 f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
+f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
 f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
 f5 <- list(id = "find05", assoc = "I", type = "type2")
 f6 <- list(id = "find06", assoc = "H", type = NULL)
@@ -128,6 +133,14 @@ tpq_info <- list(coin1, coin2)
 taq_info <- list(destr)
 ```
 
+It can be noted that absolute constraints can belong to a type. Any
+artifact which carries absolute dating information (i.e., extrinsic to
+the joint conditional density) should be assigned as an absolute
+constraint. It assumed that if a *t.p.q* has a type, it refers to the
+artifact’s date of production, and is treated as such (see the section
+[Dates of the Production, Use, and Deposition of a
+Type](#dates-of-the-production-use-and-deposition%20of-a-type) below).
+
 Absolute dates can take any form:
 
 - Single dates, e.g., `79` for 79 CE.
@@ -137,13 +150,11 @@ Absolute dates can take any form:
 - Samples from a bespoke density, e.g., from a calibrated radiocarbon
   date. `eratosthenes` does not provide functionality for calibrating
   dates, which can be accomplished using preexisting software or
-  directly from a calibration curve. The `R` package `Bchron` (Haslett
-  and Parnell 2008) provides functions for calibrating dates. As a brief
-  example, given an uncalibrated date and its standard deviation, a
-  crude sample of calibrated dates can be drawn from the IntCal20 curve
-  data, available from IntCal
-  [here](https://www.intcal.org/curves/intcal20.14c) (Reimer et al.
-  2020), using the following script:
+  directly from a calibration curve. As a brief example, given an
+  uncalibrated date and its standard deviation, a crude sample of
+  calibrated dates can be drawn from the IntCal20 curve data, available
+  from IntCal [here](https://www.intcal.org/curves/intcal20.14c) (Reimer
+  et al. 2020), using the following script:
 
 ``` r
 intcal20 <- read.csv("../path/to/intcal20.14c")
@@ -213,24 +224,20 @@ method is as follows:
 
 There are two functions in `eratosthenes` for estimating dates:
 
-- `gibbs_ad()` is the primary function, which will yield samples for
-  dates of deposition, production, and any absolute constraints
-  themselves (that is, the density of that extrinsic date as impacted by
-  all other events in the joint distribution).
-- `gibbs_ad_use()` is the secondary function, for estimating the date of
-  use of a find given its production and depositional date.
+- `gibbs_ad()` estimates the marginal density of the date of events in
+  sequences and absolute constraints (*t.p./a.q*).
+- `gibbs_ad_type()` estimates the marginal density of the date of the
+  production, use, and deposition of a specified artifact type.
 
 See the section [Evaluating Displacement](#evaluating-displacement)
 below for tools on assessing the effective influence of events upon each
 other within the joint conditional density.
 
-### Dates of Production and Deposition
+### Dates of Events in Sequences and Absolute Constraints
 
 The function `gibbs_ad()` takes as inputs the following objects:
 
 - `sequences` : A `list` of relative sequences of contexts or events.
-- `finds` : A `list` of any elements which belong to a context or event,
-  which may be assigned a given type.
 - `max_samples` : The maximum number of samples to run, which will stop
   the main sampling routine even if convergence has not been achieved
   (default is `10^5`).
@@ -240,21 +247,13 @@ The function `gibbs_ad()` takes as inputs the following objects:
   sampler (default is `0.5`)
 - `tpq` and `taq`: Separate `lists` that indicate any elements that
   provide extrinsic (i.e., absolute) chronological information, as
-  *termini post* and *ante quos*.
+  *termini post* and *ante quos*. Format must follow that illustrated in
+  the Section above on [Absolute Constraints](#absolute-constraints).
 - `alpha_` and `omega_`: lowest and highest bounds within which to
   sample.
 - `trim`: whether to remove contexts from the output that are before or
   after user-provided *t.p.q.* and *t.a.q.* (i.e., those which depend on
   `alpha_` and `omega_`).
-- `rule`: the rule for determining the earliest date of production of an
-  artifact type. Initial threshold boundaries are first established
-  between the earliest depositional context containing an artifact of
-  that type and the next earliest context which lacks it. Then, the
-  following rules will sample a date accordingly:
-  - `naive`: samples are drawn between the initial threshold sample and
-    the depositional date of that artifact
-  - `earliest`: samples are drawn within the initial threshold
-    boundaries
 
 For example, to sample from the sequences, finds, and constraints given
 above, the following inputs are entered into the `gibbs_ad()` function:
@@ -271,28 +270,22 @@ following objects:
 - `externals` : a `list` of the marginal densities of date of any
   *terminus post quem* or *terminus ante quem*, as affected by
   depositional variates in the joint conditional distribution.
-- `production` : a `list` of the marginal densities of the production
-  date of a given type or class of artifact, given the rule stipulated
-  in the input.
 - `mcse` : a vector of the MCSE of all events.
 
 Information on the `marginals` object can be accessed with `print()` and
 `summary()`. Density plots and density histograms of one more events can
-be produced using `plot()` and `hist()` respectively (see documentation
-for details).
+be produced using `plot()` and `histogram()` respectively (see packag
+documentation for details).
 
-### Dates of Use
+### Dates of the Production, Use, and Deposition of a Type
 
-Determining the use date proceeds along the same method of Gibbs
-sampling discussed above, using consistent batch means to determine
-convergence. To compute a density of the use date of an artifact or
-artifact type, an object of class `marginals` is necessary (i.e., the
-estimation of the production and depositional dates must first be
-performed). Then, the `use_dates()` function will return a density
-conditional on the production and depositional dates.
-
-Only one type at a time can be estimated with `use_dates()`. A type can
-be defined on the basis of:
+Determining the date of the production, use, and deposition of an
+artifact type uses the same method of Gibbs sampling discussed above,
+i.e., consistent batch means to determine convergence. Given that types
+are ideal constructs used to categorize artifacts, the notion of a
+“type” here has flexibility. While only one “type” at a time can be
+estimated with `gibbs_ad_type()`, here, a “type” can be defined on the
+basis of:
 
 - One or more `id` in the finds list.
 - One or more `type` in the finds list.
@@ -305,50 +298,78 @@ to evaluate them as a single type (e.g., pooling the labels of “Late
 Greco-Italic amphora”, “MGS V amphora”, “MGS VI amphora” into a single
 type).
 
-The `gibbs_ad_use()` function, takes the following inputs, similar to
-`gibbs_ad()`, but with a field for either `id` or `type` (only one or
-the other field must be used):
+The function works on the principle of the presence/absence of the
+specified type in a given context. First, it identifies all contexts in
+the sequences to which it has been assigned (i.e., been deposited).
+Then, it uses a stipulated rule to identify the earliest moment of
+production, contingent upon its earliest absence within the joint
+conditional density (see the argument `rule` below). Finally, dates of
+use are sampled between production and deposition.
 
-- `gibbs` : A `list` object of class `marginals`, as computed via
-  `gibbs_ad()`.
+The `gibbs_ad_type()` function takes the following inputs, similar to
+`gibbs_ad()`, but with some additional fields:
+
+- `sequences` : A `list` of relative sequences of contexts or events.
 - `finds` : Either the `list` object of finds originally used as input
   to produce `gibbs`, or a `data.frame` of two columns, the first column
   listing the context and the second the incidence of the id or type in
-  that context.
+  that context. If a find entry contains the expression
+  `"residual = TRUE"`, it indicates that its depositional date occured
+  prior to the context it pertains to (i.e., it has been redeposited
+  from an earlier time), which will suppress that find from
+  consideration.
 - `id` : A vector of the `id` of one or more specific finds whose use
   date is to be estimated. The values of `id` must match those in the
   `list` of `finds`. If `type` is used, `id` is ignored.
 - `type` : A vector of one or more types to estimate a use density for.
   Must contain a value if `id` is left as `NULL`.
-- `max_samples`, `size`, `mcse_crit` : The same information used for
-  determining the maximum length of the Gibbs sampler and when
-  convergence has been achieved.
+- `type_name` : A customized label for the type (e.g., if one is pooling
+  together multiple `id`/`type` entries). If only one `type` has been
+  entered, that label is used. Otherwise it defaults to just `"Type"`.
+- `max_samples`, `size`, `mcse_crit`, `trim` : The same information used
+  for determining the maximum length of the Gibbs sampler and when
+  convergence has been achieved, as well as whether to trim events, [as
+  above](#dates-of-events-in-sequences-and-absolute-constraints). Note
+  that the `mcse_crit`, as a stopping rule, applies still to the
+  sequential events/absolute constraints, but MCSE will still be
+  reported for the estimates of the production, use, and deposition
+  dates.
+- `tpq` and `taq` : Format must follow that illustrated in the Section
+  above on [Absolute Constraints](#absolute-constraints).
+- `rule`: the rule for determining the earliest date of production of an
+  artifact type. Initial threshold boundaries are first established
+  between the earliest depositional context containing an artifact of
+  that type and the next earliest context which lacks it. Then, the
+  following rules will sample a date accordingly:
+  - `naive`: samples are drawn between the initial threshold sample and
+    the depositional date of that artifact
+  - `earliest`: samples are drawn within the initial threshold
+    boundaries
 
 Using the `result` object above, the densities of the use dates of the
-following types is computed using the `use_dates()` function as follows:
+following types is computed using the `gibbs_ad_type()` function as
+follows:
 
 ``` r
 # use dates by specifying ids
-gibbs_ad_use(result, artifacts, id = c("find04", "find05"))
-
-# use dates by speciifying types
-gibbs_ad_use(result, artifacts, type = "type1")
+gibbs_ad_type(contexts, artifacts, id = c("find04", "find05"), tpq = tpq_info, taq = taq_info)
+# use dates by specifying types
+gibbs_ad_type(contexts, artifacts, type = "type1", tpq = tpq_info, taq = taq_info)
 ```
 
 Adjusting the values of `max_samples` and `mcse_crit` is recommended to
-reduce computational time.
+reduce computational time, as needed.
 
-The result is an object of the class `use_marginals`, which contains
-information on the density of the date of use as well as the MCSE of the
-type specified, in the same fashion as the result of the `gibbs_ad()`
-function.
+The result is a `list` object of the class `type_marginals`, which
+contains information on the densities of the dates of production, use,
+and deposition, as well as the MCSE, of the type specified.
 
 ## Graphics
 
-Base R graphics are provided by `eratosthenes` to examine traceplots of
-the results of `gibbs_ad()`, as well as produce density histograms of
-the results of `gibbs_ad()` and `gibbs_ad_use()`. For `gibbs_ad()`,
-histograms may contain up to 12 distinct events. For `gibbs_ad_use()`,
+Base R graphics are provided by `eratosthenes` to generate traceplots of
+the results of `gibbs_ad()` and produce density histograms of the
+results of `gibbs_ad()` and `gibbs_ad_type()`. For `gibbs_ad()`,
+histograms may contain up to 12 distinct events. For `gibbs_ad_type()`,
 the production, use, and deposition of the stipulated artifact type are
 shown.
 
@@ -377,8 +398,10 @@ Some functions related to relative sequences:
   accordingly.
 
 The package `eratosthenes` does not have functionality to produce
-seriations or ordinations, as packages `seriation`, `vegan`, and
-`lakhesis` can perform this task already.
+seriations or ordinations, as R packages such as `seriation` (Hahsler,
+Hornik, and Buchcta 2008), `vegan` (Oksanen et al. 2024), `lakhesis`
+(Collins-Elliott Under Review), and many others, can perform this task
+already.
 
 ## Evaluating Displacement
 
@@ -419,12 +442,15 @@ $$
 \text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j)
 $$
 
-The squared displacement and MSD are computed in `eratosthenes` after
-running the `gibbs_ad()` function, as follows. Note that squared
-displacement may be computed for any event $i$ that represents a
-relative or absolute constraint, as well as an artifact production date,
-while $j$ can only be a relative event or absolute constraint (it would
-make no sense to omit an artifact production date, since these are
+The squared displacement and MSD are computed in `eratosthenes` for
+relative events and absolute constraints after running the `gibbs_ad()`
+function, and for an artifact type after running the `gibbs_ad_type()`
+function. Note that squared displacement may be computed for any event
+$i$ that represents a relative or absolute constraint, as well as a type
+(the use date is used to compute displacement for finds, as it is
+affected by both production and deposition) production date, while $j$
+can only be a relative event or absolute constraint (it would make no
+sense to omit e.g. an artifact production date, since these are
 conditional upon relative/absolute dates to begin with). Similarly, MSD
 can only be computed for relative/absolute events.
 
@@ -435,24 +461,25 @@ computational time can be reduced by lowering the values of
 
 ``` r
 # run gibbs_ad() first
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
-# squared displacement is estimated for a target event ("j" above) and all other events
-
-# squared displacement for depositional context "E"
+# squared displacement for depositional context "E" as the target event ("j" above)
 sq_disp(result, target = "E", sequences = contexts, 
         max_samples = 20000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
-# squared displacement for production of artifact type "type1"
-sq_disp(result, target = "type1", sequences = contexts, finds = artifacts,
-        max_samples = 20000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
-        
 # mean squared displacement (MSD) is estimated for all relative and absolute dates
-result_msd <- msd(result, contexts, finds = artifacts,
-                  mcse_crit = 1, tpq = tpq_info, taq = taq_info)
+msd(result, contexts, finds = artifacts,
+    mcse_crit = 1, tpq = tpq_info, taq = taq_info)
+
+# squared displacement for production of artifact type "type1"
+# run gibbs_ad_type() first
+result_type1 <- gibbs_ad_type(contexts, finds = artifacts, type = "type1",
+                              tpq = tpq_info, taq = taq_info)
+sq_disp(result_type1, sequences = contexts, finds = artifacts,
+        max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 ```
 
-## Bibliography
+## References
 
 <div id="refs" class="references csl-bib-body hanging-indent">
 
@@ -478,6 +505,23 @@ Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
 
 </div>
 
+<div id="ref-collins-elliott_lakhesis_underreview" class="csl-entry">
+
+Collins-Elliott, S. A. Under Review. “Lakhesis: Consensus Seriation via
+Iterative Regression of Partial Rankings for Binary Data.” *Journal of
+Applied Statistics*.
+
+</div>
+
+<div id="ref-crema_spatio-temporal_2017" class="csl-entry">
+
+Crema, E. R., A. Bevan, and S. Shennan. 2017. “Spatio-Temporal
+Approaches to Archaeological Radiocarbon Dates.” *Journal of
+Archaeological Science* 87: 1–9.
+<https://doi.org/10.1016/j.jas.2017.09.007>.
+
+</div>
+
 <div id="ref-flegal_markov_2008" class="csl-entry">
 
 Flegal, J. M., M. Haran, and G. L. Jones. 2008. “Markov Chain Monte
@@ -494,6 +538,14 @@ Transactions on Pattern Analysis and Machine Intelligence* 6: 721–41.
 
 </div>
 
+<div id="ref-hahsler_getting_2008" class="csl-entry">
+
+Hahsler, M., K. Hornik, and C. Buchcta. 2008. “Getting Things in Order:
+An Introduction to the R Package Seriation.” *Journal of Statistical
+Software* 25: 1–34. <https://doi.org/10.18637/jss.v025.i03>.
+
+</div>
+
 <div id="ref-haslett_simple_2008" class="csl-entry">
 
 Haslett, J., and A. C. Parnell. 2008. “A Simple Monotone Process with
@@ -503,12 +555,45 @@ Royal Statistical Society: Series C (Applied Statistics)* 57: 399–418.
 
 </div>
 
+<div id="ref-hinz_oxcaar_2021" class="csl-entry">
+
+Hinz, M., C. Schmid, D. Knitter, and Tietze. 2021.
+“<span class="nocase">oxcAAR</span>: Interface to ’OxCal’ Radiocarbon
+Calibration.” <https://CRAN.R-project.org/package=oxcAAR>.
+
+</div>
+
 <div id="ref-jones_fixed-width_2006" class="csl-entry">
 
 Jones, G. L., M. Haran, B. S. Caffo, and R. Neath. 2006. “Fixed-Width
 Output Analysis for Markov Chain Monte Carlo.” *Journal of the American
 Statistical Association* 101: 1537–47.
 <https://doi.org/10.1198/016214506000000492>.
+
+</div>
+
+<div id="ref-lanos_hierarchical_2017" class="csl-entry">
+
+Lanos, P., and A. Philippe. 2017. “Hierarchical Bayesian Modeling for
+Combining Dates in Archeological Context.” *Journal de La Société
+Française de Statistique* 158: 72–88.
+
+</div>
+
+<div id="ref-levy_chronological_2021" class="csl-entry">
+
+Levy, E., G. Geeraerts, F. Pluquet, E. Piasetzky, and A. Fantalkin.
+2021. “Chronological Networks in Archaeology: A Formalised Scheme.”
+*Journal of Archaeological Science* 127: 105225.
+<https://doi.org/10.1016/j.jas.2020.105225>.
+
+</div>
+
+<div id="ref-oksanen_vegan_2024" class="csl-entry">
+
+Oksanen, J., G. L. Simpson, F. G Blanchet, R. Kindt, P. Legendre, P. R.
+Minchin, R. B. O’Hara, et al. 2024. “Vegan: Community Ecology Package.”
+<https://CRAN.R-project.org/package=vegan>.
 
 </div>
 
