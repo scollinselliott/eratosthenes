@@ -1,5 +1,5 @@
 ---
-title: 'eratosthenes: Synchronizing archaeological chronologies with special focus on artifact typologies'
+title: 'eratosthenes: Synchronizing archaeological chronologies with special focus on artifact types'
 tags:
   - R
   - archaeology
