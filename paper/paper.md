@@ -45,7 +45,7 @@ $$
 \delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2.
 $$
 
-The omission of $j$ would thus change date of $i$ by $\sqrt{\delta^2}$ amount of time (typically years). Conversely, one can estimate the effective influence of an event $j$ upon all others by taking the mean squared displacement (MSD). This involves taking the mean of the squared displacements of all other events as each $j$ is omitted in a "jackknife" or "leave one out"-style of routine. Where $\Theta$ represents the set of all relative and absolute events, the MSD is defined as
+The omission of $j$ would thus change the date of $i$ by $\sqrt{\delta^2}$ amount of time (typically years). Conversely, one can estimate the effective influence of an event $j$ upon all others by taking the mean squared displacement (MSD). This involves taking the mean of the squared displacements of all other events as each $j$ is omitted in a "jackknife" or "leave one out"-style of routine. Where $\Theta$ represents the set of all relative and absolute events, the MSD is defined as
 
 $$
 \text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j).
