@@ -31,14 +31,15 @@ typologies. The package therefore facilitates the marginalization of
 dates of a type’s production, use, and deposition. The method of
 sampling employed in `eratosthenes` involves a two-step process of Gibbs
 sampling, using consistent batch means (CBM) and Monte Carlo standard
-errors (MCSE) to determine convergence Flegal, Haran, and Jones (2008).
-Finaly, `eratosthenes` provides tools for analyzing the impact of events
-on each other with the conditional structure stipulated by the
-investigator, by implementing a jackknife-style estimator of squared
-displacement (how much the date of one event shifts when another is
-omitted). Ancillary functions include checking for discrepancies in
-sequences of events and constraining optimal seriations to known
-sequences. `Rcpp` is required for faster Gibbs sampling.
+errors (MCSE) to determine convergence (Jones et al. 2006; Flegal,
+Haran, and Jones 2008). Finaly, `eratosthenes` provides tools for
+analyzing the impact of events on each other with the conditional
+structure stipulated by the investigator, by implementing a
+jackknife-style estimator of squared displacement (how much the date of
+one event shifts when another is omitted). Ancillary functions include
+checking for discrepancies in sequences of events and constraining
+optimal seriations to known sequences. `Rcpp` is required for faster
+Gibbs sampling.
 
 The package is named after Eratosthenes of Cyrene, author of the
 *Chronographiai*.
