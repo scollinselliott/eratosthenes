@@ -134,7 +134,7 @@ hist(calBC, breaks = 100)
 The core approach of `eratosthenes` is a Gibbs sampler, a common Markov Chain Monte Carlo (MCMC) technique used for dating archaeological events, above all radiocarbon dates [@geman_stochastic_1984; @buck_bayesian_1996; @bronk_ramsey_bayesian_2009]. Gibbs sampling however can take a number of different forms, and so it is worthwhile to describe explicitly how it is conducted in `eratosthenes`. The precise method is as follows:
 
 * To initialize, the earliest possible _t.p.q._ and latest possible _t.a.q_ dates are selected.
-* Relative events are put into a single sequence for the purpose of sampling.
+* Relative events are indexed along a single sequence for the purpose of sampling (this does not change their conditional relationships).
 * To select the initial date for each relative event, a sample is drawn uniformly at random between its upper and lower constraints (absolute and relative).
   * For each initial date, a subroutine of Gibbs sampling is performed in order to avoid catastrophic collapse of dates due to floating point errors (e.g., if one has a high number of events compressed into a brief span of time).
 * After all dates are initialized, the main Gibbs sampler is performed for a specified maximum number of samples, which will stop automatically if convergence in distribution has been achieved.
@@ -196,8 +196,10 @@ The `gibbs_ad_type()` function takes the following inputs, similar to `gibbs_ad(
 * `max_samples`, `size`, `mcse_crit`, `trim` : The same information used for determining the maximum length of the Gibbs sampler and when convergence has been achieved, as well as whether to trim events, [as above](#dates-of-events-in-sequences-and-absolute-constraints). Note that the `mcse_crit`, as a stopping rule, applies still to the sequential events/absolute constraints, but MCSE will still be reported for the estimates of the production, use, and deposition dates.
 * `tpq` and `taq` :  Format must follow that illustrated in the Section above on [Absolute Constraints](#absolute-constraints). 
 * `rule`: the rule for determining the earliest date of production of an artifact type. Initial threshold boundaries are first established between the earliest depositional context containing an artifact of that type and the next earliest context which lacks it. Then, the following rules will sample a date accordingly:
-  * `naive`: samples are drawn between the initial threshold sample and the depositional date of that artifact
-  * `earliest`: samples are drawn within the initial threshold boundaries
+  * `naive`: samples are drawn between the initial threshold sample and the depositional date of that artifact.
+  * `earliest`: samples are drawn within the initial threshold boundaries.
+
+As use dates are drawn between production and depositional dates, if one chooses `"earliest"` as the rule, then the use density is equivalent to that of the `"naive"` production density.
 
 Using the `result` object above, the densities of the use dates of the following types is computed using the `gibbs_ad_type()` function as follows:
 

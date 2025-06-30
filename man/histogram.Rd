@@ -16,7 +16,8 @@ histogram(
   xlab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright"
+  legend_pos = "topright",
+  ...
 )
 
 \method{histogram}{marginals}(
@@ -29,7 +30,8 @@ histogram(
   xlab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright"
+  legend_pos = "topright",
+  ...
 )
 
 \method{histogram}{type_marginals}(
@@ -42,7 +44,8 @@ histogram(
   xlab = "Year",
   palette = NULL,
   opacity = 0.5,
-  legend_pos = "topright"
+  legend_pos = "topright",
+  ...
 )
 }
 \arguments{
@@ -65,6 +68,8 @@ histogram(
 \item{opacity}{The opacity/transparency of the histograms for visualizing overlapping events, a value between 0 and 1 (default).}
 
 \item{legend_pos}{The position of the legend in the plot. Default is \code{"topright"}.}
+
+\item{...}{Additional graphical parameters passed to  \code{\link[graphics]{hist}}.}
 }
 \value{
 A density histogram of the selected events/aspects.

@@ -196,8 +196,8 @@ method is as follows:
 
 - To initialize, the earliest possible *t.p.q.* and latest possible
   *t.a.q* dates are selected.
-- Relative events are put into a single sequence for the purpose of
-  sampling.
+- Relative events are indexed along a single sequence for the purpose of
+  sampling (this does not change their conditional relationships).
 - To select the initial date for each relative event, a sample is drawn
   uniformly at random between its upper and lower constraints (absolute
   and relative).
@@ -342,9 +342,13 @@ The `gibbs_ad_type()` function takes the following inputs, similar to
   that type and the next earliest context which lacks it. Then, the
   following rules will sample a date accordingly:
   - `naive`: samples are drawn between the initial threshold sample and
-    the depositional date of that artifact
+    the depositional date of that artifact.
   - `earliest`: samples are drawn within the initial threshold
-    boundaries
+    boundaries.
+
+As use dates are drawn between production and depositional dates, if one
+chooses `"earliest"` as the rule, then the use density is equivalent to
+that of the `"naive"` production density.
 
 Using the `result` object above, the densities of the use dates of the
 following types is computed using the `gibbs_ad_type()` function as
@@ -509,7 +513,7 @@ Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
 
 Collins-Elliott, S. A. Under Review. “Lakhesis: Consensus Seriation via
 Iterative Regression of Partial Rankings for Binary Data.” *Journal of
-Applied Statistics*.
+Applied Statistics*, Under Review.
 
 </div>
 

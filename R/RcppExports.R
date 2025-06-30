@@ -3,14 +3,8 @@
 
 #' @useDynLib eratosthenes
 #' @importFrom Rcpp sourceCpp
-gibbs_ad_use_cpp <- function(marginal, tpq_list, taq_list) {
-    .Call('_eratosthenes_gibbs_ad_use_cpp', PACKAGE = 'eratosthenes', marginal, tpq_list, taq_list)
-}
-
-#' @useDynLib eratosthenes
-#' @importFrom Rcpp sourceCpp
-gibbs_ad_use_init_cpp <- function(tpq_list, taq_list, n_samples) {
-    .Call('_eratosthenes_gibbs_ad_use_init_cpp', PACKAGE = 'eratosthenes', tpq_list, taq_list, n_samples)
+max_antea <- function(Ym_idx, g, phi, alpha) {
+    .Call('_eratosthenes_max_antea', PACKAGE = 'eratosthenes', Ym_idx, g, phi, alpha)
 }
 
 #' @useDynLib eratosthenes

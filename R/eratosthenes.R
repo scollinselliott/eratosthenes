@@ -1039,6 +1039,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @param palette A vector providing the color palette of the histogram. The default is \code{"colorBlindness::paletteMartin"} (see \code{\link[paletteer]{palettes_d}}).
 #' @param opacity The opacity/transparency of the histograms for visualizing overlapping events, a value between 0 and 1 (default).
 #' @param legend_pos The position of the legend in the plot. Default is \code{"topright"}.
+#' @param ... Additional graphical parameters passed to  \code{\link[graphics]{hist}}.
 #' @returns A density histogram of the selected events/aspects.
 #' 
 #' @examples 
@@ -1080,13 +1081,13 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @returns A density histogram of the selected events/aspect.
 #' 
 #' @export
-histogram <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
+histogram <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright", ...) {
     UseMethod("histogram")
 }
 #' 
 #' @rdname histogram
 #' @export
-histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
+histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright", ...) {
     if (is.vector(events)) {
         master <- tidy_marginals(x)
     } else {
@@ -1100,14 +1101,16 @@ histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freed
     palette <- grDevices::adjustcolor(palette, alpha.f = opacity)
 
     x_all <- master[master$event %in% events, ]$year
-    xlims <- c(min(x_all), max(x_all))
+    if (is.null(xlim)) {
+        xlim <- c(min(x_all), max(x_all))
+    }
 
     if (length(events) == 1) {
         x <- master[master$event == events[1], ]$year
-        graphics::hist(x, breaks = breaks, freq = FALSE, xlim = xlims, xlab = xlab, ylim = ylim, col = palette[1], lty="blank", main = "")
+        graphics::hist(x, breaks = breaks, freq = FALSE, xlim = xlim, xlab = xlab, ylim = ylim, col = palette[1], lty="blank", main = "", ...)
     } else if (length(events) > 1 & length(events <= 12)) {
         x <- master[master$event == events[1], ]$year
-        graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", xlim = xlims, ylim = ylim, col = palette[1], xlab = xlab, main = "")
+        graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, main = "", ...)
         for (k in 2:length(events)) {
             x <- master[master$event == events[k], ]$year
             graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE)
@@ -1120,7 +1123,7 @@ histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freed
 #' 
 #' @rdname histogram
 #' @export
-histogram.type_marginals <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright") {
+histogram.type_marginals <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright", ...) {
     display_name <- x$name
 
     if ((!("production" %in% aspect) & !("use" %in% aspect) ) & !("deposition" %in% aspect))  {
@@ -1150,18 +1153,19 @@ histogram.type_marginals <- function(x, events = NULL, aspect = c("production", 
     aspect_name <- unique(dat$aspect)
 
     palette <- grDevices::adjustcolor(palette, alpha.f = opacity)
-
-    xlims <- c(min(dat$year), max(dat$year))
+    if (is.null(xlim)) {
+        xlim <- c(min(dat$year), max(dat$year))
+    }
 
     if (length(aspect) == 1) {
         x <- dat$year
-        graphics::hist(x, breaks = breaks, freq = FALSE, xlim = xlims, ylim = ylim, col = palette[1], xlab = xlab, lty="blank", main = "")
+        graphics::hist(x, breaks = breaks, freq = FALSE, xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, lty="blank", main = "")
     } else {
         x <- dat$year
-        graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", xlim = xlims, ylim = ylim, col = palette[1], xlab = xlab, main = "")
+        graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, main = "")
         for (k in 2:length(aspect_name)) {
             x <- dat[dat$aspect == aspect_name[k], ]$year
-            graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE)
+            graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE, ...)
         }
     }
     graphics::legend(legend_pos, legend = aspect_name, col = palette[1:length(aspect)], pt.cex = 2.5, pch = 15)
@@ -1231,9 +1235,9 @@ tidy_marginals.type_marginals <- function(input) {
     prd_samples <- input$type$production
     use_samples <- input$type$use
 
-    dat <- rbind(dat, data.frame(x = use_samples, event = paste0(input$use$use_name, "- Use")))
-    dat <- rbind(dat, data.frame(x = dep_samples, event = paste0(input$use$use_name, "- Deposition")))
-    dat <- rbind(dat, data.frame(x = prd_samples, event = paste0(input$use$use_name, "- Production")))
+    dat <- rbind(dat, data.frame(x = use_samples, event = paste0(input$name, " - Use")))
+    dat <- rbind(dat, data.frame(x = dep_samples, event = paste0(input$name, " - Deposition")))
+    dat <- rbind(dat, data.frame(x = prd_samples, event = paste0(input$name, " - Production")))
 
     return(dat)
 }
@@ -1567,6 +1571,7 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
         gibbs[elements-1,1] <- alpha_
         gibbs[elements,1] <- omega_
 
+        contexts_type_name <- proceed_all[proceed_all %in% contexts_type]
         contexts_type_idx <- which(proceed_all %in% contexts_type)
         contexts_type_absent_idx <- which(!(proceed_all %in% contexts_type))
 
@@ -1623,7 +1628,8 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
 
         # finds production and use
 
-        dep_i <- gibbs[proceed_all %in% contexts_type, ]
+        dep_i <- gibbs[ contexts_type_idx, ]
+
         if (!is.matrix(dep_i)) {
             dep_i <- t(as.matrix(dep_i, nrow = 1, byrow =TRUE))
         }
@@ -1632,25 +1638,31 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
             Ym <- apply(rbind(Ym, gibbs[proceed_all %in% tpq_production, ]), 2, min  )
         }
 
-        Xm <- gibbs[contexts_type_absent_idx, ]
-        Ym_min <- matrix(Ym, nrow = nrow(Xm), ncol = ncol(Xm), byrow = TRUE)
-        Xm[Xm >= Ym_min] <- alpha_ - 1
-        Xm <- apply(Xm, 2, max)
+        Ym_idx <- contexts_type_idx[apply(dep_i,2,which.min)]
+
+        Xm <- max_antea(Ym_idx, gibbs, PhiMatrix, alpha_)
 
         if (sum(Xm < Ym) != ncol(gibbs)) {
             stop("Error in sequences/finds. Conflict in earliest production thresholds.")
         }
 
-        unif_sim <- matrix(stats::runif(nrow(dep_i) * ncol(gibbs) , 0, 1), nrow = nrow(dep_i))
+        Y <- matrix( Ym, nrow(dep_i), ncol(dep_i), byrow = TRUE)
+        X <- matrix( Xm, nrow(dep_i), ncol(dep_i), byrow = TRUE)
 
-        h_e <- matrix(stats::runif(nrow(dep_i) * ncol(gibbs), Xm, Ym), nrow = nrow(dep_i), ncol = ncol(gibbs))
-        h_n <- unif_sim * (dep_i - h_e) + h_e
+        h_e <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(X) , as.vector(Y) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+        h_n <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_e) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+
+        if (rule == "naive") {
+            u <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_n) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+        } else if (rule == "earliest") {
+            u <- h_n
+        }
 
         if (rule == "earliest") {
-            gibbs_use[proceed_all %in% contexts_type, ] <- unif_sim * (dep_i - h_e) + h_e
+            gibbs_use[proceed_all %in% contexts_type, ] <- u
             gibbs_prd[proceed_all %in% contexts_type, ] <- h_e
         } else if (rule == "naive") {
-            gibbs_use[proceed_all %in% contexts_type, ] <- unif_sim * (dep_i - h_n) + h_n
+            gibbs_use[proceed_all %in% contexts_type, ] <- u
             gibbs_prd[proceed_all %in% contexts_type, ] <- h_n
         }
 
@@ -1706,7 +1718,8 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
                     gibbs_next_prd <- matrix(NA, nrow = elements, ncol = (size + 1))
                     gibbs_next_use <- matrix(NA, nrow = elements, ncol = (size + 1))
 
-                    dep_i <- gibbs_next[proceed_all %in% contexts_type, ]
+                    dep_i <- gibbs_next[ contexts_type_idx, ]
+
                     if (!is.matrix(dep_i)) {
                         dep_i <- t(as.matrix(dep_i, nrow = 1, byrow =TRUE))
                     }
@@ -1715,27 +1728,33 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
                         Ym <- apply(rbind(Ym, gibbs_next[proceed_all %in% tpq_production, ]), 2, min  )
                     }
 
-                    Xm <- gibbs_next[contexts_type_absent_idx, ]
-                    Ym_min <- matrix(Ym, nrow = nrow(Xm), ncol = ncol(Xm), byrow = TRUE)
-                    Xm[Xm >= Ym_min] <- alpha_ - 1
-                    Xm <- apply(Xm, 2, max)
+                    Ym_idx <- contexts_type_idx[apply(dep_i,2,which.min)]
+
+                    Xm <- max_antea(Ym_idx, gibbs_next, PhiMatrix, alpha_)
 
                     if (sum(Xm < Ym) != ncol(gibbs_next)) {
                         stop("Error in sequences/finds. Conflict in earliest production thresholds.")
                     }
-                    
-                    unif_sim <- matrix(stats::runif(nrow(dep_i) * ncol(gibbs_next) , 0, 1), nrow = nrow(dep_i))
 
-                    h_e <- matrix(stats::runif(nrow(dep_i) * ncol(gibbs_next), Xm, Ym), nrow = nrow(dep_i), ncol = ncol(gibbs_next))
-                    h_n <- unif_sim * (dep_i - h_e) + h_e
+                    Y <- matrix( Ym, nrow(dep_i), ncol(dep_i), byrow = TRUE)
+                    X <- matrix( Xm, nrow(dep_i), ncol(dep_i), byrow = TRUE)
+
+                    h_e <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(X) , as.vector(Y) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+                    h_n <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_e) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+
+                    if (rule == "naive") {
+                        u <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_n) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+                    } else if (rule == "earliest") {
+                        u <- h_n
+                    }
 
                     if (rule == "earliest") {
-                        gibbs_next_use[proceed_all %in% contexts_type, ] <- unif_sim * (dep_i - h_e) + h_e
+                        gibbs_next_use[proceed_all %in% contexts_type, ] <- u
                         gibbs_next_prd[proceed_all %in% contexts_type, ] <- h_e
                     } else if (rule == "naive") {
-                        gibbs_next_use[proceed_all %in% contexts_type, ] <- unif_sim * (dep_i - h_n) + h_n
+                        gibbs_next_use[proceed_all %in% contexts_type, ] <- u
                         gibbs_next_prd[proceed_all %in% contexts_type, ] <- h_n
-                    }      
+                    }
 
                     gibbs <- cbind(gibbs, gibbs_next[, 2:ncol(gibbs_next)])
                     gibbs_use <- cbind(gibbs_use, gibbs_next_use[, 2:ncol(gibbs_next_use)])

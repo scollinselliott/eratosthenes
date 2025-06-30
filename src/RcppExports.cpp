@@ -10,29 +10,17 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// gibbs_ad_use_cpp
-NumericVector gibbs_ad_use_cpp(Rcpp::NumericMatrix marginal, Rcpp::List tpq_list, Rcpp::List taq_list);
-RcppExport SEXP _eratosthenes_gibbs_ad_use_cpp(SEXP marginalSEXP, SEXP tpq_listSEXP, SEXP taq_listSEXP) {
+// max_antea
+NumericVector max_antea(NumericVector Ym_idx, Rcpp::NumericMatrix g, Rcpp::IntegerMatrix phi, double alpha);
+RcppExport SEXP _eratosthenes_max_antea(SEXP Ym_idxSEXP, SEXP gSEXP, SEXP phiSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type marginal(marginalSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type tpq_list(tpq_listSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type taq_list(taq_listSEXP);
-    rcpp_result_gen = Rcpp::wrap(gibbs_ad_use_cpp(marginal, tpq_list, taq_list));
-    return rcpp_result_gen;
-END_RCPP
-}
-// gibbs_ad_use_init_cpp
-NumericVector gibbs_ad_use_init_cpp(Rcpp::List tpq_list, Rcpp::List taq_list, int n_samples);
-RcppExport SEXP _eratosthenes_gibbs_ad_use_init_cpp(SEXP tpq_listSEXP, SEXP taq_listSEXP, SEXP n_samplesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type tpq_list(tpq_listSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type taq_list(taq_listSEXP);
-    Rcpp::traits::input_parameter< int >::type n_samples(n_samplesSEXP);
-    rcpp_result_gen = Rcpp::wrap(gibbs_ad_use_init_cpp(tpq_list, taq_list, n_samples));
+    Rcpp::traits::input_parameter< NumericVector >::type Ym_idx(Ym_idxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type g(gSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(max_antea(Ym_idx, g, phi, alpha));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -117,8 +105,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_eratosthenes_gibbs_ad_use_cpp", (DL_FUNC) &_eratosthenes_gibbs_ad_use_cpp, 3},
-    {"_eratosthenes_gibbs_ad_use_init_cpp", (DL_FUNC) &_eratosthenes_gibbs_ad_use_init_cpp, 3},
+    {"_eratosthenes_max_antea", (DL_FUNC) &_eratosthenes_max_antea, 4},
     {"_eratosthenes_quae_postea_matrix_cpp", (DL_FUNC) &_eratosthenes_quae_postea_matrix_cpp, 2},
     {"_eratosthenes_quae_antea_matrix_cpp", (DL_FUNC) &_eratosthenes_quae_antea_matrix_cpp, 2},
     {"_eratosthenes_gibbs_ad_cpp", (DL_FUNC) &_eratosthenes_gibbs_ad_cpp, 8},
