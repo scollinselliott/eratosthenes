@@ -29,16 +29,16 @@ seq_check <- function(obj) {
 seq_check.list <- function(obj) {
     qp_ <- quae_postea(obj)
 
-    clear <- TRUE
+    check <- TRUE
     for (i in names(qp_)) {
         if (i != "omega") {
             if (i %in% qp_[[i]]) {
-                clear <- FALSE
+                check <- FALSE
             }
         }
     }
 
-    return(clear)
+    return(check)
 } 
 
 
@@ -67,7 +67,7 @@ synth_rank <- function(obj, ties = "average") {
 #' @rdname synth_rank
 #' @export
 synth_rank.list <- function(obj, ties = "average") {
-    result <- NULL
+    res <- NULL
     if (seq_check(obj) == TRUE) {
         elements <- names(obj)
         qp_ <- quae_postea(obj)
@@ -77,12 +77,12 @@ synth_rank.list <- function(obj, ties = "average") {
         for (i in names(qp_)) {
             quot_postea[i] <- length(qp_[[i]])
         }
-        result <- rank(quot_postea * -1, ties.method = ties)
-        result <- names(result)[order(result)]
+        res <- rank(quot_postea * -1, ties.method = ties)
+        res <- names(res)[order(res)]
     } else {
         message("Sequences are inconsistent.")
     }
-    return(result)
+    return(res)
 }
 
 
@@ -202,7 +202,7 @@ seq_adj <- function(input, target) {
 #' @rdname seq_adj
 #' @export
 seq_adj.character <- function(input, target) {
-    result <- NULL
+    res <- NULL
     joint <- intersect(input, target)
     if (length(joint) > 2) {
         xj <- input %in% joint
@@ -215,13 +215,13 @@ seq_adj.character <- function(input, target) {
         x <- c(0, x, length(x_pos) + 1)
         y <- c(0, y, length(y_pos) + 1)
         interp <- stats::approx(x, y, n = length(x_pos) + 2)
-        result <- interp$y[1:length(x_pos)+1]
-        names(result) <- input
-        result <- input[order(result)]
+        res <- interp$y[1:length(x_pos)+1]
+        names(res) <- input
+        res <- input[order(res)]
     } else {
         message("Insufficient number of joint elements in input and target sequence (must be > 2).")
     }
-    return(result)
+    return(res)
 }
 
 
@@ -296,551 +296,191 @@ gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit 
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
-    if (seq_check(sequences) == TRUE) {
-        proceed <- synth_rank(sequences)
- 
-        if (!is.list(tpq)) {
-            tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
+    if (seq_check(sequences) == FALSE) {
+        stop("Sequences has failed consistency check with seq_check().")
+    }
+
+    proceed <- synth_rank(sequences)
+
+    if (!is.list(tpq)) {
+        tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
+    }
+    if (!is.list(taq)) {
+        taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
+    }
+
+    # proceed_all from tpq, taq, relative, alpha, omega
+    proceed_all <- c()
+
+    # total number of elements
+    elements <- length(tpq) + length(taq) + length(proceed) + 2
+
+    # indices
+    tpq_idx <- 1:length(tpq)
+    taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
+    proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+
+    gibbs <- matrix(0, nrow = elements, ncol = size)
+
+    for (i in 1:length(sequences)) {
+        sequences[[i]] <- c("alpha", sequences[[i]], "omega")   
+    }
+
+    j <- 0
+    for (i in 1:length(tpq)) {
+        if (!(tpq[[i]]$assoc %in% proceed)) {
+            stop(paste0("Context of tpq ", tpq[[i]]$id, " : ", tpq[[i]]$assoc, " is not given in relative sequences"))
         }
-        if (!is.list(taq)) {
-            taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
+        sequences <- c(sequences, list(c(tpq[[i]]$id, tpq[[i]]$assoc))  )
+        proceed_all <- c(proceed_all, tpq[[i]]$id )
+        gibbs[j+1,1] <- min(tpq[[i]]$samples)          # initialize tpq with earliest possible
+        j <- j + 1
+    }
+    for (i in 1:length(taq)) {
+        if (!(taq[[i]]$assoc %in% proceed)) {
+            stop(paste0("Context of taq ", taq[[i]]$id, " : ", taq[[i]]$assoc, " is not given in relative sequences"))
         }
+        sequences <- c(sequences, list(c(taq[[i]]$assoc, taq[[i]]$id)) )
+        proceed_all <- c(proceed_all, taq[[i]]$id )
+        gibbs[j+1,1] <- max(taq[[i]]$samples)          # initialize taq with latest possible
+        j <- j + 1
+    }
 
-        # proceed_all from tpq, taq, relative, alpha, omega
-        proceed_all <- c()
+    proceed_all <- c(proceed_all, proceed, "alpha", "omega")
+    gibbs[elements-1,1] <- alpha_
+    gibbs[elements,1] <- omega_
 
-        # total number of elements
-        elements <- length(tpq) + length(taq) + length(proceed) + 2
-
-        # indices
-        tpq_idx <- 1:length(tpq)
-        taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
-        proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
-
-
-        gibbs <- matrix(0, nrow = elements, ncol = size)
-
-        for (i in 1:length(sequences)) {
-            sequences[[i]] <- c("alpha", sequences[[i]], "omega")   
+    # convert to indices
+    M <- list()
+    for (i in 1:length(sequences)) {
+        tmp <- numeric(length(sequences[[i]]))
+        for (j in 1:length(sequences[[i]])) {
+            tmp[j] <- which(proceed_all == sequences[[i]][j])
         }
+        M[[i]] <- tmp
+    }
 
-        j <- 0
-        for (i in 1:length(tpq)) {
-            if (!(tpq[[i]]$assoc %in% proceed)) {
-                stop(paste0("Context of tpq ", tpq[[i]]$id, " : ", tpq[[i]]$assoc, " is not given in relative sequences"))
-            }
-            sequences <- c(sequences, list(c(tpq[[i]]$id, tpq[[i]]$assoc))  )
-            proceed_all <- c(proceed_all, tpq[[i]]$id )
-            gibbs[j+1,1] <- min(tpq[[i]]$samples)          # initialize tpq with earliest possible
-            j <- j + 1
-        }
-        for (i in 1:length(taq)) {
-            if (!(taq[[i]]$assoc %in% proceed)) {
-                stop(paste0("Context of taq ", taq[[i]]$id, " : ", taq[[i]]$assoc, " is not given in relative sequences"))
-            }
-            sequences <- c(sequences, list(c(taq[[i]]$assoc, taq[[i]]$id)) )
-            proceed_all <- c(proceed_all, taq[[i]]$id )
-            gibbs[j+1,1] <- max(taq[[i]]$samples)          # initialize taq with latest possible
-            j <- j + 1
-        }
+    PhiMatrix <- quae_antea_matrix_cpp(elements, M)
+    PsiMatrix <- quae_postea_matrix_cpp(elements, M)
 
-        proceed_all <- c(proceed_all, proceed, "alpha", "omega")
-        gibbs[elements-1,1] <- alpha_
-        gibbs[elements,1] <- omega_
+    init_sample <- floor(sqrt(elements))
 
-        # convert to indices
-        M <- list()
-        for (i in 1:length(sequences)) {
-            tmp <- numeric(length(sequences[[i]]))
-            for (j in 1:length(sequences[[i]])) {
-                tmp[j] <- which(proceed_all == sequences[[i]][j])
-            }
-            M[[i]] <- tmp
-        }
-
-        PhiMatrix <- quae_antea_matrix_cpp(elements, M)
-        PsiMatrix <- quae_postea_matrix_cpp(elements, M)
-
-        init_sample <- floor(sqrt(elements))
-
-        # indices of non-trimmed relative events
-        if (trim == TRUE) {
-            idx_nontrim <- numeric(length(proceed))
-            for (i in 1:length(proceed)) {
-                idx <- proceed_idx[i]   
-                check1 <- sum(PsiMatrix[idx, taq_idx])
-                check2 <- sum(PhiMatrix[idx, tpq_idx])
-                if (check1 > 0 & check2 > 0) {
-                    idx_nontrim[i] <- 1
-                }
-            } 
-            idx_trim <- which(idx_nontrim == 0) + length(tpq) + length(taq)
-            trim_label <- proceed[which(idx_nontrim == 0)]
-            nontrim_label <- proceed_all[!(names(proceed_all) %in% trim_label)]
-        }
-
-
-        # sampling initial values
-
-        message("Assigning initial random values (this may take a moment)...")
-
-        gibbs[,1] <- gibbs_ad_initial_cpp(gibbs[,1], tpq_idx, PsiMatrix, tpq, taq_idx, PhiMatrix, taq, proceed_idx, init_sample)
-
-        # main sampler
-
-        message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
-
-        gibbs <- gibbs_ad_cpp(gibbs, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
-
-        # consistent batch means
-        mcse_check <- FALSE
-        while (mcse_check == FALSE) {
-            n_upto <- ncol(gibbs)
-            n_batch <- floor(sqrt(n_upto)) # length of samples in batch
-            K <- floor(n_upto / n_batch) # number of batches
-            m_batch <- matrix(NA, nrow = nrow(gibbs), ncol = (K-1))
-            remainder <- n_upto - n_batch * K + 1
-
-            idx1 <- remainder
-
-            for (k in 1:(K-1)) {
-                idxs <- idx1:(idx1 + n_batch)       
-
-                # in cases where n_upto = n_batch * K
-                idxs <- idxs[idxs <= ncol(gibbs)]
-
-                m_batch[, k] <- rowMeans(gibbs[ , idxs]) 
-                idx1 <- idxs[length(idxs)] + 1
-            }
-            
-            mcse0 <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
-            
-            # remove trimmed events from estimation of mean MCSE
-            mcse <- mcse0
-            if (trim == TRUE) {
-                if (length(idx_trim) > 0) {
-                    mcse <- mcse[-idx_trim]
-                }
-            }
-            # do not include fixed single-point events as part of estimating MCSE
-            mcse <- mcse[mcse > 0] 
-
-            cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
-            if (mean(mcse) < mcse_crit) {
-                mcse_check <- TRUE
-                message("\nMCSE criterion passed. Finishing.")
-            } else {
-                if (ncol(gibbs) >= max_samples) {
-                    message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
-                    mcse_check <- TRUE
-                } else {
-
-                    gibbs_next <- matrix(0, nrow = nrow(gibbs), ncol = (size + 1) )
-                    gibbs_next[,1] <- gibbs[,ncol(gibbs)]
-                    gibbs_next <- gibbs_ad_cpp(gibbs_next, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
-                    gibbs <- cbind(gibbs, gibbs_next[, 2:ncol(gibbs_next)])
-                }
-            }
-        }
-
-        #samples <- ncol(gibbs)
-
-        deposition <- list()
-        externals <- list()
-        #production <- list()
-
-        names(mcse0) <- proceed_all
-
+    # indices of non-trimmed relative events
+    if (trim == TRUE) {
+        idx_nontrim <- numeric(length(proceed))
         for (i in 1:length(proceed)) {
-            iname <- proceed[i]
             idx <- proceed_idx[i]   
-            if (trim == TRUE) {
-                check <- TRUE
-                check1 <- sum(PsiMatrix[idx, taq_idx])
-                check2 <- sum(PhiMatrix[idx, tpq_idx])
-                if (check1 > 0 & check2 > 0) {
-                    g <- gibbs[idx, ]
-                    deposition[[iname]] <- g
-                }
+            check1 <- sum(PsiMatrix[idx, taq_idx])
+            check2 <- sum(PhiMatrix[idx, tpq_idx])
+            if (check1 > 0 & check2 > 0) {
+                idx_nontrim[i] <- 1
+            }
+        } 
+        idx_trim <- which(idx_nontrim == 0) + length(tpq) + length(taq)
+        trim_label <- proceed[which(idx_nontrim == 0)]
+        nontrim_label <- proceed_all[!(names(proceed_all) %in% trim_label)]
+    }
+
+    # initial sampler
+    message("Assigning initial random values (this may take a moment)...")
+
+    gibbs[,1] <- gibbs_ad_initial_cpp(gibbs[,1], tpq_idx, PsiMatrix, tpq, taq_idx, PhiMatrix, taq, proceed_idx, init_sample)
+
+    # main sampler
+    message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
+
+    gibbs <- gibbs_ad_cpp(gibbs, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
+
+    # consistent batch means
+    mcse_check <- FALSE
+    while (mcse_check == FALSE) {
+        n_upto <- ncol(gibbs)
+        n_batch <- floor(sqrt(n_upto)) # length of samples in batch
+        K <- floor(n_upto / n_batch) # number of batches
+        m_batch <- matrix(NA, nrow = nrow(gibbs), ncol = (K-1))
+        remainder <- n_upto - n_batch * K + 1
+
+        idx1 <- remainder
+
+        for (k in 1:(K-1)) {
+            idxs <- idx1:(idx1 + n_batch)       
+
+            # in cases where n_upto = n_batch * K
+            idxs <- idxs[idxs <= ncol(gibbs)]
+
+            m_batch[, k] <- rowMeans(gibbs[ , idxs]) 
+            idx1 <- idxs[length(idxs)] + 1
+        }
+        
+        mcse0 <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
+        
+        # remove trimmed events from estimation of mean MCSE
+        mcse <- mcse0
+        if (trim == TRUE) {
+            if (length(idx_trim) > 0) {
+                mcse <- mcse[-idx_trim]
+            }
+        }
+        # do not include fixed single-point events as part of estimating MCSE
+        mcse <- mcse[mcse > 0] 
+
+        cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
+        if (mean(mcse) < mcse_crit) {
+            mcse_check <- TRUE
+            message("\nMCSE criterion passed. Finishing.")
+        } else {
+            if (ncol(gibbs) >= max_samples) {
+                message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
+                mcse_check <- TRUE
             } else {
+
+                gibbs_next <- matrix(0, nrow = nrow(gibbs), ncol = (size + 1) )
+                gibbs_next[,1] <- gibbs[,ncol(gibbs)]
+                gibbs_next <- gibbs_ad_cpp(gibbs_next, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
+                gibbs <- cbind(gibbs, gibbs_next[, 2:ncol(gibbs_next)])
+            }
+        }
+    }
+
+    deposition <- list()
+    externals <- list()
+
+    names(mcse0) <- proceed_all
+
+    for (i in 1:length(proceed)) {
+        iname <- proceed[i]
+        idx <- proceed_idx[i]   
+        if (trim == TRUE) {
+            check <- TRUE
+            check1 <- sum(PsiMatrix[idx, taq_idx])
+            check2 <- sum(PhiMatrix[idx, tpq_idx])
+            if (check1 > 0 & check2 > 0) {
                 g <- gibbs[idx, ]
                 deposition[[iname]] <- g
             }
+        } else {
+            g <- gibbs[idx, ]
+            deposition[[iname]] <- g
         }
-        for (i in 1:length(tpq)) {
-            ii <- tpq[[i]]
-            tpq_idx <- match(ii$id, proceed_all)
-            g <- gibbs[tpq_idx, ]
-            externals[[ii$id]] <- g
-        }
-        for (i in 1:length(taq)) {
-            ii <- taq[[i]]
-            taq_idx <- match(ii$id, proceed_all)
-            g <- gibbs[taq_idx, ]
-            externals[[ii$id]] <- g
-        }
-
-        # # production dates 
-        # if (!is.null(finds)) {
-        #     message("Computing densities for find-type production...")
-        #     findstypes <- c()
-        #     for (i in finds) {
-        #         findstypes <- c(findstypes, i$type)
-        #     }
-        #     for (i in tpq) {
-        #         findstypes <- c(findstypes, i$type)
-        #     }
-        #     for (i in taq) {
-        #         findstypes <- c(findstypes, i$type)
-        #     }
-
-        #     findslength <- length(finds)
-        #     findstypes <- unique(findstypes)
-        #     findstypeslength <- length(findstypes)
-
-        #     attestation <- matrix(0, nrow = elements, ncol = findstypeslength)
-        #     for (i in 1:findslength) {
-        #         ii <- finds[[i]]
-        #         context <- ii$assoc
-        #         contexti <- match(context, proceed_all)
-        #         types <- ii$type
-        #         typeslength <- length(types)
-        #         for (k in 1:typeslength) {
-        #             j <- match(types[k], findstypes)
-        #             attestation[contexti, j] <- 1
-        #         }
-        #     }
-        #     for (i in 1:length(tpq)) {
-        #         ii <- tpq[[i]]
-        #         context <- ii$assoc
-        #         contexti <- match(context, proceed_all)
-        #         types <- ii$type
-        #         typeslength <- length(types)
-        #         for (k in 1:typeslength) {
-        #             j <- match(types[k], findstypes)
-        #             attestation[contexti, j] <- 1
-        #         }
-        #     }
-        #     for (i in 1:length(taq)) {
-        #         ii <- taq[[i]]
-        #         context <- ii$assoc
-        #         contexti <- match(context, proceed_all)
-        #         types <- ii$type
-        #         typeslength <- length(types)
-        #         for (k in 1:typeslength) {
-        #             j <- match(types[k], findstypes)
-        #             attestation[contexti, j] <- 1
-        #         }    
-        #     }
-
-        #     type_earliest_dep <- matrix(0, nrow = findstypeslength, ncol = samples)
-
-        #     for (i in 1:findstypeslength) {
-        #         attested <- attestation[ , i]
-        #         contexts <- which(attested == 1)
-        #         cols <- as.matrix( gibbs[contexts,] )
-        #         if (ncol(cols) == 1) {
-        #             type_earliest_dep[i,] <- t(cols)
-        #         } else {
-        #             for (j in 1:samples) {
-        #                 type_earliest_dep[i,j] <- min(cols[,j])
-        #             }
-        #         }
-        #     }
-
-        #     type_prev_dep <- matrix(0, nrow = findstypeslength, ncol = samples)
-
-        #     for (i in 1:findstypeslength) {
-        #         for (j in 1:samples) {
-        #             earliest_dep <- type_earliest_dep[i,j]
-        #             deps <- gibbs[ , j]
-        #             prev <- max(deps[deps < earliest_dep])
-        #             type_prev_dep[i, j] <- prev
-        #         }
-        #     }
-
-        #     mcseprd <- numeric(findstypeslength)
-        #     names(mcseprd) <- findstypes
-            
-        #     if (rule == "naive") {
-        #         for (i in 1:findstypeslength) {
-        #             attested <- attestation[ , i]
-        #             contexts <- which(attested == 1)
-        #             cols <- as.matrix( gibbs[contexts,] )   
-        #             outsize <- nrow(cols) * ncol(cols)
-
-        #             if (ncol(cols) == 1) {
-        #                 out <- numeric(outsize)
-
-        #                 L <- type_prev_dep[i, ]
-        #                 U <- t(cols)
-        #                 out <- stats::runif(samples, L, U)
-        #             } else {
-        #                 out <- matrix(0, nrow = nrow(cols), ncol = ncol(cols))
-
-        #                 for (k in 1:nrow(cols)) {
-        #                     for (j in 1:samples) {
-        #                         L <- type_prev_dep[i, j]
-        #                         U <- cols[k,j]
-        #                         s <- stats::runif(1, L, U)
-        #                         out[k , j] <- s
-                           
-        #                     }
-        #                 }
-        #             }
-
-        #             g <- as.vector(out)
-        #             production[[findstypes[i]]] <- g
-                    
-        #             n_upto <- length(g)
-        #             n_batch <- floor(sqrt(n_upto)) # length of samples in batch
-        #             K <- floor(n_upto / n_batch) # number of batches
-        #             m_batch <- numeric((K-1))
-        #             remainder <- n_upto - n_batch * K + 1
-
-        #             idx1 <- remainder
-        #             for (k in 1:(K-1)) {
-        #                 idxs <- idx1:(idx1 + n_batch)       
-        #                 m_batch[k] <- mean(g[idxs]) 
-        #                 idx1 <- idxs[length(idxs)] + 1
-        #             }
-        #             mcseprd[i] <- sqrt( sum( (m_batch - mean(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
-
-        #         }
-        #     } else if (rule == "earliest") {
-        #         for (i in 1:findstypeslength) {
-        #             attested <- attestation[ , i]
-        #             contexts <- which(attested == 1)
-        #             cols <- as.matrix( gibbs[contexts,] )   
-
-        #             out <- numeric(outsize)
-
-        #             L <- type_prev_dep[i, ]
-        #             U <- type_earliest_dep[i, ]
-        #             out <- stats::runif(samples, L, U)
-                    
-        #             g <- out
-        #             production[[findstypes[i]]] <- g                
-                    
-        #             n_upto <- length(g)
-        #             n_batch <- floor(sqrt(n_upto)) # length of samples in batch
-        #             K <- floor(n_upto / n_batch) # number of batches
-        #             m_batch <- numeric((K-1))
-        #             remainder <- n_upto - n_batch * K + 1
-
-        #             idx1 <- remainder
-        #             for (k in 1:(K-1)) {
-        #                 idxs <- idx1:(idx1 + n_batch)       
-        #                 m_batch[k] <- mean(g[idxs]) 
-        #                 idx1 <- idxs[length(idxs)] + 1
-        #             }
-        #             mcseprd[i] <- sqrt( sum( (m_batch - mean(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
-        #         }
-        #     } else {
-        #         production[[findstypes[i]]] <- NULL
-        #         warning('Invalid rule, with NULL given for production dates. Options are "naive", "earliest".')
-        #     }
-
-        # message("Finished.")
-        # #mcse0 <- c(mcse0, mcseprd)
-
-        # class(deposition) <- c("events", "list")
-        # class(externals) <- c("events", "list")
-        # #class(production) <- c("events", "list")
-
-        # names_dep_ext <- c(names(deposition), names(externals)) #, names(production))
-        # mcse0 <- mcse0[names_dep_ext]
-
-        # result <- list(deposition = deposition, externals = externals, mcse = mcse0)
-        # class(result) <- c("marginals", "list")
-        # return(result)
-        # } else {
-            result <- list(deposition = deposition, externals = externals, mcse = mcse0)
-            class(result) <- c("marginals", "list")
-            return(result)
-        }  else {
-        stop("Sequences has failed consistency check with seq_check().")
     }
+    for (i in 1:length(tpq)) {
+        ii <- tpq[[i]]
+        tpq_idx <- match(ii$id, proceed_all)
+        g <- gibbs[tpq_idx, ]
+        externals[[ii$id]] <- g
+    }
+    for (i in 1:length(taq)) {
+        ii <- taq[[i]]
+        taq_idx <- match(ii$id, proceed_all)
+        g <- gibbs[taq_idx, ]
+        externals[[ii$id]] <- g
+    }
+
+    res <- list(deposition = deposition, externals = externals, mcse = mcse0)
+    class(res) <- c("marginals", "list")
+    return(res)
+
 }
-
-
-
-
-# #' Gibbs Sampler for Archaeological Dates: Artifact Use
-# #'
-# #' Using the results of \code{\link[eratosthenes]{gibbs_ad}}, estimate a single density for the date of use of an artifact or artifact type. Multiple artifacts and types can be given, which will be pooled into a single type. For example, one can input several individual finds via their id number as comprising a type, or multiple (sub)types/classes as a single type, (e.g., "MGS V amphora", "MGS VI amphora", "MGS V/VI amphora" to construct one group).
-# #' 
-# #' Depending on whether one is using id numbers or type(s), the \code{id} or \code{type} argument is used, which takes a vector of the entries' names. The \code{gibbs_ad_use} function samples a use date between the production and depositional densities from the results of \code{\link[eratosthenes]{gibbs_ad}}, and in turn pools those densities for the production and deposition of the stipulated ids/type; the resulting \code{list} object does _not_ express marginalized densities of production and deposition in light of the estimation of a use date.
-# #' 
-# #' See \code{\link[eratosthenes]{gibbs_ad}} for information on consistent batch means and Monte Carlo standard error, which are used to determined convergence for the use date.
-# #'
-# #' @param marginalized A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
-# #' @param finds Either the \code{list} object of finds used as input to produce \code{marginals} or a \code{data.frame} of two columns, the first listing the context and the second the incidence of the type in that context.
-# #' @param id A vector of the \code{id} of one or more specific finds whose use date is to be estimated. The values of \code{id} must match those in the \code{list} of \code{finds}. If \code{type} is used, \code{id} is ignored.
-# #' @param type A vector of one or more types to estimate a use density for. Must contain a value if \code{id} is \code{NULL}.
-# #' @param type_name A customized label for the type (e.g., if one is selecting via \code{id} or has combined subtypes). If only \code{type} is used to select finds, the default will be that label Otherwise the default is simply "Type."
-# #' @param max_samples Maximum number of samples to run. Default is \code{10^5}.
-# #' @param size The number of samples to take on each iteration of the main Gibbs sampler. Default is \code{10^3}. 
-# #' @param mcse_crit Criterion for the Monte Carlo standard error to stop the Gibbs sampler. Only the MCSE of the use date is used as a stopping rule.
-# #' 
-# #' @examples 
-# #' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-# #' y <- c("B", "D", "G", "H", "K")
-# #' z <- c("F", "K", "L", "M")
-# #' contexts <- list(x, y, z)
-# #' 
-# #' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-# #' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-# #' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-# #' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-# #' f5 <- list(id = "find05", assoc = "I", type = "type2")
-# #' f6 <- list(id = "find06", assoc = "H", type = NULL)
-# #' 
-# #' artifacts <- list(f1, f2, f3, f4, f5, f6)
-# #'  
-# #' # external constraints
-# #' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-# #' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-# #' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
-# #' 
-# #' tpq_info <- list(coin1, coin2)
-# #' taq_info <- list(destr)
-# #' 
-# #' result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
-# #' 
-# #' # use dates by specifying ids
-# #' gibbs_ad_use(result, artifacts, id = c("find04", "find05"), max_samples = 2000, mcse_crit = 2)
-# #'
-# #' # use dates by specifying types
-# #' gibbs_ad_use(result, artifacts, type = "type1", max_samples = 2000, mcse_crit = 2)
-# #' 
-# #' @returns A \code{list} of class \code{use_marginals} of the density of a use date, conditional upon production and depositional dates.
-# #' 
-# #' @export
-# gibbs_ad_use <- function(marginalized, finds, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5) {
-#     UseMethod("gibbs_ad_use")
-# }
-# #' 
-# #' @rdname gibbs_ad_use
-# #' @export
-# gibbs_ad_use.marginals <- function(marginalized, finds, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5) {
-#     if (is.data.frame(finds)) {
-#         finds <- finds_d2l(finds)
-#     }
-#     if (!is.list(finds)) {
-#         stop("finds must be list or data frame object.")
-#     }
-#     if (is.null(id) & is.null(type)) {
-#         stop("Either one or more id or types must be specified.")
-#     } else {
-#         if (length(type) > 0) {
-#             if (length(id) > 0) {
-#                 message('Both id and type specified. Defaulting to type (omit or specify "type = NULL" to use id).')
-#             }
-#             id <- ids_of_types(finds, type)
-#         }
-#     }
-#     # if (is.null(id)) {
-#     #     stop("id or type needed as input for finds argument.")
-#     # }
-
-#     message("Estimating use date for id(s)/type(s) specified, sampling in between dates of production and deposition.")
-#     sequence_ <- list()
-
-#     if (length(id) == 0) {
-#         stop("No ids or types found with that name.")
-#     }
-
-#     tpq_ <- list()
-#     taq_ <- list()
-
-#     for (i in 1:length(id)) {
-#         for (j in finds) {
-#             if (j$id == id[i]) {
-#                 pooled <- c()
-#                 k_type <- j$type
-#                 for (k in 1:length(k_type)) {
-#                     pooled <- c(pooled, marginalized$production[[k_type[k]]])
-#                 }
-#                 tpq_[[i]] <- pooled
-#                 taq_[[i]] <- marginalized$deposition[[j$assoc]]
-#             }
-#         }
-#     }
-
-#     gibbs0 <- gibbs_ad_use_init_cpp(tpq_, taq_, size)
-
-#     # for pooling all prd, dep, and use dates into respective distr
-#     idx1_ <- length(tpq_) + 1 
-#     idx2_ <- length(tpq_) * 2 + 1
-
-#     # consistent batch means
-#     mcse_check <- FALSE
-#     while (mcse_check == FALSE) {
-#         vec <- c(c(gibbs0[1:length(tpq_), ]), c(gibbs0[idx1_:(idx1_+(length(tpq_))-1), ]), c(gibbs0[idx2_:(idx2_+(length(tpq_))-1), ]) )
-#         gibbs <- matrix(vec, nrow = 3, byrow = TRUE)
-
-#         n_upto <- ncol(gibbs)
-#         n_batch <- floor(sqrt(n_upto)) # length of samples in batch
-#         K <- floor(n_upto / n_batch) # number of batches
-#         m_batch <- matrix(NA, nrow = nrow(gibbs), ncol = (K-1))
-#         remainder <- n_upto - n_batch * K + 1
-
-#         idx1 <- remainder
-
-#         for (k in 1:(K-1)) {
-#             idxs <- idx1:(idx1 + n_batch)       
-
-#             # in cases where n_upto = n_batch * K
-#             idxs <- idxs[idxs <= ncol(gibbs)]
-#             m_batch[, k] <- rowMeans(gibbs[ , idxs]) 
-#             idx1 <- idxs[length(idxs)] + 1
-#         }
-        
-#         mcse <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
-        
-#         # do not include fixed single-point events as part of estimating MCSE
-#         mcse <- mcse[mcse > 0] 
-
-#         cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
-#         if (mean(mcse) < mcse_crit) {
-#             mcse_check <- TRUE
-#             message("\nMCSE criterion passed. Finishing.")
-#         } else {
-#             if (ncol(gibbs) >= max_samples) {
-#                 message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
-#                 mcse_check <- TRUE
-#             } else {
-#                 gibbs0_next <- matrix(0, nrow = nrow(gibbs0), ncol = (size + 1) )
-#                 gibbs0_next[,1] <- gibbs0[,ncol(gibbs0)]
-#                 gibbs0_next <- gibbs_ad_use_cpp(gibbs0_next, tpq_, taq_)
-#                 gibbs0 <- cbind(gibbs0, gibbs0_next[, 2:ncol(gibbs0_next)])
-#             }
-#         }
-#     }
-
-
-#     prd <- gibbs[1,]
-#     dep <- gibbs[2,]
-#     use <- gibbs[3,]
-    
-#     if (is.null(type_name)) {
-#         if (!is.null(type)) {
-#             if (length(type) == 1) {
-#                 type_name <- type
-#             } else {
-#                 type_name <- "Type"
-#             }
-#         } else {
-#             type_name <- "Type"
-#         }
-#     }
-
-#     marginalized[['use']] <- list(use_name = type_name, use_date = use, production_date = prd, deposition_date = dep, use_mcse = mcse[3], production_mcse = mcse[1], deposition_mcse = mcse[2])
-#     class(marginalized) <- c("use_marginals", "list")
-#     return(marginalized)
-# } 
-
 
 
 
@@ -1368,7 +1008,7 @@ ids_of_types <- function(input, type = NULL) {
 #' @rdname ids_of_types
 #' @export
 ids_of_types.list <- function(input, type = NULL) {
-    result <- c()
+    res <- c()
     if (is.vector(type)) {
         for (k in type) {
             for (i in input) {
@@ -1376,7 +1016,7 @@ ids_of_types.list <- function(input, type = NULL) {
                     if (length(i$type) > 0) {
                         for (j in i$type) {
                             if (j == k) {
-                                result <- c(result, i$id)
+                                res <- c(res, i$id)
                             }
                         }
                     }
@@ -1385,7 +1025,7 @@ ids_of_types.list <- function(input, type = NULL) {
                 }
             }
         }
-    return(result)
+    return(res)
     } else {
         stop("type is not vector object.")
     }
@@ -1517,264 +1157,164 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
 
     message("Estimating production, use, and depositional dates for id(s)/type(s) specified.")
 
-    if (seq_check(sequences) == TRUE) {
-        proceed <- synth_rank(sequences)
+    if (seq_check(sequences) == FALSE) {
+        stop("Sequences has failed consistency check with seq_check().")
+    }
 
-        if (!is.list(tpq)) {
-            tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
+
+
+    proceed <- synth_rank(sequences)
+
+    if (!is.list(tpq)) {
+        tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
+    }
+    if (!is.list(taq)) {
+        taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
+    }
+
+    # proceed_all from tpq, taq, relative, alpha, omega
+    proceed_all <- c()
+
+    # total number of elements
+    elements <- length(tpq) + length(taq) + length(proceed) + 2
+
+    # indices
+    tpq_idx <- 1:length(tpq)
+    taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
+    proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+
+    gibbs <- matrix(0, nrow = elements, ncol = size)
+
+    gibbs_prd <- matrix(NA, nrow = elements, ncol = size)
+    gibbs_use <- matrix(NA, nrow = elements, ncol = size)
+
+    for (i in 1:length(sequences)) {
+        sequences[[i]] <- c("alpha", sequences[[i]], "omega")   
+    }
+
+    j <- 0
+    for (i in 1:length(tpq)) {
+        if (!(tpq[[i]]$assoc %in% proceed)) {
+            stop(paste0("Context of tpq ", tpq[[i]]$id, " : ", tpq[[i]]$assoc, " is not given in relative sequences"))
         }
-        if (!is.list(taq)) {
-            taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
+        sequences <- c(sequences, list(c(tpq[[i]]$id, tpq[[i]]$assoc))  )
+        proceed_all <- c(proceed_all, tpq[[i]]$id )
+        gibbs[j+1,1] <- min(tpq[[i]]$samples)          # initialize tpq with earliest possible
+        j <- j + 1
+    }
+    for (i in 1:length(taq)) {
+        if (!(taq[[i]]$assoc %in% proceed)) {
+            stop(paste0("Context of taq ", taq[[i]]$id, " : ", taq[[i]]$assoc, " is not given in relative sequences"))
         }
+        sequences <- c(sequences, list(c(taq[[i]]$assoc, taq[[i]]$id)) )
+        proceed_all <- c(proceed_all, taq[[i]]$id )
+        gibbs[j+1,1] <- max(taq[[i]]$samples)          # initialize taq with latest possible
+        j <- j + 1
+    }
 
-        # proceed_all from tpq, taq, relative, alpha, omega
-        proceed_all <- c()
+    proceed_all <- c(proceed_all, proceed, "alpha", "omega")
+    gibbs[elements-1,1] <- alpha_
+    gibbs[elements,1] <- omega_
 
-        # total number of elements
-        elements <- length(tpq) + length(taq) + length(proceed) + 2
+    contexts_type_name <- proceed_all[proceed_all %in% contexts_type]
+    contexts_type_idx <- which(proceed_all %in% contexts_type)
+    contexts_type_absent_idx <- which(!(proceed_all %in% contexts_type))
 
-        # indices
-        tpq_idx <- 1:length(tpq)
-        taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
-        proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
-
-        gibbs <- matrix(0, nrow = elements, ncol = size)
-
-        gibbs_prd <- matrix(NA, nrow = elements, ncol = size)
-        gibbs_use <- matrix(NA, nrow = elements, ncol = size)
-
-        for (i in 1:length(sequences)) {
-            sequences[[i]] <- c("alpha", sequences[[i]], "omega")   
+    # convert to indices
+    M <- list()
+    for (i in 1:length(sequences)) {
+        tmp <- numeric(length(sequences[[i]]))
+        for (j in 1:length(sequences[[i]])) {
+            tmp[j] <- which(proceed_all == sequences[[i]][j])
         }
+        M[[i]] <- tmp
+    }
 
-        j <- 0
-        for (i in 1:length(tpq)) {
-            if (!(tpq[[i]]$assoc %in% proceed)) {
-                stop(paste0("Context of tpq ", tpq[[i]]$id, " : ", tpq[[i]]$assoc, " is not given in relative sequences"))
+    PhiMatrix <- quae_antea_matrix_cpp(elements, M)
+    PsiMatrix <- quae_postea_matrix_cpp(elements, M)
+
+    init_sample <- floor(sqrt(elements))
+
+    # indices of non-trimmed relative events
+    if (trim == TRUE) {
+        idx_nontrim <- numeric(length(proceed))
+        for (i in 1:length(proceed)) {
+            idx <- proceed_idx[i]   
+            check1 <- sum(PsiMatrix[idx, taq_idx])
+            check2 <- sum(PhiMatrix[idx, tpq_idx])
+            if (check1 > 0 & check2 > 0) {
+                idx_nontrim[i] <- 1
             }
-            sequences <- c(sequences, list(c(tpq[[i]]$id, tpq[[i]]$assoc))  )
-            proceed_all <- c(proceed_all, tpq[[i]]$id )
-            gibbs[j+1,1] <- min(tpq[[i]]$samples)          # initialize tpq with earliest possible
-            j <- j + 1
-        }
-        for (i in 1:length(taq)) {
-            if (!(taq[[i]]$assoc %in% proceed)) {
-                stop(paste0("Context of taq ", taq[[i]]$id, " : ", taq[[i]]$assoc, " is not given in relative sequences"))
-            }
-            sequences <- c(sequences, list(c(taq[[i]]$assoc, taq[[i]]$id)) )
-            proceed_all <- c(proceed_all, taq[[i]]$id )
-            gibbs[j+1,1] <- max(taq[[i]]$samples)          # initialize taq with latest possible
-            j <- j + 1
-        }
+        } 
+        idx_trim <- which(idx_nontrim == 0) + length(tpq) + length(taq)
+        trim_label <- proceed[which(idx_nontrim == 0)]
+        nontrim_label <- proceed_all[!(names(proceed_all) %in% trim_label)]
+    }
 
-        proceed_all <- c(proceed_all, proceed, "alpha", "omega")
-        gibbs[elements-1,1] <- alpha_
-        gibbs[elements,1] <- omega_
+    # initial sampler
+    message("Assigning initial random values (this may take a moment)...")
 
-        contexts_type_name <- proceed_all[proceed_all %in% contexts_type]
-        contexts_type_idx <- which(proceed_all %in% contexts_type)
-        contexts_type_absent_idx <- which(!(proceed_all %in% contexts_type))
+    gibbs[,1] <- gibbs_ad_initial_cpp(gibbs[,1], tpq_idx, PsiMatrix, tpq, taq_idx, PhiMatrix, taq, proceed_idx, init_sample)
 
-        # convert to indices
-        M <- list()
-        for (i in 1:length(sequences)) {
-            tmp <- numeric(length(sequences[[i]]))
-            for (j in 1:length(sequences[[i]])) {
-                tmp[j] <- which(proceed_all == sequences[[i]][j])
-            }
-            M[[i]] <- tmp
-        }
+    if (is.matrix(PhiMatrix[contexts_type_idx,  ] )) {
+        contexts_prior <- which(colSums(PhiMatrix[contexts_type_idx,  ]) > 0 )
+    } else {
+        contexts_prior <- which(PhiMatrix[contexts_type_idx,  ] > 0 )
+    }
+    contexts_prior_absent <- contexts_prior[contexts_prior %in% contexts_type_absent_idx & !(contexts_prior %in%  c((length(proceed_all)-1), length(proceed_all)))]
 
-        PhiMatrix <- quae_antea_matrix_cpp(elements, M)
-        PsiMatrix <- quae_postea_matrix_cpp(elements, M)
+    # main sampler
+    message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
+    cat("Note: MCSE stopping criterion is only applied to sequences/constraints, not finds.\n")
 
-        init_sample <- floor(sqrt(elements))
+    gibbs <- gibbs_ad_cpp(gibbs, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
 
-        # indices of non-trimmed relative events
-        if (trim == TRUE) {
-            idx_nontrim <- numeric(length(proceed))
-            for (i in 1:length(proceed)) {
-                idx <- proceed_idx[i]   
-                check1 <- sum(PsiMatrix[idx, taq_idx])
-                check2 <- sum(PhiMatrix[idx, tpq_idx])
-                if (check1 > 0 & check2 > 0) {
-                    idx_nontrim[i] <- 1
-                }
-            } 
-            idx_trim <- which(idx_nontrim == 0) + length(tpq) + length(taq)
-            trim_label <- proceed[which(idx_nontrim == 0)]
-            nontrim_label <- proceed_all[!(names(proceed_all) %in% trim_label)]
-        }
+    # finds production and use
 
-        # sampling initial values
+    dep_i <- gibbs[ contexts_type_idx, ]
 
-        message("Assigning initial random values (this may take a moment)...")
+    if (!is.matrix(dep_i)) {
+        dep_i <- t(as.matrix(dep_i, nrow = 1, byrow =TRUE))
+    }
+    Ym <- apply(dep_i,2,min)
+    if (length(tpq_production) > 0) {
+        Ym <- apply(rbind(Ym, gibbs[proceed_all %in% tpq_production, ]), 2, min  )
+    }
+    Ym_idx <- contexts_type_idx[apply(dep_i,2,which.min)]
 
-        gibbs[,1] <- gibbs_ad_initial_cpp(gibbs[,1], tpq_idx, PsiMatrix, tpq, taq_idx, PhiMatrix, taq, proceed_idx, init_sample)
+    Xm <- max_antea(Ym_idx, gibbs, PhiMatrix, alpha_)
 
-        if (is.matrix(PhiMatrix[contexts_type_idx,  ] )) {
-            contexts_prior <- which(colSums(PhiMatrix[contexts_type_idx,  ]) > 0 )
-        } else {
-            contexts_prior <- which(PhiMatrix[contexts_type_idx,  ] > 0 )
-        }
-        contexts_prior_absent <- contexts_prior[contexts_prior %in% contexts_type_absent_idx & !(contexts_prior %in%  c((length(proceed_all)-1), length(proceed_all)))]
+    if (sum(Xm < Ym) != ncol(gibbs)) {
+        stop("Error in sequences/finds. Conflict in earliest production thresholds.")
+    }
 
-        # main sampler
+    Y <- matrix( Ym, nrow(dep_i), ncol(dep_i), byrow = TRUE)
+    X <- matrix( Xm, nrow(dep_i), ncol(dep_i), byrow = TRUE)
 
-        message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
-        cat("Note: MCSE stopping criterion is only applied to sequences/constraints, not finds.\n")
+    h_e <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(X) , as.vector(Y) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+    h_n <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_e) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
 
-        gibbs <- gibbs_ad_cpp(gibbs, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
+    if (rule == "naive") {
+        u <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_n) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+    } else if (rule == "earliest") {
+        u <- h_n
+    }
 
-        # finds production and use
+    if (rule == "earliest") {
+        gibbs_use[proceed_all %in% contexts_type, ] <- u
+        gibbs_prd[proceed_all %in% contexts_type, ] <- h_e
+    } else if (rule == "naive") {
+        gibbs_use[proceed_all %in% contexts_type, ] <- u
+        gibbs_prd[proceed_all %in% contexts_type, ] <- h_n
+    }
 
-        dep_i <- gibbs[ contexts_type_idx, ]
-
-        if (!is.matrix(dep_i)) {
-            dep_i <- t(as.matrix(dep_i, nrow = 1, byrow =TRUE))
-        }
-        Ym <- apply(dep_i,2,min)
-        if (length(tpq_production) > 0) {
-            Ym <- apply(rbind(Ym, gibbs[proceed_all %in% tpq_production, ]), 2, min  )
-        }
-
-        Ym_idx <- contexts_type_idx[apply(dep_i,2,which.min)]
-
-        Xm <- max_antea(Ym_idx, gibbs, PhiMatrix, alpha_)
-
-        if (sum(Xm < Ym) != ncol(gibbs)) {
-            stop("Error in sequences/finds. Conflict in earliest production thresholds.")
-        }
-
-        Y <- matrix( Ym, nrow(dep_i), ncol(dep_i), byrow = TRUE)
-        X <- matrix( Xm, nrow(dep_i), ncol(dep_i), byrow = TRUE)
-
-        h_e <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(X) , as.vector(Y) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
-        h_n <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_e) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
-
-        if (rule == "naive") {
-            u <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_n) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
-        } else if (rule == "earliest") {
-            u <- h_n
-        }
-
-        if (rule == "earliest") {
-            gibbs_use[proceed_all %in% contexts_type, ] <- u
-            gibbs_prd[proceed_all %in% contexts_type, ] <- h_e
-        } else if (rule == "naive") {
-            gibbs_use[proceed_all %in% contexts_type, ] <- u
-            gibbs_prd[proceed_all %in% contexts_type, ] <- h_n
-        }
-
-        # consistent batch means
-        mcse_check <- FALSE
-        while (mcse_check == FALSE) {
-            n_upto <- ncol(gibbs)
-            n_batch <- floor(sqrt(n_upto)) # length of samples in batch
-            K <- floor(n_upto / n_batch) # number of batches
-            m_batch <- matrix(NA, nrow = nrow(gibbs), ncol = (K-1))
-            remainder <- n_upto - n_batch * K + 1
-
-            idx1 <- remainder
-
-            for (k in 1:(K-1)) {
-                idxs <- idx1:(idx1 + n_batch)       
-
-                # in cases where n_upto = n_batch * K
-                idxs <- idxs[idxs <= ncol(gibbs)]
-
-                m_batch[, k] <- rowMeans(gibbs[ , idxs]) 
-                idx1 <- idxs[length(idxs)] + 1
-            }
-            
-            mcse0 <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
-            
-            # remove trimmed events from estimation of mean MCSE
-            mcse <- mcse0
-            if (trim == TRUE) {
-                if (length(idx_trim) > 0) {
-                    mcse <- mcse[-idx_trim]
-                }
-            }
-            # do not include fixed single-point events as part of estimating MCSE
-            mcse <- mcse[mcse > 0] 
-
-            cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
-            if (mean(mcse) < mcse_crit) {
-                mcse_check <- TRUE
-                message("\nMCSE criterion passed. Finishing.")
-            } else {
-                if (ncol(gibbs) >= max_samples) {
-                    message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
-                    mcse_check <- TRUE
-                } else {
-
-                    gibbs_next <- matrix(0, nrow = nrow(gibbs), ncol = (size + 1) )
-                    gibbs_next[,1] <- gibbs[,ncol(gibbs)]
-                    gibbs_next <- gibbs_ad_cpp(gibbs_next, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
-
-                    # finds production and use
-                            
-                    gibbs_next_prd <- matrix(NA, nrow = elements, ncol = (size + 1))
-                    gibbs_next_use <- matrix(NA, nrow = elements, ncol = (size + 1))
-
-                    dep_i <- gibbs_next[ contexts_type_idx, ]
-
-                    if (!is.matrix(dep_i)) {
-                        dep_i <- t(as.matrix(dep_i, nrow = 1, byrow =TRUE))
-                    }
-                    Ym <- apply(dep_i,2,min)
-                    if (length(tpq_production) > 0) {
-                        Ym <- apply(rbind(Ym, gibbs_next[proceed_all %in% tpq_production, ]), 2, min  )
-                    }
-
-                    Ym_idx <- contexts_type_idx[apply(dep_i,2,which.min)]
-
-                    Xm <- max_antea(Ym_idx, gibbs_next, PhiMatrix, alpha_)
-
-                    if (sum(Xm < Ym) != ncol(gibbs_next)) {
-                        stop("Error in sequences/finds. Conflict in earliest production thresholds.")
-                    }
-
-                    Y <- matrix( Ym, nrow(dep_i), ncol(dep_i), byrow = TRUE)
-                    X <- matrix( Xm, nrow(dep_i), ncol(dep_i), byrow = TRUE)
-
-                    h_e <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(X) , as.vector(Y) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
-                    h_n <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_e) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
-
-                    if (rule == "naive") {
-                        u <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_n) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
-                    } else if (rule == "earliest") {
-                        u <- h_n
-                    }
-
-                    if (rule == "earliest") {
-                        gibbs_next_use[proceed_all %in% contexts_type, ] <- u
-                        gibbs_next_prd[proceed_all %in% contexts_type, ] <- h_e
-                    } else if (rule == "naive") {
-                        gibbs_next_use[proceed_all %in% contexts_type, ] <- u
-                        gibbs_next_prd[proceed_all %in% contexts_type, ] <- h_n
-                    }
-
-                    gibbs <- cbind(gibbs, gibbs_next[, 2:ncol(gibbs_next)])
-                    gibbs_use <- cbind(gibbs_use, gibbs_next_use[, 2:ncol(gibbs_next_use)])
-                    gibbs_prd <- cbind(gibbs_prd, gibbs_next_prd[, 2:ncol(gibbs_next_prd)])
-
-                }
-            }
-        }
-
-        find_prd_use_dep <- list()
-
-        type_deposition <- c( gibbs[proceed_all %in% contexts_type,] )
-        type_use <- c( gibbs_use[proceed_all %in% contexts_type,] )
-        type_production <- c( gibbs_prd[proceed_all %in% contexts_type,] )
-
-        type_all <- rbind(type_production, type_use, type_deposition)
-        n_upto <- ncol(type_all)
+    # consistent batch means
+    mcse_check <- FALSE
+    while (mcse_check == FALSE) {
+        n_upto <- ncol(gibbs)
         n_batch <- floor(sqrt(n_upto)) # length of samples in batch
         K <- floor(n_upto / n_batch) # number of batches
-        m_batch <- matrix(NA, nrow = nrow(type_all), ncol = (K-1))
+        m_batch <- matrix(NA, nrow = nrow(gibbs), ncol = (K-1))
         remainder <- n_upto - n_batch * K + 1
 
         idx1 <- remainder
@@ -1783,47 +1323,137 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
             idxs <- idx1:(idx1 + n_batch)       
 
             # in cases where n_upto = n_batch * K
-            idxs <- idxs[idxs <= ncol(type_all)]
+            idxs <- idxs[idxs <= ncol(gibbs)]
 
-            m_batch[, k] <- rowMeans(type_all[ , idxs]) 
+            m_batch[, k] <- rowMeans(gibbs[ , idxs]) 
             idx1 <- idxs[length(idxs)] + 1
         }
         
-        mcmean <- rowMeans(m_batch) 
-        mcse <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
+        mcse0 <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
+        
+        # remove trimmed events from estimation of mean MCSE
+        mcse <- mcse0
+        if (trim == TRUE) {
+            if (length(idx_trim) > 0) {
+                mcse <- mcse[-idx_trim]
+            }
+        }
+        # do not include fixed single-point events as part of estimating MCSE
+        mcse <- mcse[mcse > 0] 
 
-        type_stat <-data.frame(MCmean = mcmean, MCSE = mcse)
-        rownames(type_stat) <- c("production", "use", "deposition")
+        cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
+        if (mean(mcse) < mcse_crit) {
+            mcse_check <- TRUE
+            message("\nMCSE criterion passed. Finishing.")
+        } else {
+            if (ncol(gibbs) >= max_samples) {
+                message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
+                mcse_check <- TRUE
+            } else {
 
-        # class(deposition) <- c("events", "list")
-        # class(externals) <- c("events", "list")
+                gibbs_next <- matrix(0, nrow = nrow(gibbs), ncol = (size + 1) )
+                gibbs_next[,1] <- gibbs[,ncol(gibbs)]
+                gibbs_next <- gibbs_ad_cpp(gibbs_next, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
 
-        type_ <- list(production = type_production, use = type_use, deposition = type_deposition)
+                # finds production and use
+                        
+                gibbs_next_prd <- matrix(NA, nrow = elements, ncol = (size + 1))
+                gibbs_next_use <- matrix(NA, nrow = elements, ncol = (size + 1))
 
-        # class(type_deposition) <- c("events", "list")
-        # class(type_use) <- c("events", "list")
-        # class(type_production) <- c("events", "list")
+                dep_i <- gibbs_next[ contexts_type_idx, ]
 
-        # names_dep_ext <- c(names(deposition), names(externals), names(production))
-        # mcse0 <- mcse0[names_dep_ext]
-
-        if (is.null(type_name)) {
-            if (!is.null(type)) {
-                if (length(type) == 1) {
-                    type_name <- type
-                } else {
-                    type_name <- "Type"
+                if (!is.matrix(dep_i)) {
+                    dep_i <- t(as.matrix(dep_i, nrow = 1, byrow =TRUE))
                 }
+                Ym <- apply(dep_i,2,min)
+                if (length(tpq_production) > 0) {
+                    Ym <- apply(rbind(Ym, gibbs_next[proceed_all %in% tpq_production, ]), 2, min  )
+                }
+
+                Ym_idx <- contexts_type_idx[apply(dep_i,2,which.min)]
+
+                Xm <- max_antea(Ym_idx, gibbs_next, PhiMatrix, alpha_)
+
+                if (sum(Xm < Ym) != ncol(gibbs_next)) {
+                    stop("Error in sequences/finds. Conflict in earliest production thresholds.")
+                }
+
+                Y <- matrix( Ym, nrow(dep_i), ncol(dep_i), byrow = TRUE)
+                X <- matrix( Xm, nrow(dep_i), ncol(dep_i), byrow = TRUE)
+
+                h_e <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(X) , as.vector(Y) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+                h_n <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_e) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+
+                if (rule == "naive") {
+                    u <- matrix(stats::runif(nrow(X) * ncol(X) , as.vector(h_n) , as.vector(dep_i) ), nrow =  nrow(dep_i), ncol = ncol(dep_i))
+                } else if (rule == "earliest") {
+                    u <- h_n
+                }
+
+                if (rule == "earliest") {
+                    gibbs_next_use[proceed_all %in% contexts_type, ] <- u
+                    gibbs_next_prd[proceed_all %in% contexts_type, ] <- h_e
+                } else if (rule == "naive") {
+                    gibbs_next_use[proceed_all %in% contexts_type, ] <- u
+                    gibbs_next_prd[proceed_all %in% contexts_type, ] <- h_n
+                }
+
+                gibbs <- cbind(gibbs, gibbs_next[, 2:ncol(gibbs_next)])
+                gibbs_use <- cbind(gibbs_use, gibbs_next_use[, 2:ncol(gibbs_next_use)])
+                gibbs_prd <- cbind(gibbs_prd, gibbs_next_prd[, 2:ncol(gibbs_next_prd)])
+
+            }
+        }
+    }
+
+    find_prd_use_dep <- list()
+
+    type_deposition <- c( gibbs[proceed_all %in% contexts_type,] )
+    type_use <- c( gibbs_use[proceed_all %in% contexts_type,] )
+    type_production <- c( gibbs_prd[proceed_all %in% contexts_type,] )
+
+    type_all <- rbind(type_production, type_use, type_deposition)
+    n_upto <- ncol(type_all)
+    n_batch <- floor(sqrt(n_upto)) # length of samples in batch
+    K <- floor(n_upto / n_batch) # number of batches
+    m_batch <- matrix(NA, nrow = nrow(type_all), ncol = (K-1))
+    remainder <- n_upto - n_batch * K + 1
+
+    idx1 <- remainder
+
+    for (k in 1:(K-1)) {
+        idxs <- idx1:(idx1 + n_batch)       
+
+        # in cases where n_upto = n_batch * K
+        idxs <- idxs[idxs <= ncol(type_all)]
+
+        m_batch[, k] <- rowMeans(type_all[ , idxs]) 
+        idx1 <- idxs[length(idxs)] + 1
+    }
+    
+    mcmean <- rowMeans(m_batch) 
+    mcse <- sqrt( rowSums( (m_batch - rowMeans(m_batch))^2 ) * (n_batch / (K-1) ) ) / sqrt((K - 1) * n_batch)
+
+    type_stat <-data.frame(MCmean = mcmean, MCSE = mcse)
+    rownames(type_stat) <- c("production", "use", "deposition")
+
+    type_ <- list(production = type_production, use = type_use, deposition = type_deposition)
+
+    if (is.null(type_name)) {
+        if (!is.null(type)) {
+            if (length(type) == 1) {
+                type_name <- type
             } else {
                 type_name <- "Type"
             }
+        } else {
+            type_name <- "Type"
         }
-        result <- list(name = type_name, type = type_, stat = type_stat)
-        class(result) <- c("type_marginals", "list")
-        return(result)
-    } else {
-    stop("Sequences has failed consistency check with seq_check().")
     }
+    res <- list(name = type_name, type = type_, stat = type_stat)
+    class(res) <- c("type_marginals", "list")
+    return(res)
+
 }
 
 
@@ -1909,13 +1539,6 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     
     proceed <- synth_rank(sequences)
 
-    # if (!is.list(tpq)) {
-    #     tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
-    # }
-    # if (!is.list(taq)) {
-    #     taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
-    # }
-
     # proceed_all from tpq, taq, relative, alpha, omega
     proceed_all <- c()
 
@@ -1962,8 +1585,6 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
             }
         }
 
-
-
         if (length(tpqMSD) == 0 & length(taqMSD) != 0) {
             gibbsLOO <- gibbs_ad(sequencesMSD, max_samples, size, mcse_crit, tpq = NULL, taq = taqMSD, alpha_, omega_, trim = FALSE)
         } else if (length(tpqMSD) != 0 & length(taqMSD) == 0) {
@@ -1974,7 +1595,6 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
             gibbsLOO <- gibbs_ad(sequencesMSD, max_samples, size, mcse_crit, tpq = tpqMSD, taq = taqMSD, alpha_, omega_, trim = FALSE)
         }
         
-
         depmu <- sapply(gibbsLOO$deposition, mean)
         depmcse <- gibbsLOO$mcse[names(gibbsLOO$deposition)]
         depdat <- data.frame(Mean = depmu, MCSE = depmcse)
@@ -2001,9 +1621,9 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     bounds_ <- c(alpha_, omega_)
     names(bounds_) <- c("alpha", "omega")
 
-    result <- list(MSD_stats = orig_dat, bounds = bounds_)
-    class(result) <- c("msd_data", "list")
-    return(result)
+    res <- list(MSD_stats = orig_dat, bounds = bounds_)
+    class(res) <- c("msd_data", "list")
+    return(res)
 }
 
 
@@ -2123,13 +1743,6 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
    
     proceed <- synth_rank(sequences)
 
-    # if (!is.list(tpq)) {
-    #     tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
-    # }
-    # if (!is.list(taq)) {
-    #     taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
-    # }
-
     # proceed_all from tpq, taq, relative, alpha, omega
     proceed_all <- c()
 
@@ -2219,9 +1832,9 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
     orig_dat$Mean <- NULL
     orig_dat$MCSE <- NULL
 
-    result <- list(sq_disp = orig_dat, bounds = bounds_, target = target)
-    class(result) <- c("sq_displ_data", "list")
-    return(result)
+    res <- list(sq_disp = orig_dat, bounds = bounds_, target = target)
+    class(res) <- c("sq_displ_data", "list")
+    return(res)
 }
 #' 
 #' @rdname sq_disp
@@ -2264,10 +1877,9 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
         proceed_all <- c(proceed_all, taq[[i]]$id )
     }
     proceed_all <- c(proceed_all, proceed)
-    # proceed_all <- proceed_all[!(proceed_all %in% target)]
 
-    result <- data.frame(sq_disp = rep(NA, length(proceed_all)), disp_MCmean = rep(NA, length(proceed_all)), disp_MCSE = rep(NA, length(proceed_all)) )
-    rownames(result) <- proceed_all
+    res <- data.frame(sq_disp = rep(NA, length(proceed_all)), disp_MCmean = rep(NA, length(proceed_all)), disp_MCSE = rep(NA, length(proceed_all)) )
+    rownames(res) <- proceed_all
 
     message("Beginning jackknlife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
 
@@ -2321,9 +1933,9 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
             disp_mu <- gibbsLOO$stat["use",]$MCmean
             disp_mcse <- gibbsLOO$stat["use",]$MCSE
             
-            result[which(rownames(result)==proceed_all[j]) , 1] <- (disp_mu - orig_mu)^2
-            result[which(rownames(result)==proceed_all[j]) , 2] <- disp_mu
-            result[which(rownames(result)==proceed_all[j]) , 3] <- disp_mcse
+            res[which(rownames(res)==proceed_all[j]) , 1] <- (disp_mu - orig_mu)^2
+            res[which(rownames(res)==proceed_all[j]) , 2] <- disp_mu
+            res[which(rownames(res)==proceed_all[j]) , 3] <- disp_mcse
 
             cat("\n") } else {
                 cat("Event", proceed_all[j], "skipped: type completely removed from relationships (not possible to estimate).\n")
@@ -2334,9 +1946,9 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
     bounds_ <- c(alpha_, omega_)
     names(bounds_) <- c("alpha", "omega")
 
-    result <- list(sq_disp = result, bounds = bounds_, target = target)
-    class(result) <- c("sq_displ_data", "list")
-    return(result)
+    res <- list(sq_disp = res, bounds = bounds_, target = target)
+    class(res) <- c("sq_displ_data", "list")
+    return(res)
 }
 
 
