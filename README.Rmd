@@ -36,9 +36,7 @@ install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignet
 
 ## Usage
 
-The following comments are intended as a general introduction. See vignettes for more information on package functionality. 
-
-The basic objects of interest in `eratosthenes` are:
+The basic items of interest in `eratosthenes` are:
 
 * **sequences** of relative events, typically stratigraphic deposits, but also isolated contexts such as may be part of a frequency or contextual seriation
 * **finds**, elements which belong to those events, typically artifacts
