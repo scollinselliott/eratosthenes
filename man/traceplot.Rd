@@ -14,8 +14,7 @@ traceplot(
   ylab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 
 \method{traceplot}{marginals}(
@@ -27,8 +26,7 @@ traceplot(
   ylab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 }
 \arguments{
@@ -49,8 +47,6 @@ traceplot(
 \item{opacity}{The opacity/transparency of the traceplot, if visualizing overlapping events. A value between 0 and 1 (default).}
 
 \item{legend_pos}{The position of the legend in the plot. Default is \code{"topright"}.}
-
-\item{...}{Additional graphical parameters passed to \code{\link[graphics]{plot}}.}
 }
 \value{
 A traceplot of the Gibbs samples of the selected events.

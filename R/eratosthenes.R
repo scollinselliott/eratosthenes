@@ -594,7 +594,6 @@ summary.type_marginals <- function(object, ...) {
 #' @param palette A vector providing the color palette of the histogram. The default is \code{"colorBlindness::paletteMartin"} (see \code{\link[paletteer]{palettes_d}}).
 #' @param opacity The opacity/transparency of the traceplot, if visualizing overlapping events. A value between 0 and 1 (default).
 #' @param legend_pos The position of the legend in the plot. Default is \code{"topright"}.
-#' @param ... Additional graphical parameters passed to \code{\link[graphics]{plot}}.
 #' 
 #' @examples 
 #' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -618,13 +617,13 @@ summary.type_marginals <- function(object, ...) {
 #' @returns A traceplot of the Gibbs samples of the selected events.
 #' 
 #' @export
-traceplot <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab = "Index", ylab = "Year", palette = NULL, opacity = 1, legend_pos = "topright", ...) {
+traceplot <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab = "Index", ylab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
     UseMethod("traceplot")
 }
 #' 
 #' @rdname traceplot
 #' @export
-traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab = "Index", ylab = "Year", palette = NULL, opacity = 1, legend_pos = "topright", ...) {
+traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab = "Index", ylab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
     if (is.vector(events)) {
         master <- tidy_marginals(x)
     } else {
@@ -721,16 +720,14 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @returns A density histogram of the selected events/aspect.
 #' 
 #' @export
-histogram <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright", ...) {
+histogram <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
     UseMethod("histogram")
 }
 #' 
 #' @rdname histogram
 #' @export
-histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright", ...) {
-    if (is.vector(events)) {
-        master <- tidy_marginals(x)
-    } else {
+histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
+    if (!is.vector(events)) {
         stop('Events must be a single element or vector.')
     }
 
@@ -740,20 +737,34 @@ histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freed
 
     palette <- grDevices::adjustcolor(palette, alpha.f = opacity)
 
-    x_all <- master[master$event %in% events, ]$year
+    plot_list <- list()
+    idx <- 1
+    for (i in 1:length(events)) {
+        if (events[i] %in% names(x$deposition)) {
+            plot_list[[idx]] <- x$deposition[events[i]][[1]]
+            idx <- idx + 1
+        } else if (events[i] %in% names(x$externals)) {
+            plot_list[[idx]] <- x$externals[events[i]][[1]]
+            idx <- idx + 1
+        } else {
+            stop("One or more events not contained in marginals.")
+        }
+    }
+
     if (is.null(xlim)) {
+        x_all <- unlist(plot_list)
         xlim <- c(min(x_all), max(x_all))
     }
 
     if (length(events) == 1) {
-        x <- master[master$event == events[1], ]$year
-        graphics::hist(x, breaks = breaks, freq = FALSE, xlim = xlim, xlab = xlab, ylim = ylim, col = palette[1], lty="blank", main = "", ...)
+        dat <- plot_list[[1]]
+        graphics::hist(dat, breaks = breaks, freq = FALSE, xlim = xlim, xlab = xlab, ylim = ylim, col = palette[1], lty="blank", main = "")
     } else if (length(events) > 1 & length(events <= 12)) {
-        x <- master[master$event == events[1], ]$year
-        graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, main = "", ...)
+        dat <- plot_list[[1]]
+        graphics::hist(dat, breaks = breaks, freq = FALSE, lty="blank", xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, main = "")
         for (k in 2:length(events)) {
-            x <- master[master$event == events[k], ]$year
-            graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE)
+            dat <- plot_list[[k]]
+            graphics::hist(dat, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE)
         }
     } else {
         stop("Max number events for histogram is 12.")
@@ -763,7 +774,7 @@ histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freed
 #' 
 #' @rdname histogram
 #' @export
-histogram.type_marginals <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright", ...) {
+histogram.type_marginals <- function(x, events = NULL, aspect = c("production", "use", "deposition"), breaks = "Freedman-Diaconis", xlim = NULL, ylim = NULL, xlab = "Year", palette = NULL, opacity = 0.5, legend_pos = "topright") {
     display_name <- x$name
 
     if ((!("production" %in% aspect) & !("use" %in% aspect) ) & !("deposition" %in% aspect))  {
@@ -805,7 +816,7 @@ histogram.type_marginals <- function(x, events = NULL, aspect = c("production", 
         graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, main = "")
         for (k in 2:length(aspect_name)) {
             x <- dat[dat$aspect == aspect_name[k], ]$year
-            graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE, ...)
+            graphics::hist(x, breaks = breaks, freq = FALSE, lty="blank", col = palette[k], xlab = xlab, main = "", add = TRUE)
         }
     }
     graphics::legend(legend_pos, legend = aspect_name, col = palette[1:length(aspect)], pt.cex = 2.5, pch = 15)
@@ -878,6 +889,7 @@ tidy_marginals.type_marginals <- function(input) {
     dat <- rbind(dat, data.frame(x = use_samples, event = paste0(input$name, " - Use")))
     dat <- rbind(dat, data.frame(x = dep_samples, event = paste0(input$name, " - Deposition")))
     dat <- rbind(dat, data.frame(x = prd_samples, event = paste0(input$name, " - Production")))
+    dat$event <- factor(dat$event)
 
     return(dat)
 }

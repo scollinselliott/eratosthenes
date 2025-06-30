@@ -16,8 +16,7 @@ histogram(
   xlab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 
 \method{histogram}{marginals}(
@@ -30,8 +29,7 @@ histogram(
   xlab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 
 \method{histogram}{type_marginals}(
@@ -44,8 +42,7 @@ histogram(
   xlab = "Year",
   palette = NULL,
   opacity = 0.5,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 }
 \arguments{
