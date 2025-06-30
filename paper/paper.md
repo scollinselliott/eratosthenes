@@ -55,14 +55,14 @@ $$
 
 For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE (data available [here](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628)). Results are shown in \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _t.a.q_ for the depositonal date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
 
-![Marginal p.d.f.s of 2 depositional events and 5 shipwrecks from the Mediterraenan, given the joint conditional contained in [eda20250628](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628). The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
-
 The sack of Carthage has also been a key point for dating a particular type of ceramic transport container, the [Dressel 1 amphora type](https://archaeologydataservice.ac.uk/archives/view/amphora_ahrb_2005/details.cfm?id=324). Since it has not be found in pre-destruction layers of that site, the start of its production has been dated to the later part of the 2nd century BCE [@tchernia_vin_1986,42]. Rather than just relying on one site, however, the entire set of conditional events in `eda20250628` yields a density for its production, use, and deposition (\autoref{fig3}). 
-
-![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional contained in [eda20250628](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628).\label{fig3}](fig3.png)
 
 # Future Work
 
 Current work in progress by the author which relies upon `eratosthenes` involves the synchronism of ceramics, coinage, radiocarbon dates, depositional/seriated sequences, and historical events for the central Mediterranean in the last four centuries BCE, with datasets uploaded to the GitHub repository [eratosthenes-data](https://github.com/scollinselliott/eratosthenes-data).
+
+![Marginal p.d.f.s of 2 depositional events and 5 shipwrecks from the Mediterraenan, given the joint conditional contained in [eda20250628](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628). The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
+
+![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional contained in [eda20250628](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628).\label{fig3}](fig3.png)
 
 # References
