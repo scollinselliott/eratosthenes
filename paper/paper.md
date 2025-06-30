@@ -14,7 +14,7 @@ affiliations:
    index: 1
    ror: 020f3ap87
 date: "30 June 2025"
-bibliography: ../inst/references.bib
+bibliography: ../inst/REFERENCES.bib
 ---
 
 # Summary
