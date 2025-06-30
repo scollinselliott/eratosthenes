@@ -33,7 +33,7 @@ Two needs which `eratosthenes` aims to satisfy are (1) estimation of artifact da
 
 # Estimating Dates of Artifact Production, Use, and Deposition
 
-Dating artifact types is handled by working backwards from depositional contexts, which is their primary point of observation. Estimating the date of artifact production requires a stated rule, with two options given in `eratosthenes`. To start, initial threshold boundaries are established between the earliest depositional context containing that artifact-type and context immediately prior which lacks it. The `"earliest"` rule draws samples from within those initial thresholds. The default `"naive"` rule draws samples betwen a lower bound formed by a sample drawn from within the initial thresholds and an upper bound formed by depositional date of that artifact.  After estimating production dates, a use date is sampled between its dates of production and deposition. Figure \autoref{fig1} illustrates these rules.
+Dating artifact types is handled by working backwards from depositional contexts, which is their primary point of observation. Estimating the date of artifact production requires a stated rule, with two options given in `eratosthenes`. To start, initial threshold boundaries are established between the earliest depositional context containing that artifact-type and context immediately prior which lacks it. The `"earliest"` rule draws samples from within those initial thresholds. The default `"naive"` rule draws samples betwen a lower bound formed by a sample drawn from within the initial thresholds and an upper bound formed by depositional date of that artifact.  After estimating production dates, a use date is sampled between its dates of production and deposition. \autoref{fig1} illustrates these rules.
 
 ![Rules of `earliest` and `naive` (default) for estimating the date of production of an artifact type, sampled on each $m$ iteration of the Gibbs sampler.\label{fig1}](fig1.png)
 
@@ -45,9 +45,7 @@ $$
 \delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2.
 $$
 
-The omission of $j$ will then have has changed the date of $i$ by $\sqrt{\delta^2}$ amount of time. If squared displacement is low, then the omission of $j$ has not altered the date of $i$ much, but if it is high, it has had a greater impact. Squared displacement is measured in continuous time, whichever scale the investigator is using (typically years).
-
-Conversely, one can estimate the effective influence of an event $j$ upon all others by taking the mean squared displacement (MSD). This involves taking the mean of the squared displacements of all other events as each $j$ is omitted in a "jackknife" or "leave one out"-style of routine. Where $\Theta$ represents the set of all relative and absolute events, the MSD is defined as
+The omission of $j$ would thus change date of $i$ by $\sqrt{\delta^2}$ amount of time (typically years). Conversely, one can estimate the effective influence of an event $j$ upon all others by taking the mean squared displacement (MSD). This involves taking the mean of the squared displacements of all other events as each $j$ is omitted in a "jackknife" or "leave one out"-style of routine. Where $\Theta$ represents the set of all relative and absolute events, the MSD is defined as
 
 $$
 \text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j).
@@ -55,11 +53,11 @@ $$
 
 # Application
 
-For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE (data available [here](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628)). Results are shown in Figure \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _t.a.q_ for the depositonal date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
+For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE (data available [here](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628)). Results are shown in \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _t.a.q_ for the depositonal date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
 
 ![Marginal p.d.f.s of 2 depositional events and 5 shipwrecks from the Mediterraenan, given the joint conditional contained in [eda20250628](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628). The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
 
-The sack of Carthage has also been a key point for dating a particular type of ceramic transport container, the [Dressel 1 amphora type](https://archaeologydataservice.ac.uk/archives/view/amphora_ahrb_2005/details.cfm?id=324). Since it has not be found in pre-destruction layers of that site, the start of its production has been dated to the later part of the 2nd century BCE [@tchernia_vin_1986,42]. Rather than just relying on one site, however, the entire set of conditional events in `eda20250628` yields a density for its production, use, and deposition (Fig. \autoref{fig3}). 
+The sack of Carthage has also been a key point for dating a particular type of ceramic transport container, the [Dressel 1 amphora type](https://archaeologydataservice.ac.uk/archives/view/amphora_ahrb_2005/details.cfm?id=324). Since it has not be found in pre-destruction layers of that site, the start of its production has been dated to the later part of the 2nd century BCE [@tchernia_vin_1986,42]. Rather than just relying on one site, however, the entire set of conditional events in `eda20250628` yields a density for its production, use, and deposition (\autoref{fig3}). 
 
 ![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional contained in [eda20250628](https://github.com/scollinselliott/eratosthenes-data/tree/main/data/20250628).\label{fig3}](fig3.png)
 
