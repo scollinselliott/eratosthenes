@@ -38,8 +38,32 @@ structure stipulated by the investigator, by implementing a
 jackknife-style estimator of squared displacement (how much the date of
 one event shifts when another is omitted). Ancillary functions include
 checking for discrepancies in sequences of events and constraining
-optimal seriations to known sequences. `Rcpp` is required for faster
-Gibbs sampling.
+optimal seriations to known sequences.
+
+The package is motivated by a philosophy of generalism and minimalism,
+eschewing the following:
+
+- intervals or durative events. If desired, such instances can be
+  asserted as two separate point events in sequences, e.g.,
+  `"X - Start"` and `"X - End"`.
+- periods and phases. Periods and phases are not actual material or
+  behavioral events, but ideal (and often contested) constructs used to
+  make sense of the past. If desired, an investigator can always enter
+  period-related events, e.g., `"Archaic Period - Start"`, into their
+  list of sequences.
+- discretization of time into intervals. Samples are drawn along the
+  continuum.
+- overly cumbersome chronological relationships. As `eratosthenes`
+  samples points along the continuum, there is only before and after. If
+  desired, overlaping events can be expressed in sequence construction:
+  e.g., for sequences $[A, B, C]$ and $[A, D, E, C]$, $B$ and $D,E$ will
+  overlap with each other.
+
+The focus of the package is on the structure of the joint conditional,
+rather than specific probability models. Hence, `eratosthenes` relies on
+the continuous uniform for estimating relative events. Any model can
+however be used for absolute constraints, from single points to
+customized densities.
 
 The package is named after Eratosthenes of Cyrene, author of the
 *Chronographiai*.
