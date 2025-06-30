@@ -313,11 +313,13 @@ The `gibbs_ad_type()` function takes the following inputs, similar to
 - `finds` : Either the `list` object of finds originally used as input
   to produce `gibbs`, or a `data.frame` of two columns, the first column
   listing the context and the second the incidence of the id or type in
-  that context. If a find entry contains the expression
-  `"residual = TRUE"`, it indicates that its depositional date occured
-  prior to the context it pertains to (i.e., it has been redeposited
-  from an earlier time), which will suppress that find from
-  consideration.
+  that context.
+  - If a find entry contains the expression `"residual = TRUE"`, it
+    indicates that its association with the context should not be taken
+    into account. Primarily, this indicates that a finds depositional
+    date occured prior to the context it pertains to (i.e., it has been
+    redeposited from an earlier time), but it can also be used to
+    suppress the association of finds which may be spurious.
 - `id` : A vector of the `id` of one or more specific finds whose use
   date is to be estimated. The values of `id` must match those in the
   `list` of `finds`. If `type` is used, `id` is ignored.
@@ -348,7 +350,11 @@ The `gibbs_ad_type()` function takes the following inputs, similar to
 
 As use dates are drawn between production and depositional dates, if one
 chooses `"earliest"` as the rule, then the use density is equivalent to
-that of the `"naive"` production density.
+that of the `"naive"` production density. It should also be noted that,
+for this function, Gibbs sampling is only used for the depositional
+sequences and absolute constraints, not for production, use, and
+deposition (i.e, the use date does not affect the production date, nor
+is the deposition date affected by the production date).
 
 Using the `result` object above, the densities of the use dates of the
 following types is computed using the `gibbs_ad_type()` function as
