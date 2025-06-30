@@ -226,8 +226,9 @@ There are two functions in `eratosthenes` for estimating dates:
 
 - `gibbs_ad()` estimates the marginal density of the date of events in
   sequences and absolute constraints (*t.p./a.q*).
-- `gibbs_ad_type()` estimates the marginal density of the date of the
-  production, use, and deposition of a specified artifact type.
+- `gibbs_ad_type()` estimates densities of the date of the production,
+  use, and deposition of a specified artifact type, given seuqences and
+  cosntraints.
 
 See the section [Evaluating Displacement](#evaluating-displacement)
 below for tools on assessing the effective influence of events upon each
