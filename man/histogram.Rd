@@ -65,8 +65,6 @@ histogram(
 \item{opacity}{The opacity/transparency of the histograms for visualizing overlapping events, a value between 0 and 1 (default).}
 
 \item{legend_pos}{The position of the legend in the plot. Default is \code{"topright"}.}
-
-\item{...}{Additional graphical parameters passed to  \code{\link[graphics]{hist}}.}
 }
 \value{
 A density histogram of the selected events/aspects.
@@ -77,7 +75,7 @@ A density histogram of the selected events/aspect.
 Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_type}]}.
 }
 \details{
-Also see also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
+See also also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")

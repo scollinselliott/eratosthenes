@@ -52,10 +52,10 @@ traceplot(
 A traceplot of the Gibbs samples of the selected events.
 }
 \description{
-Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}} for plotting a density histogram of events.
+Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}}. Maximum number of simulatenous events to display is 12.  for plotting a density histogram of events.
 }
 \details{
-Also see \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
+See also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")

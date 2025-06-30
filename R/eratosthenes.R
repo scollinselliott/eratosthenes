@@ -581,9 +581,9 @@ summary.type_marginals <- function(object, ...) {
 
 #' Traceplot of Gibbs Samples
 #' 
-#' Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}} for plotting a density histogram of events.
+#' Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}}. Maximum number of simulatenous events to display is 12.  for plotting a density histogram of events.
 #' 
-#' Also see \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
+#' See also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
 #' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
 #' @param events A vector or element of the event names to plot. Maximum number of events is 12.
@@ -624,38 +624,50 @@ traceplot <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab = "Index"
 #' @rdname traceplot
 #' @export
 traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab = "Index", ylab = "Year", palette = NULL, opacity = 1, legend_pos = "topright") {
-    if (is.vector(events)) {
-        master <- tidy_marginals(x)
-    } else {
+    if (!is.vector(events)) {
         stop('Events must be a single element or vector.')
     }
-
     if (is.null(palette)) {
         palette <- paletteer::paletteer_d("colorBlindness::paletteMartin")
     }
 
     palette <- grDevices::adjustcolor(palette, alpha.f = opacity)
 
-    if (is.null(xlim)) {
-        xlim <- c(0, length(master[master$event == levels(master$event)[1], ]$year))
+    plot_list <- list()
+    idx <- 1
+    for (i in 1:length(events)) {
+        if (events[i] %in% names(x$deposition)) {
+            plot_list[[idx]] <- x$deposition[events[i]][[1]]
+            idx <- idx + 1
+        } else if (events[i] %in% names(x$externals)) {
+            plot_list[[idx]] <- x$externals[events[i]][[1]]
+            idx <- idx + 1
+        } else {
+            stop("One or more events not contained in marginals.")
+        }
     }
+    
+    if (is.null(xlim)) {
+        xlim <- c(0, length(plot_list[[1]]))
+    }
+
     if (is.null(ylim)) {
-        y_all <- master[master$event %in% events, ]$year
+        y_all <- unlist(plot_list)
         ylim <- c(min(y_all), max(y_all))
     }
 
     if (length(events) == 1) {
-        x <- master[master$event == events[1], ]$year
-        graphics::plot(x, type = "l", col = palette[1], xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = "", ...)
+        x <- plot_list[[1]]
+        graphics::plot(x, type = "l", col = palette[1], xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = "")
     } else if (length(events) > 1 & length(events <= 12)) {
-        x <- master[master$event == events[1], ]$year
-        graphics::plot(x, type = "l", col = palette[1], xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = "", ...)
+        x <- plot_list[[1]]
+        graphics::plot(x, type = "l", col = palette[1], xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = "")
         for (k in 2:length(events)) {
-            x <- master[master$event == events[k], ]$year
-            graphics::lines(x, type = "l", col = palette[k], ...)
+            x <- plot_list[[k]]
+            graphics::lines(x, type = "l", col = palette[k])
         }
     } else {
-        stop("Max number events for histogram is 12.")
+        stop("Max number events for traceplot is 12.")
     }
     graphics::legend(legend_pos, legend= events, col = palette[1:length(events)], pt.cex = 2.5, pch = 15)
 }
@@ -666,7 +678,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' 
 #' Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_type}]}.
 #' 
-#' Also see also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
+#' See also also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
 #' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{type_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_type}]}.
 #' @param events If plotting a \code{marginals} object, a vector or element of the event names to plot. Maximum number of events is 12.
@@ -678,7 +690,6 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @param palette A vector providing the color palette of the histogram. The default is \code{"colorBlindness::paletteMartin"} (see \code{\link[paletteer]{palettes_d}}).
 #' @param opacity The opacity/transparency of the histograms for visualizing overlapping events, a value between 0 and 1 (default).
 #' @param legend_pos The position of the legend in the plot. Default is \code{"topright"}.
-#' @param ... Additional graphical parameters passed to  \code{\link[graphics]{hist}}.
 #' @returns A density histogram of the selected events/aspects.
 #' 
 #' @examples 
@@ -730,7 +741,6 @@ histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freed
     if (!is.vector(events)) {
         stop('Events must be a single element or vector.')
     }
-
     if (is.null(palette)) {
         palette <- paletteer::paletteer_d("colorBlindness::paletteMartin")
     }
