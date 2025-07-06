@@ -25,8 +25,8 @@ upon relative constraints, such as `OxCal` (Bronk Ramsey 2009) and
 chronological modeling like `Chronomodel` (Lanos and Philippe 2017) and
 `ChronoLog` (Levy et al. 2021), formal methods for dating artifacts and
 artifact types are lacking. One of the major goals of `eratosthenes` is
-advance the synchronism of chronologies and the crafting of large-scale
-chronological relationships, which are heavily reliant upon artifact
+to advance the synchronism of chronologies and the crafting of large-scale
+chronological relationships that are heavily reliant upon artifact
 typologies. The package therefore facilitates the marginalization of
 dates of a type’s production, use, and deposition. The method of
 sampling employed in `eratosthenes` involves a two-step process of Gibbs
