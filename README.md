@@ -26,7 +26,7 @@ chronological modeling like `Chronomodel` (Lanos and Philippe 2017) and
 `ChronoLog` (Levy et al. 2021), formal methods for dating artifacts and
 artifact types are lacking. One of the major goals of `eratosthenes` is
 to advance the synchronism of chronologies and the crafting of large-scale
-chronological models that are heavily reliant upon artifact
+chronological models that rely heavily upon artifact
 typologies. The package therefore facilitates the marginalization of
 dates of a type’s production, use, and deposition. The method of
 sampling employed in `eratosthenes` involves a two-step process of Gibbs
