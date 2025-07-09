@@ -66,9 +66,9 @@ The MSD entails the following jackknife/leave-one-out style routine:
 
 If an event has a low MSD, it bears a low impact on the rest of the events within the full joint conditional density. If it is has a high MSD, other events depend heavily upon its inclusion in the full joint density.
 
-Trimming is not implemented in the computation of MSD, and so attention should be paid to the selection of \code{alpha_} and \code{omega_}, and reported. This is owing to the way in which, if an absolute constraint (\code{tpq} or \code{taq}) is omitted that happens to be an earliest or latest bounding event, there still needs to be earliest and latest thresholds in place.
+Trimming is not implemented in the computation of MSD, and so attention should be paid to the selection of \code{alpha_} and \code{omega_}, which should be reported. This is owing to the way in which, if an absolute constraint (\code{tpq} or \code{taq}) is omitted that happens to be an earliest or latest bounding event, there still needs to be earliest and latest thresholds in place.
 
-This function is fairly computationally intensive and thus a lower value of \code{max_samples} and a higher value of \code{mcse_crit} may be warranted
+This function is fairly computationally intensive and thus a lower value of \code{max_samples} and a higher value of \code{mcse_crit} may be warranted.
 }
 \examples{
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")

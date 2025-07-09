@@ -25,8 +25,8 @@ upon relative constraints, such as `OxCal` (Bronk Ramsey 2009) and
 chronological modeling like `Chronomodel` (Lanos and Philippe 2017) and
 `ChronoLog` (Levy et al. 2021), formal methods for dating artifacts and
 artifact types are lacking. One of the major goals of `eratosthenes` is
-to advance the synchronism of chronologies and the crafting of large-scale
-chronological models that rely heavily upon artifact
+to advance the synchronism of chronologies and the crafting of
+large-scale chronological models that rely heavily upon artifact
 typologies. The package therefore facilitates the marginalization of
 dates of a type’s production, use, and deposition. The method of
 sampling employed in `eratosthenes` involves a two-step process of Gibbs
@@ -56,8 +56,8 @@ eschewing the following:
 - overly cumbersome chronological relationships. As `eratosthenes`
   samples points along the continuum, there is only before and after. If
   desired, overlaping events can be expressed in sequence construction:
-  e.g., for sequences $[A, B, C]$ and $[A, D, E, C]$, $B$ and $D,E$ will
-  overlap with each other.
+  e.g., for sequences `c("A", "B", "C")` and `c("A", "D", "E", "C")`,
+  events `"B"` and `"D", "E"` will overlap with each other.
 
 The focus of the package is on the structure of the joint conditional,
 rather than specific probability models. Hence, `eratosthenes` relies on
@@ -449,14 +449,15 @@ events, how much does the estimation of the date of another event
 change?
 
 The squared displacement $\delta^2(i,j)$ of a target event $i$ caused by
-the omission of $j$ is computed as follows. Let $x_i$ be the estimated
-marginalized Monte Carlo mean date using all events within the full
-joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the “jackknife”
-estimated date, when event $j$ has been omitted from all sequences and
-absolute constraints. Squared displacement of $j$ upon $i$ is then:
+the omission of $j$ is computed as follows. Let $\tilde{x}_i$ be the
+estimated marginalized Monte Carlo mean date using all events within the
+full joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the
+“jackknife” estimated date, when event $j$ has been omitted from all
+sequences and absolute constraints. Squared displacement of $j$ upon $i$
+is then:
 
 $$
-\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
+\delta^2(i,j) = (\tilde{x}_i^{(-j)} - \tilde{x}_i)^2
 $$
 
 If squared displacement is high, then the omission of $j$ has greatly
@@ -519,7 +520,7 @@ sq_disp(result_type1, sequences = contexts, finds = artifacts,
 <div id="ref-bronk_ramsey_bayesian_2009" class="csl-entry">
 
 Bronk Ramsey, C. 2009. “Bayesian Analysis of Radiocarbon Dates.”
-*Radiocarbon* 51: 337–60.
+*Radiocarbon* 51: 337–60. <https://doi.org/10.1017/s0033822200033865>.
 
 </div>
 
@@ -534,7 +535,7 @@ to Interpreting Archaeological Data*. Chichester: John Wiley; Sons.
 
 Buck, C. E., J. A. Christen, and G. N. James. 1999. “BCal: An On-Line
 Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
-<https://intarch.ac.uk/journal/issue7/buck/>.
+<https://doi.org/10.11141/ia.7.1>.
 
 </div>
 
@@ -568,6 +569,7 @@ Carlo: Can We Trust the Third Significant Figure?” *Statistical Science*
 Geman, S., and D. Geman. 1984. “Stochastic Relaxation, Gibbs
 Distributions, and the Bayesian Restoration of Images.” *IEEE
 Transactions on Pattern Analysis and Machine Intelligence* 6: 721–41.
+<https://doi.org/10.1016/b978-0-08-051581-6.50057-x>.
 
 </div>
 
@@ -592,7 +594,7 @@ Royal Statistical Society: Series C (Applied Statistics)* 57: 399–418.
 
 Hinz, M., C. Schmid, D. Knitter, and Tietze. 2021.
 “<span class="nocase">oxcAAR</span>: Interface to ’OxCal’ Radiocarbon
-Calibration.” <https://CRAN.R-project.org/package=oxcAAR>.
+Calibration.” <https://doi.org/10.32614/CRAN.package.oxcAAR>.
 
 </div>
 
@@ -626,7 +628,7 @@ Levy, E., G. Geeraerts, F. Pluquet, E. Piasetzky, and A. Fantalkin.
 
 Oksanen, J., G. L. Simpson, F. G Blanchet, R. Kindt, P. Legendre, P. R.
 Minchin, R. B. O’Hara, et al. 2024. “Vegan: Community Ecology Package.”
-<https://CRAN.R-project.org/package=vegan>.
+<https://doi.org/10.32614/CRAN.package.vegan>.
 
 </div>
 

@@ -1492,9 +1492,9 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
 #' 
 #' If an event has a low MSD, it bears a low impact on the rest of the events within the full joint conditional density. If it is has a high MSD, other events depend heavily upon its inclusion in the full joint density.
 #' 
-#' Trimming is not implemented in the computation of MSD, and so attention should be paid to the selection of \code{alpha_} and \code{omega_}, and reported. This is owing to the way in which, if an absolute constraint (\code{tpq} or \code{taq}) is omitted that happens to be an earliest or latest bounding event, there still needs to be earliest and latest thresholds in place. 
+#' Trimming is not implemented in the computation of MSD, and so attention should be paid to the selection of \code{alpha_} and \code{omega_}, which should be reported. This is owing to the way in which, if an absolute constraint (\code{tpq} or \code{taq}) is omitted that happens to be an earliest or latest bounding event, there still needs to be earliest and latest thresholds in place. 
 #' 
-#' This function is fairly computationally intensive and thus a lower value of `max_samples` and a higher value of `mcse_crit` may be warranted
+#' This function is fairly computationally intensive and thus a lower value of `max_samples` and a higher value of `mcse_crit` may be warranted.
 #'  
 #' @param marginalized An object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
 #' @param sequences A \code{list} of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.

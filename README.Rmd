@@ -28,7 +28,7 @@ The package is motivated by a philosophy of generalism and minimalism, eschewing
 * intervals or durative events. If desired, such instances can be asserted as two separate point events in sequences, e.g., `"X - Start"` and `"X - End"`.
 * periods and phases. Periods and phases are not actual material or behavioral events, but ideal (and often contested) constructs used to make sense of the past. If desired, an investigator can always enter period-related events, e.g., `"Archaic Period - Start"`, into their list of sequences.
 * discretization of time into intervals. Samples are drawn along the continuum.
-* overly cumbersome chronological relationships. As `eratosthenes` samples points along the continuum, there is only before and after. If desired, overlaping events can be expressed in sequence construction: e.g., for sequences $[A, B, C]$ and $[A, D, E, C]$, $B$ and $D,E$ will overlap with each other.
+* overly cumbersome chronological relationships. As `eratosthenes` samples points along the continuum, there is only before and after. If desired, overlaping events can be expressed in sequence construction: e.g., for sequences `c("A", "B", "C")` and `c("A", "D", "E", "C")`, events `"B"` and `"D", "E"` will overlap with each other.
 
 The focus of the package is on the structure of the joint conditional, rather than specific probability models. Hence, `eratosthenes` relies on the continuous uniform for estimating relative events. Any model can however be used for absolute constraints, from single points to customized densities.
 
@@ -241,10 +241,10 @@ The package `eratosthenes` does not have functionality to produce seriations or 
 
 As real-world joint conditional densities will comprise hundreds of events or more, it is easy for an investigator to loose track of which relative/absolute events are determinative or influential upon others, in terms of the estimation of their date. `eratosthenes` assesses such influence within the conditional structure via the estimation of "displacement." That is, given the omission of an event $j$ (either a depositional event or an absolute constraint) from the set of all events, how much does the estimation of the date of another event change?
 
-The squared displacement $\delta^2(i,j)$ of a target event $i$ caused by the omission of $j$ is computed as follows. Let $x_i$ be the estimated marginalized Monte Carlo mean date using all events within the full joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the "jackknife" estimated date, when event $j$ has been omitted from all sequences and absolute constraints. Squared displacement of $j$ upon $i$ is then:
+The squared displacement $\delta^2(i,j)$ of a target event $i$ caused by the omission of $j$ is computed as follows. Let $\tilde{x}_i$ be the estimated marginalized Monte Carlo mean date using all events within the full joint conditional, and then let $\tilde{x}_i^{(-j)}$ be the "jackknife" estimated date, when event $j$ has been omitted from all sequences and absolute constraints. Squared displacement of $j$ upon $i$ is then:
 
 $$
-\delta^2(i,j) = (\tilde{x}_i^{(-j)} - x_i)^2
+\delta^2(i,j) = (\tilde{x}_i^{(-j)} - \tilde{x}_i)^2
 $$
 
 If squared displacement is high, then the omission of $j$ has greatly shifted the date of $i$. If squared displacement is low, then the omission of $j$ has not altered the date of $i$ much. Squared displacement is measured in continuous time, whichever scale the investigator is using (typically years). 
