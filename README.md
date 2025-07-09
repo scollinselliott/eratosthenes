@@ -306,9 +306,8 @@ Determining the date of the production, use, and deposition of an
 artifact type uses the same method of Gibbs sampling discussed above,
 i.e., consistent batch means to determine convergence. Given that types
 are ideal constructs used to categorize artifacts, the notion of a
-“type” here has flexibility. While only one “type” at a time can be
-estimated with `gibbs_ad_type()`, here, a “type” can be defined on the
-basis of:
+“type” has flexibility. While only one “type” at a time can be estimated
+with `gibbs_ad_type()`, here, a “type” can be defined on the basis of:
 
 - One or more `id` in the finds list.
 - One or more `type` in the finds list.
@@ -431,10 +430,11 @@ Some functions related to relative sequences:
   accordingly.
 
 The package `eratosthenes` does not have functionality to produce
-seriations or ordinations, as R packages such as `seriation` (Hahsler,
-Hornik, and Buchcta 2008), `vegan` (Oksanen et al. 2024), `lakhesis`
-(Collins-Elliott Under Review), and many others, can perform this task
-already.
+seriations or ordinations, since R packages such as `seriation`
+(Hahsler, Hornik, and Buchcta 2008), `vegan` (Oksanen et al. 2024),
+`boral` (Hui 2016), `ecoCopula` (Popovic, Hui, and Warton 2022), `VGAM`
+(Yee 2004), and `lakhesis` (Collins-Elliott Under Review) can perform
+this task already.
 
 ## Evaluating Displacement
 
@@ -598,6 +598,14 @@ Calibration.” <https://doi.org/10.32614/CRAN.package.oxcAAR>.
 
 </div>
 
+<div id="ref-hui_boral_2016" class="csl-entry">
+
+Hui, F. K. C. 2016. “Boral: Bayesian Ordination and Regression Analysis
+of Multivariate Abundance Data in R.” *Methods in Ecology and Evolution*
+7: 744–50. <https://doi.org/10.1111/2041-210X.12514>.
+
+</div>
+
 <div id="ref-jones_fixed-width_2006" class="csl-entry">
 
 Jones, G. L., M. Haran, B. S. Caffo, and R. Neath. 2006. “Fixed-Width
@@ -632,6 +640,14 @@ Minchin, R. B. O’Hara, et al. 2024. “Vegan: Community Ecology Package.”
 
 </div>
 
+<div id="ref-popovic_fast_2022" class="csl-entry">
+
+Popovic, G. C., F. K. C. Hui, and D. I. Warton. 2022. “Fast Model-Based
+Ordination with Copulas.” *Methods in Ecology and Evolution* 13:
+194–202. <https://doi.org/10.1111/2041-210X.13733>.
+
+</div>
+
 <div id="ref-reimer_intcal20_2020" class="csl-entry">
 
 Reimer, P. J., W. E. N. Austin, E. Bard, A. Bayliss, P. G. Blackwell, C.
@@ -639,6 +655,14 @@ Bronk Ramsey, M. Butzin, et al. 2020. “The IntCal20 Northern Hemisphere
 Radiocarbon Age Calibration Curve (0–55 Cal
 <span class="nocase">kBP</span>).” *Radiocarbon* 62: 725–57.
 <https://doi.org/10.1017/RDC.2020.41>.
+
+</div>
+
+<div id="ref-yee_new_2004" class="csl-entry">
+
+Yee, T. W. 2004. “A New Technique for Maximum-Likelihood Canonical
+Gaussian Ordination.” *Ecological Monographs* 74: 685–701.
+<https://doi.org/10.1890/03-0078>.
 
 </div>
 

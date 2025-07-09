@@ -184,7 +184,7 @@ Information on the `marginals` object can be accessed with `print()` and `summar
 
 ### Dates of the Production, Use, and Deposition of a Type 
 
-Determining the date of the production, use, and deposition of an artifact type uses the same method of Gibbs sampling discussed above, i.e., consistent batch means to determine convergence. Given that types are ideal constructs used to categorize artifacts, the notion of a "type" here has flexibility. While only one "type" at a time can be estimated with `gibbs_ad_type()`, here, a "type" can be defined on the basis of:
+Determining the date of the production, use, and deposition of an artifact type uses the same method of Gibbs sampling discussed above, i.e., consistent batch means to determine convergence. Given that types are ideal constructs used to categorize artifacts, the notion of a "type" has flexibility. While only one "type" at a time can be estimated with `gibbs_ad_type()`, here, a "type" can be defined on the basis of:
 
 * One or more `id` in the finds list.
 * One or more `type` in the finds list.
@@ -235,7 +235,7 @@ Some functions related to relative sequences:
 * `seq_check()` sees whether partial sequences agree in their relative ordering of elements.
 * `seq_adj()` provides the means to coerce an "input" sequence to a discrepant "target" sequence which contains fewer elements. E.g., if one has obtained an optimal seriation of contexts (of both single, unrelated deposits and stratigraphic deposits) as determined by the presence/absence of find-types, which conflicts with a sequence obtained from a stratigraphic sequence whose physical relationships are certain, this function will reorder the optimal seriation, fitting any single deposits missing from the stratigraphic sequence accordingly.
 
-The package `eratosthenes` does not have functionality to produce seriations or ordinations, as R packages such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `lakhesis` [@collins-elliott_lakhesis_underreview], and many others, can perform this task already.
+The package `eratosthenes` does not have functionality to produce seriations or ordinations, since R packages such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `boral` [@hui_boral_2016], `ecoCopula` [@popovic_fast_2022], `VGAM` [@yee_new_2004], and `lakhesis` [@collins-elliott_lakhesis_underreview] can perform this task already.
 
 ## Evaluating Displacement 
 
