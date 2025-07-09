@@ -357,7 +357,7 @@ The `gibbs_ad_type()` function takes the following inputs, similar to
   above](#dates-of-events-in-sequences-and-absolute-constraints). Note
   that the `mcse_crit`, as a stopping rule, applies still to the
   sequential events/absolute constraints, but MCSE will still be
-  reported for the estimates of the production, use, and deposition
+  reported for the estimates of the production, use, and depositional
   dates.
 - `tpq` and `taq` : Format must follow that illustrated in the Section
   above on [Absolute Constraints](#absolute-constraints).
@@ -377,7 +377,7 @@ that of the `"naive"` production density. It should also be noted that,
 for this function, Gibbs sampling is only used for the depositional
 sequences and absolute constraints, not for production, use, and
 deposition (i.e, the use date does not affect the production date, nor
-is the deposition date affected by the production date).
+is the depositional date affected by the production date).
 
 Using the `result` object above, the densities of the use dates of the
 following types is computed using the `gibbs_ad_type()` function as
