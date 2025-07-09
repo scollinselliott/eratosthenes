@@ -51,7 +51,7 @@ $$
 \text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j).
 $$
 
-`eratsothenes` computes the MSD for all events via a "jackknife" or "leave one out"-style of routine, omitting each event iteratively.
+`eratosthenes` computes the MSD for all events via a "jackknife" or "leave one out"-style of routine, omitting each event iteratively.
 
 # Application
 
