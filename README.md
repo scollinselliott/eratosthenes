@@ -15,7 +15,8 @@ absolute constraints (such as radiocarbon dates, datable artifacts, or
 other known historical events, as *termini post* or *ante quos*), which
 prompt the use of a joint conditional probability density to convey
 those relationships. The date of any one event can then be marginalized
-from that full, joint conditional distribution.
+from that full, joint conditional distribution. `Rcpp` is used for
+faster sampling (Eddelbuettel and Balamuta 2018).
 
 While software exists for calibrating and conditioning radiocarbon dates
 upon relative constraints, such as `OxCal` (Bronk Ramsey 2009) and
@@ -553,6 +554,14 @@ Crema, E. R., A. Bevan, and S. Shennan. 2017. “Spatio-Temporal
 Approaches to Archaeological Radiocarbon Dates.” *Journal of
 Archaeological Science* 87: 1–9.
 <https://doi.org/10.1016/j.jas.2017.09.007>.
+
+</div>
+
+<div id="ref-eddelbuettel_extending_2018" class="csl-entry">
+
+Eddelbuettel, D., and J. J. Balamuta. 2018. “Extending R with C++: A
+Brief Introduction to Rcpp.” *The American Statistician* 72: 28–36.
+<https://doi.org/10.1080/00031305.2017.1375990>.
 
 </div>
 
