@@ -1592,18 +1592,22 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
             sq_ <-sq_[!(sq_ %in% proceed_all[j])]
             sequencesMSD[[i]] <- sq_
         }
-        idx <- 1
-        for (i in 1:length(tpq)) {
-            if (!(tpq[[i]]$id %in% proceed_all[j] | tpq[[i]]$assoc %in% proceed_all[j])) {
-                tpqMSD[[idx]] <- tpq[[i]]
-                idx <- idx + 1
+        if (length(tpq) > 0) {
+            idx <- 1
+            for (i in 1:length(tpq)) {
+                if (!(tpq[[i]]$id %in% proceed_all[j] | tpq[[i]]$assoc %in% proceed_all[j])) {
+                    tpqMSD[[idx]] <- tpq[[i]]
+                    idx <- idx + 1
+                }
             }
         }
-        idx <- 1
-        for (i in 1:length(taq)) {
-            if (!(taq[[i]]$id %in% proceed_all[j] | taq[[i]]$assoc %in% proceed_all[j])) {
-                taqMSD[[idx]] <- taq[[i]]
-                idx <- idx + 1
+        if (length(taq) > 0) {
+            idx <- 1
+            for (i in 1:length(taq)) {
+                if (!(taq[[i]]$id %in% proceed_all[j] | taq[[i]]$assoc %in% proceed_all[j])) {
+                    taqMSD[[idx]] <- taq[[i]]
+                    idx <- idx + 1
+                }
             }
         }
 
@@ -1795,19 +1799,23 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
             sq_ <-sq_[!(sq_ %in% proceed_all[j])]
             sequencesMSD[[i]] <- sq_
         }
-        idx <- 1
-        for (i in 1:length(tpq)) {
-            if (!(tpq[[i]]$id %in% proceed_all[j] | tpq[[i]]$assoc %in% proceed_all[j])) {
-                tpqMSD[[idx]] <- tpq[[i]]
-                idx <- idx + 1
+        if (length(tpq) > 0) {
+            idx <- 1
+            for (i in 1:length(tpq)) {
+                if (!(tpq[[i]]$id %in% proceed_all[j] | tpq[[i]]$assoc %in% proceed_all[j])) {
+                    tpqMSD[[idx]] <- tpq[[i]]
+                    idx <- idx + 1
+                }
             }
         }
+        if (length(taq) > 0) {
         idx <- 1
         for (i in 1:length(taq)) {
             if (!(taq[[i]]$id %in% proceed_all[j] | taq[[i]]$assoc %in% proceed_all[j])) {
                 taqMSD[[idx]] <- taq[[i]]
                 idx <- idx + 1
             }
+        }
         }
 
         if (length(tpqMSD) == 0 & length(taqMSD) != 0) {
