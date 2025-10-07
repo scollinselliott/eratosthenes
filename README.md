@@ -4,6 +4,7 @@
 # <img src="man/figures/logo.png" align="right" width="150px"/> eratosthenes: Archaeological Synchronism
 
 <!-- badges: start -->
+
 <a href="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020"><img src="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020/status.svg"></a>
 <!-- badges: end -->
 
@@ -79,6 +80,320 @@ install the package in the `R` command line with `devtools`:
 library(devtools)
 install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignettes = TRUE) 
 ```
+
+## Tutorial: Archaeological Example
+
+The Dressel 1B type of amphora (a ceramic shipping container typical of
+the ancient Mediterranean) is a ceramic type defined on the basis of
+morphology, comprising a tall, long-necked, two-handled vessel with a
+concave collared rim and and sharply defined, angular shoulder. To give
+just three chronological summaries of this type, the Dressel 1B type was
+produced/used/deposited:
+
+- in the “last quarter of the second until the last decade of the first
+  century BC” (Southampton 2014);
+- “shortly before the middle of the 1st century BC” and “until c. 10 BC”
+  (Tyers 1996, 2.2);
+- at the earliest “during *c*.100-80 BC”, disappearing “by 30 BC” (*The
+  Arverni and Roman Wine* 2014, 43).
+
+Such determinations are the result of many comparisons of stratigraphic
+and single contexts where the Dressel 1B type has appeared in
+conjunction with absolute constraints (e.g., coinage, datable stamps,
+historical events in the occupation/destruction of sites). It is evident
+in the above statements, too, that there will be greater or lesser
+chronological discrepancies among investigators.
+
+In order to obtain a probability density for any aspect of dating the
+Dressel 1B (that is, its production, use, and/or deposition),
+`eratosthenes` avoids the awkward synthesis of this chronological
+information by estimating dates directly from archaeological record
+itself, in the information provided by contexts (in
+**[sequences](#sequences)**, howsoever established),
+**[finds](#finds)**, which are contained in those contexts, and
+**[absolute constraints](#absolute-constraints)** for those contexts, as
+inputs. In other words, it formalizes the logic of dating finds which is
+already in practice, yielding a probability density instead of a
+qualitative appraisal of the object’s dates of production, use, and
+deposition.
+
+The following aims to be a concrete tutorial that gives step-by-step
+instructions to obtain probability density functions on the production,
+use, and deposition of the Dressel 1B type using `eratosthenes`. Further
+information on the data for this tutorial is found
+**[here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)**.
+
+### Creating a Sequences Object
+
+First, sequences are given as vectors, with contexts entered as elements
+earlier to later, from left to right. The sequence `seq1` below gives a
+sequence of just two depositional contexts, from the archaeological site
+of Rirha in Morocco, `Rirha US 5182` and `Rirha US 5154`, with
+`Rirha US 5182` being the earlier of the two:
+
+``` r
+library(eratosthenes)
+seq1 <- c("Rirha US 5182", "Rirha US 5154") 
+```
+
+Multiple sequences can, and typically will, be given. To define seven
+more sequences for this tutorial, we have additional deposits from the
+site of Carthage (Byrsa Hill) and also several shipwrecks ([further
+information
+here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)):
+
+``` r
+seq2 <- c("Byrsa II B 19.4", "Byrsa II B 19.2")
+seq3 <- c("Rirha US 5154", "Planier A")
+seq4 <- c("El Sec", "Filicudi F", "Tour Fondue", "Cabrera 2", "Tour d'Agnello", "Sanguinaires A", "Lazaret")
+seq5 <- c("Madrague de Giens", "Planier C", "Cap Béar C", "Planier A")
+seq6 <- c("Cabrera 2", "Grand Congloué A", "Lazaret", "Byrsa II B 19.2", "Punta Scaletta", "Isla Pedrosa", "Cavalière", "Madrague de Giens")
+seq7 <- c("Mazotos", "El Sec")
+seq8 <- c("Grand Congloué A", "Héliopolis B", "Punta Scaletta")
+```
+
+A single `list` object is then created which contains all of the
+sequences:
+
+``` r
+contexts <- list(seq1, seq2, seq3, seq4, seq5, seq6, seq7, seq8)
+```
+
+In order to check that all sequences accord with one another, we run the
+`seq_check()` function, which will return a value of `TRUE` if there are
+no conflicts:
+
+``` r
+seq_check(contexts)
+```
+
+The `contexts` object therefore contains all of the information about
+the relationships of the contexts, in terms of which come before or
+after one another, which should be based on a stated rationale.
+
+### Creating a Finds Object
+
+Next, a separate object for the finds data must be created. If a
+particular find has absolute chronological information associated with
+it (just the object itself, not the type), it should not be entered
+here, but rather as an absolute constraint (on which see below). To
+start, each find is a `list` object with the following information:
+
+``` r
+id1 <- list(id = "id 1",
+            assoc = "Isla Pedrosa",
+            type = "AMPH Dressel 1B",
+            residual = TRUE)
+```
+
+Each find, indexed with an `id`, must be linked to a context given in
+the sequences above. Its appertaining context is entered into the
+`assoc` field. This particular entry comprises the find of Dressel 1B
+amphorae associated with the Isla Pedrosa shipwreck. These amphorae may
+in fact relate to another shipwreck (i.e., their association with this
+context may be spurious). By indicating `residual = TRUE`, the find
+remains associated with its context, but it will not be taken into
+account when estimating its date. This option applies whether finds are
+residual to a deposit (i.e., much earlier finds redeposited into a later
+deposit) or whether they are intrusive (i.e., much later finds have been
+associated with an earlier deposit). The `type` field provides
+information on any aspects of artifact classification or typology: here,
+the type `AMPH Dressel 1B` is entered. It should be noted that `type` is
+optional, and more than one entry can be given for `type`, as the next
+four types show:
+
+``` r
+id865 <- list(id = "id 865", assoc = "Rirha US 5154", type = "AMPH Dressel 1B")
+id1202 <- list(id = "id 1202", assoc = "Madrague de Giens", type = "AMPH Dressel 1B")
+id1285 <- list(id = "id 1285", assoc = "Planier C", type = "AMPH Dressel 1B")
+id1364 <- list(id = "id 1364", assoc = "Cap Béar C", type = c("AMPH Dressel 1B", "AMPH Dressel 1B Tarraconensis"))
+```
+
+The last find, `id1364`, belongs to the production group of Dressel 1B
+amphorae produced in Spain, and so indicating its production subtype as
+another element in the `type` fields ensures that the find and its
+associated context will be used in estimating dates if an investigator
+is obtaining dates for either `AMPH Dressel 1B` or
+`AMPH Dressel 1B Tarraconensis`.
+
+Finally, a single `list` object is then created which contains all of
+the finds:
+
+``` r
+finds <- list(id1, id865, id1202, id1285, id1364)
+```
+
+### Creating Absolute Constraints Objects
+
+The last step is to create `lists` of the absolute constraints which
+pertain to contexts as either *termini post quos* or *termini ante
+quos*. Absolute constraints have the same fields as a find, but include
+another field, `samples`, which contains the absolute dates (see
+[Absolute Constraints](#absolute-constraints) below). Two separate
+`lists`, one for *t.p.q.* and the other for *t.a.q.*, are created as
+follows.
+
+The *termini post quos* will include radiocarbon dates. A vector of
+samples of calibrated dates, e.g., `c(375, 371, 370, ...)` may be
+entered, but it is more expedient to call one of the R packages
+available to calibrate dates and then assign their output into the
+`list`. Here, uncalibrated dates were uploaded as a `csv` file which was
+processed using `Bchron` (Haslett and Parnell 2008). The following code
+shows how to loop over a table of uncalibrated dates in order to draw
+samples from the calibrated date and insert them into a list of *t.p.q.*
+with an `id` and associated context (`assoc`):
+
+``` r
+# create an empty list to contain all tpq
+tpq_info <- list()
+
+# The csv file at https://volweb.utk.edu/~scolli46/eratosthenes/data/rc20250628.csv
+# contains a table of uncalibrated radiocarbon dates
+eratosthenes_rcdates <- read.csv("rc20250628.csv")
+
+library(Bchron)
+
+# calibrate and insert rc dates into tpq by looping over rows
+for (i in 1:nrow(eratosthenes_rcdates)) {
+    calib <- BchronCalibrate(ages = eratosthenes_rcdates$mu[i],
+                             ageSds = eratosthenes_rcdates$sigma[i],
+                             calCurves = "intcal20")
+    x <- 1950 - sampleAges(calib)
+
+    # this 
+    tpq_info[[i]] <- list(id = eratosthenes_rcdates$id[i],
+                     assoc = eratosthenes_rcdates$assoc[i],
+                     samples = x)
+}
+```
+
+The *termini ante quos* include the destruction of Carthage in 146 BCE,
+which the deposit B 19.2 on Byrsa Hill predates, as well as a range of
+absolute dates, ca. 1-15 CE, for the Planier A shipwreck (to give a
+finite endpoint for this tutorial).
+
+``` r
+Carthage_Destr_1 <- list(id = "Carthage_Destr_1",
+                         assoc = "Byrsa II B 19.2",
+                        samples = -146)
+Planier_A_abs <- list(id = "Planier_A_abs",
+                      assoc = "Planier A",
+                      samples = seq(1, 15, length.out = 100))
+
+taq_info <- list(Carthage_Destr_1, Planier_A_abs)
+```
+
+With the inputs of these sequences, finds, and absolute constraints, we
+can estimate the dates of the production, use, and deposition of the
+Dressel 1B type by calling the `gibbs_ad_type()` function from
+`eratosthenes`. The `contexts` object containing the sequences is
+entered first and the `finds` object second. We then specify what `type`
+we want to obtain dates for (here, `AMPH Dressel 1B`). Finally, the
+absolute constraints of `tpq_info` and `taq_info` are given as inputs:
+
+``` r
+dr_1b <- gibbs_ad_type(contexts,
+                       finds,
+                       type = "AMPH Dressel 1B",
+                       tpq = tpq_info,
+                       taq = taq_info)
+```
+
+The resulting `dr_1b` object contains samples of dates (production, use,
+and depositional dates are estimated separately), and the console output
+will give information on the structure of that object as well as a table
+listing the mean dates. The densities can be visualized using the
+`histogram()` function:
+
+``` r
+histogram(dr_1b, xlim = c(-300,20), ylim = c(0, 0.010), legend = "topleft") 
+```
+
+Which shows the probable dates of production, use, and deposition
+separately (see [Fig. 3 of the *JOSS*
+paper](https://raw.githubusercontent.com/openjournals/joss-papers/joss.08559/joss.08559/10.21105.joss.08559.pdf)
+awaiting review), indicating which dates are more probable than others.
+
+To determine a highest density region (HDR) of the dates, i.e., the
+range of the most probable dates according to a given percentage, we can
+construct a histogram of the dates with 100 bins (i.e., as a percentage)
+and sort them by their density, choosing, for example, the 10% and 95%
+regions of the most probable dates of the production of the type.
+
+``` r
+dat <- dr_1b$type$production
+perc <- seq(min(dat), max(dat), length.out = 101)
+
+x <- hist(dat, perc)$mids
+y <- hist(dat, perc)$density
+
+hpd <- rev(x[order(y)])
+hpd_10 <- c(min(hpd[1:10]), max(hpd[1:10]))
+hpd_95 <- c(min(hpd[1:95]), max(hpd[1:95]))
+```
+
+It should be noted that if the resulting distribution is multimodal,
+this code will need to be modified to identify multiple regions. But
+here, with a simple unimodal case, the lower and upper bounds or either
+a narrower (10% HDR) or broader (95% HDR) interval of dates for the
+production of a Dressel 1B type amphorae are, approximately:
+
+    > hpd_10
+    [1] -103.7998  -70.4462
+    > hpd_95
+    [1] -340.980962    7.378864
+
+The dates of production will be earlier than those of deposition, which
+can be seen in the histogram and by selecting `dr_1b$type$deposition`
+rather than `dr_1b$type$production`.
+
+The estimates naturally depend on the inputs, and this tutorial has used
+only a small portion of the available information on the contexts and
+constraints pertaining to the Dressel 1B type. The estimates given by
+`eratosthenes` roughly accord with that of the conventional typology, as
+would be expected, but it gives investigators the benefit of numerical
+precision afforded by probability theory. Chronological typologies
+depend on any number of conditional statements about depositional
+contexts, their similarity to one another, and their sequencing. New
+information is always being added, and older views are always being
+reassessed. Hence, `eratosthenes` allows for a more rapid reassessment
+of dates, as can be shown next.
+
+### Chronological Interventions and Revisions
+
+Revising chronologies, or evaluating the impact of choices upon or
+interventions within a chronology, is performed directly on the inputs.
+If we reconsider the view that the Dressel 1B is part of the Isla
+Pedrosa wreck, we can set `residual = FALSE` and reassign the `id1`
+object, reassign the finds object, and re-run the `gibbs_ad_type()`
+function:
+
+``` r
+id1 <- list(id = "id 1", assoc = "Isla Pedrosa", type = "AMPH Dressel 1B", residual = FALSE)
+finds <- list(id1, id865, id1202, id1285, id1364)
+dr_1b <- gibbs_ad_type(contexts, finds, type = "AMPH Dressel 1B", tpq = tpq_info, taq = taq_info)
+```
+
+Performing the same steps as above to estimate the 10% and 95% HDR of
+the dates of production, we can see that associating the Dressel 1B
+amphorae with the cargo of the Isla Pedrosa wreck has substantially
+changed the allocation of probability for what the most probable dates
+are, shifting them earlier:
+
+    > hpd_10
+    [1] -137.09992  -99.68446
+    > hpd_95
+    [1] -342.884905    8.820347
+
+Having a probablistically determined date for artifacts that works
+directly from the basis of their archaeological relationships evades the
+need to account for chronological discrepancies, and moreover affords
+the ability to work entirely within a formal, mathematical environment
+when it comes to topics such as the quantification of finds with
+uncertain dating (since each find will have its own particular density
+function). Futher tools to evaluate the influence of events on one
+another for determining dates within in the chronology are discussed
+below (see [Evaluating Displacement](#evaluating-displacement)).
 
 ## Usage
 
@@ -665,6 +980,27 @@ Bronk Ramsey, M. Butzin, et al. 2020. “The IntCal20 Northern Hemisphere
 Radiocarbon Age Calibration Curve (0–55 Cal
 <span class="nocase">kBP</span>).” *Radiocarbon* 62: 725–57.
 <https://doi.org/10.1017/RDC.2020.41>.
+
+</div>
+
+<div id="ref-southampton_roman_2014" class="csl-entry">
+
+Southampton, University of. 2014. “Roman Amphorae: A Digital Resource
+\[Data-Set\].” *Internet Archaeology* 1.
+<https://doi.org/10.5284/1028192>.
+
+</div>
+
+<div id="ref-loughton_arverni_2014" class="csl-entry">
+
+*The Arverni and Roman Wine*. 2014. Oxford: Archaeopress.
+
+</div>
+
+<div id="ref-tyers_roman_1996" class="csl-entry">
+
+Tyers, P. 1996. “Roman Amphoras in Britain.” *Internet Archaeology* 1.
+<https://doi.org/10.11141/ia.1.6>.
 
 </div>
 
