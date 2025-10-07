@@ -86,8 +86,8 @@ install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignet
 The Dressel 1B type of amphora (a ceramic shipping container typical of
 the ancient Mediterranean) is a ceramic type defined on the basis of
 morphology, comprising a tall, long-necked, two-handled vessel with a
-concave collared rim and and sharply defined, angular shoulder. To give
-just three chronological summaries of this type, the Dressel 1B type was
+concave collared rim and sharply defined, angular shoulder. To give just
+three chronological summaries of this type, the Dressel 1B type was
 produced/used/deposited:
 
 - in the “last quarter of the second until the last decade of the first
