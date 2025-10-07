@@ -94,8 +94,8 @@ produced/used/deposited:
   century BC” (Southampton 2014);
 - “shortly before the middle of the 1st century BC” and “until c. 10 BC”
   (Tyers 1996, 2.2);
-- at the earliest “during *c*.100-80 BC”, disappearing “by 30 BC” (*The
-  Arverni and Roman Wine* 2014, 43).
+- at the earliest “during *c*.100-80 BC”, disappearing “by 30 BC”
+  (Loughton 2014, 43).
 
 Such determinations are the result of many comparisons of stratigraphic
 and single contexts where the Dressel 1B type has appeared in
@@ -957,6 +957,12 @@ Levy, E., G. Geeraerts, F. Pluquet, E. Piasetzky, and A. Fantalkin.
 
 </div>
 
+<div id="ref-loughton_arverni_2014" class="csl-entry">
+
+Loughton, M. 2014. *The Arverni and Roman Wine*. Oxford: Archaeopress.
+
+</div>
+
 <div id="ref-oksanen_vegan_2024" class="csl-entry">
 
 Oksanen, J., G. L. Simpson, F. G Blanchet, R. Kindt, P. Legendre, P. R.
@@ -988,12 +994,6 @@ Radiocarbon Age Calibration Curve (0–55 Cal
 Southampton, University of. 2014. “Roman Amphorae: A Digital Resource
 \[Data-Set\].” *Internet Archaeology* 1.
 <https://doi.org/10.5284/1028192>.
-
-</div>
-
-<div id="ref-loughton_arverni_2014" class="csl-entry">
-
-*The Arverni and Roman Wine*. 2014. Oxford: Archaeopress.
 
 </div>
 
