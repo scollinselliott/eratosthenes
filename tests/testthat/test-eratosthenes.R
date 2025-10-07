@@ -102,7 +102,7 @@ test_that("mean mcse less than critical threshold", {
   result <- gibbs_ad(seq_, alpha_ = 0, omega_ = 1, mcse_crit = 0.0005, max_samples = 10^6)
   mcse_ <- result$mcse[synth_rank(seq_)]
   expect_lt(mean(mcse_), 0.0005)
-})
+})  
 
 test_that("msd estimates", {
   result <- gibbs_ad(seq_, alpha_ = 0, omega_ = 1, mcse_crit = 0.001, max_samples = 10^6)
