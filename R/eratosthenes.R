@@ -659,7 +659,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
     if (length(events) == 1) {
         x <- plot_list[[1]]
         graphics::plot(x, type = "l", col = palette[1], xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = "")
-    } else if (length(events) > 1 & length(events <= 12)) {
+    } else if (length(events) > 1 & length(events) <= 12) {
         x <- plot_list[[1]]
         graphics::plot(x, type = "l", col = palette[1], xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = "")
         for (k in 2:length(events)) {
@@ -769,7 +769,7 @@ histogram.marginals <- function(x, events = NULL, aspect = NULL, breaks = "Freed
     if (length(events) == 1) {
         dat <- plot_list[[1]]
         graphics::hist(dat, breaks = breaks, freq = FALSE, xlim = xlim, xlab = xlab, ylim = ylim, col = palette[1], lty="blank", main = "")
-    } else if (length(events) > 1 & length(events <= 12)) {
+    } else if (length(events) > 1 & length(events) <= 12) {
         dat <- plot_list[[1]]
         graphics::hist(dat, breaks = breaks, freq = FALSE, lty="blank", xlim = xlim, ylim = ylim, col = palette[1], xlab = xlab, main = "")
         for (k in 2:length(events)) {
