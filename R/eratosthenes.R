@@ -430,7 +430,7 @@ gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit 
             message("\nMCSE criterion passed. Finishing.")
         } else {
             if (ncol(gibbs) >= max_samples) {
-                message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
+                message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
                 mcse_check <- TRUE
             } else {
 
@@ -1369,7 +1369,7 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
             message("\nMCSE criterion passed. Finishing.")
         } else {
             if (ncol(gibbs) >= max_samples) {
-                message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
+                message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
                 mcse_check <- TRUE
             } else {
 
@@ -1578,7 +1578,7 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     orig_dat$MSD_var <- NA
     orig_dat$MSD_n <- NA
 
-    message("Beginning jackknlife/LOO-style routine to compute MSD. This may take a while, depending on the number of events / mcse_crit...\n")
+    message("Beginning jackknife/LOO-style routine to compute MSD. This may take a while, depending on the number of events / mcse_crit...\n")
 
     for (j in 1:length(proceed_all)) {
         cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
@@ -1785,7 +1785,7 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
 
     orig_dat$sq_disp <- NA
 
-    message("Beginning jackknlife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
 
     for (j in 1:length(proceed_all)) {
         cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
@@ -1911,7 +1911,7 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
     res <- data.frame(sq_disp = rep(NA, length(proceed_all)), disp_MCmean = rep(NA, length(proceed_all)), disp_MCSE = rep(NA, length(proceed_all)) )
     rownames(res) <- proceed_all
 
-    message("Beginning jackknlife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
 
     for (j in 1:length(proceed_all)) {
         cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
