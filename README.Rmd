@@ -37,10 +37,16 @@ The package is named after Eratosthenes of Cyrene, author of the _Chronographiai
 
 ## Installation
 
-To obtain the current development version of `eratosthenes` from GitHub, install the package in the `R` command line with `devtools`:
+To install `eratosthenes` from CRAN, run the `install.packages()` function:
+
+``` r 
+install.packages("eratosthenes")
+```
+
+To obtain the current development version of `eratosthenes` from GitHub, install the package in the `R` command line with `remotes`:
 
 ``` r
-library(devtools)
+library(remotes)
 install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignettes = TRUE) 
 ```
 

@@ -73,11 +73,18 @@ The package is named after Eratosthenes of Cyrene, author of the
 
 ## Installation
 
-To obtain the current development version of `eratosthenes` from GitHub,
-install the package in the `R` command line with `devtools`:
+To install `eratosthenes` from CRAN, run the `install.packages()`
+function:
 
 ``` r
-library(devtools)
+install.packages("eratosthenes")
+```
+
+To obtain the current development version of `eratosthenes` from GitHub,
+install the package in the `R` command line with `remotes`:
+
+``` r
+library(remotes)
 install_github("scollinselliott/eratosthenes", dependencies = TRUE, build_vignettes = TRUE) 
 ```
 
@@ -832,7 +839,8 @@ sq_disp(result_type1, sequences = contexts, finds = artifacts,
 
 ## References
 
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
 <div id="ref-bronk_ramsey_bayesian_2009" class="csl-entry">
 
