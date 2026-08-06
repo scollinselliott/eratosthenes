@@ -91,7 +91,7 @@ synth_rank.list <- function(obj, ties = "average") {
 #'
 #' For a \code{list} of multiple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives all elements that occur after it ("\emph{quae postea}"). This is analogous to a recursive trace through all partial sequences from left to right. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
 #'
-#' @param obj A \code{list} of \code{vector} objects which reperesent ordered sequences.    
+#' @param obj A \code{list} of \code{vector} objects which represent ordered sequences.    
 #' 
 #' @examples 
 #' x <- c("A", "B", "C")
@@ -248,11 +248,11 @@ seq_adj.character <- function(input, target) {
 #' @param mcse_crit Criterion for the Monte Carlo standard error to stop the Gibbs sampler, as based on depositional dates and absolute constraints. The number of Monte Carlo samples for production dates is identical to that depositional dates.
 #' @param tpq A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
 #'   * \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
-#'   * \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated. 
+#'   * \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated. 
 #'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
 #' @param taq A \code{list} containing \emph{termini ante quos}. Each object in the list consists of:
 #'   * \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
-#'   * \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated. 
+#'   * \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated. 
 #'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.a.q.}
 #' @param alpha_ An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
@@ -430,7 +430,7 @@ gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit 
             message("\nMCSE criterion passed. Finishing.")
         } else {
             if (ncol(gibbs) >= max_samples) {
-                message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
+                message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
                 mcse_check <- TRUE
             } else {
 
@@ -676,7 +676,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 
 #' Histogram of Marginal Densities
 #' 
-#' Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_type}]}.
+#' Wrapper around \code{\link[graphics]{hist}} to plot density histograms for select marginal densities (up to 12) in a single plot, from the results of \code{\link[eratosthenes]{gibbs_ad}}, or to plot density histograms of the production, deposition, and use of a type, from the results of \code{\link[eratosthenes]{gibbs_ad_type}}.
 #' 
 #' See also also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
@@ -1369,7 +1369,7 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
             message("\nMCSE criterion passed. Finishing.")
         } else {
             if (ncol(gibbs) >= max_samples) {
-                message("\nMC samples exceeded maximum stipulated without passing MCSE crterion. Finishing.")
+                message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
                 mcse_check <- TRUE
             } else {
 
@@ -1578,7 +1578,7 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     orig_dat$MSD_var <- NA
     orig_dat$MSD_n <- NA
 
-    message("Beginning jackknlife/LOO-style routine to compute MSD. This may take a while, depending on the number of events / mcse_crit...\n")
+    message("Beginning jackknife/LOO-style routine to compute MSD. This may take a while, depending on the number of events / mcse_crit...\n")
 
     for (j in 1:length(proceed_all)) {
         cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
@@ -1785,7 +1785,7 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
 
     orig_dat$sq_disp <- NA
 
-    message("Beginning jackknlife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
 
     for (j in 1:length(proceed_all)) {
         cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
@@ -1911,7 +1911,7 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
     res <- data.frame(sq_disp = rep(NA, length(proceed_all)), disp_MCmean = rep(NA, length(proceed_all)), disp_MCSE = rep(NA, length(proceed_all)) )
     rownames(res) <- proceed_all
 
-    message("Beginning jackknlife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
 
     for (j in 1:length(proceed_all)) {
         cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
