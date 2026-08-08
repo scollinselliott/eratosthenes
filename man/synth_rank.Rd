@@ -2,28 +2,28 @@
 % Please edit documentation in R/eratosthenes.R
 \name{synth_rank}
 \alias{synth_rank}
-\alias{synth_rank.list}
+\alias{synth_rank.sequences}
 \title{Synthetic Ranking}
 \usage{
 synth_rank(obj, ties = "average")
 
-\method{synth_rank}{list}(obj, ties = "average")
+\method{synth_rank}{sequences}(obj, ties = "average")
 }
 \arguments{
-\item{obj}{A \code{list} of \code{vector} objects which represent a sequence.}
+\item{obj}{A \code{sequences} object.}
 
 \item{ties}{The way in which ties are handled per the \code{\link{rank}} function. The default is \code{"ties = average"}.}
 }
 \value{
-A single vector containing the synthesized ranking.
+An \code{events} object containing the synthesized ranking.
 }
 \description{
-Using a \code{list} two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
+Using a \code{sequences} object of two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E")
-y <- c("B", "D", "F", "E")
-a <- list(x, y)
+x <- events("A", "B", "C", "D", "E")
+y <- events("B", "D", "F", "E")
+a <- sequences(x, y)
 
 synth_rank(a)
 

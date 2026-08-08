@@ -2,15 +2,15 @@
 % Please edit documentation in R/eratosthenes.R
 \name{ids_of_types}
 \alias{ids_of_types}
-\alias{ids_of_types.list}
+\alias{ids_of_types.assemblage}
 \title{Ids of Types}
 \usage{
 ids_of_types(input, type = NULL)
 
-\method{ids_of_types}{list}(input, type = NULL)
+\method{ids_of_types}{assemblage}(input, type = NULL)
 }
 \arguments{
-\item{input}{A \code{list} object whose elements are a list containing the keys of \code{id}, \code{assoc}, \code{type}.}
+\item{input}{An \code{\link[eratosthenes]{assemblage}}, comprising finds.}
 
 \item{type}{A vector or element}
 }
@@ -21,14 +21,14 @@ A vector of ids within a \code{list} object of \code{finds} class,
 Given a \code{list} object of finds (with keys of \code{id}, \code{assoc}, \code{type} in each entry), return a vector of the \code{id} elements that belong to one or more specified type.
 }
 \examples{
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
+f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- finds(id = "find05", assoc = "I", type = "type2")
+f6 <- finds(id = "find06", assoc = "H", type = NULL)
 
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 
 ids_of_types(artifacts, type = "type1")
 ids_of_types(artifacts, type = c("type1", "type2"))

@@ -32,7 +32,7 @@ msd(
 \arguments{
 \item{marginalized}{An object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
 
-\item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.}
+\item{sequences}{A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.}
 
 \item{max_samples}{Maximum number of samples to run. Default is \code{10^5}.}
 
@@ -71,27 +71,27 @@ Trimming is not implemented in the computation of MSD, and so attention should b
 This function is fairly computationally intensive and thus a lower value of \code{max_samples} and a higher value of \code{mcse_crit} may be warranted.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
 
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
+f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- finds(id = "find05", assoc = "I", type = "type2")
+f6 <- finds(id = "find06", assoc = "H", type = NULL)
 
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 
 result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 

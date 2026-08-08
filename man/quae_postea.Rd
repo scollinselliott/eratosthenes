@@ -2,15 +2,21 @@
 % Please edit documentation in R/eratosthenes.R
 \name{quae_postea}
 \alias{quae_postea}
+\alias{quae_postea.events}
 \alias{quae_postea.list}
+\alias{quae_postea.sequences}
 \title{Quae Postea}
 \usage{
-quae_postea(obj)
+quae_postea(...)
 
-\method{quae_postea}{list}(obj)
+\method{quae_postea}{events}(...)
+
+\method{quae_postea}{list}(...)
+
+\method{quae_postea}{sequences}(...)
 }
 \arguments{
-\item{obj}{A \code{list} of \code{vector} objects which reperesent ordered sequences.}
+\item{...}{Objects of class \code{\link[eratosthenes]{events}}, or a \code{\link[eratosthenes]{sequences}} object, a valid \code{list} of \code{events}.}
 }
 \value{
 A \code{list} of \code{vector} objects, which contain the elements that occur after any one given element in the input sequences.
@@ -19,11 +25,14 @@ A \code{list} of \code{vector} objects, which contain the elements that occur af
 For a \code{list} of multiple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives all elements that occur after it ("\emph{quae postea}"). This is analogous to a recursive trace through all partial sequences from left to right. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
 }
 \examples{
-x <- c("A", "B", "C")
-y <- c("B", "D", "E", "C", "F")
-z <- c("C", "G")
-a <- list(x, y, z)
+x <- events("A", "B", "C")
+y <- events("B", "D", "E", "C", "F")
+z <- events("C", "G")
 
+quae_postea(x)
+quae_postea(x, y, z)
+
+a <- sequences(x, y, z)
 quae_postea(a)
 
 }

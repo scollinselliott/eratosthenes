@@ -2,10 +2,23 @@
 % Please edit documentation in R/eratosthenes.R
 \name{gibbs_ad}
 \alias{gibbs_ad}
+\alias{gibbs_ad.sequences}
 \alias{gibbs_ad.list}
 \title{Gibbs Sampler for Archaeological Dates}
 \usage{
 gibbs_ad(
+  sequences,
+  max_samples = 10^5,
+  size = 10^3,
+  mcse_crit = 0.5,
+  tpq = NULL,
+  taq = NULL,
+  alpha_ = -5000,
+  omega_ = 1950,
+  trim = TRUE
+)
+
+\method{gibbs_ad}{sequences}(
   sequences,
   max_samples = 10^5,
   size = 10^3,
@@ -30,7 +43,7 @@ gibbs_ad(
 )
 }
 \arguments{
-\item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts).}
+\item{sequences}{A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts).}
 
 \item{max_samples}{Maximum number of samples to run. Default is \code{10^5}.}
 
@@ -38,19 +51,9 @@ gibbs_ad(
 
 \item{mcse_crit}{Criterion for the Monte Carlo standard error to stop the Gibbs sampler, as based on depositional dates and absolute constraints. The number of Monte Carlo samples for production dates is identical to that depositional dates.}
 
-\item{tpq}{A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
-\itemize{
-\item \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
-\item \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated.
-\item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-}}
+\item{tpq}{A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini post quos}.}
 
-\item{taq}{A \code{list} containing \emph{termini ante quos}. Each object in the list consists of:
-\itemize{
-\item \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
-\item \code{assoc} The element in \code{code} to which the \emph{t.p.q.} is associated.
-\item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.a.q.}
-}}
+\item{taq}{A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini ante quos}.}
 
 \item{alpha_}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
 
@@ -84,19 +87,19 @@ Note that the MCSE criterion is applied as a stopping rule for depositional date
 For the use dates of artifact type production, use, and deposition, see the \code{\link[eratosthenes]{gibbs_ad_type}} function.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
   # seq(37, 41, length = 100) is equivalent in concept to runif(100, 37, 41)) 
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 
 result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 

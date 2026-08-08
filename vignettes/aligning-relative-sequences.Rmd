@@ -24,23 +24,14 @@ This vignette outlines functions that check and align multiple relative sequence
 
 ## Checking Sequence Agreement
 
-To check whether two or more sequences of events agree with one another in their order, the `seq_check()` function is used. Sequences should run in the same direction from left to right (i.e., the earliest element of all sequences should be the first element), and be contained in a `list` object. The `seq_check()` function returns a logical output if all sequences have the same elements in the same order.
+Events are structured within two classes of objects, produced by the following functions: `events()` comprise a single, ordered sequence of events, which must be unique character elements, while `sequences()` comprise a list of `events` objects, which must not conflict with one another in their ordering across all `events` objects. Basically, `events()` is a more restrictive class of `c()`, while `sequences()` is a more restrictive class of `list()`. The operation of the `seq_check()` function is run automatically when creating a `sequences()` object, which will throw an error if any `events` objects disagree in their ordering.
 
 Both sequences `x` and `y` contain the same events in the same order:
 
 ```{r}
-x <- c("A", "B", "C", "D", "E")
-y <- c("B", "D", "F", "E")
-a <- list(x, y)
-seq_check(a)
-```
-
-But sequence `z` contains events `"F"` and `"C"` out of order with respect to `x` and `y`:
-
-```{r}
-z <- c("B", "F", "C")
-b <- list(x, y, z)
-seq_check(b)
+x <- events("A", "B", "C", "D", "E")
+y <- events("B", "D", "F", "E")
+a <- sequences(x, y)
 ```
 
 ## Merging Sequences
@@ -48,9 +39,9 @@ seq_check(b)
 The `synth_rank()` function will use recursion in order to produce a single, "merged" or "synthesized" sequence from two or more sequences.  This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via the `quae_postea()` function, on which see below). If partial sequences are inconsistent in their rankings, a `NULL` value is returned.
 
 ```{r}
-x <- c("A", "B", "C", "D", "H", "E")
-y <- c("B", "D", "F", "G", "E")
-a <- list(x, y)
+x <- events("A", "B", "C", "D", "H", "E")
+y <- events("B", "D", "F", "G", "E")
+a <- sequences(x, y)
 synth_rank(a)
 ```
 
@@ -66,9 +57,9 @@ For example, the input sequence might be an ordering obtained from a contextual 
 
 ```{r}
 # input
-seriated <- c("S1", "T1", "T2", "S3", "S4", "T4", "T5", "T6", "S5", "T7", "S2")
+seriated <- events("S1", "T1", "T2", "S3", "S4", "T4", "T5", "T6", "S5", "T7", "S2")
 # target
-stratigraphic <- c("S1", "S2", "S3", "S4", "S5")
+stratigraphic <- events("S1", "S2", "S3", "S4", "S5")
 # input adjusted to agree with the target
 seq_adj(seriated, stratigraphic)
 ```
@@ -103,11 +94,20 @@ A core need of the `gibbs_ad()` function is to determine, for each event,  _all_
 For `quae_antea()`, a dummy element of `"alpha"` is included in all vectors, and for `quae_postea()`, a dummy element of `"omega"` is included. The elements of `"alpha"` and `"omega"` are necesary as they constitute the fixed lower and upper limits in which estimates are made in `gibbs_ad()`.
 
 ```{r}
-x <- c("A", "B", "C", "D", "H", "E")
-y <- c("B", "D", "F", "G", "E")
-a <- list(x, y)
+x <- events("A", "B", "C", "D", "H", "E")
+y <- events("B", "D", "F", "G", "E")
+
+quae_postea(x, y)
+quae_antea(x, y)
+```
+
+Using `events` as input into `quae_postea()` and `quae_antea()` automatically check of the agreement of events' ordering. A `sequences` object can however also be used as input:
+
+```{r}
+x <- events("A", "B", "C", "D", "H", "E")
+y <- events("B", "D", "F", "G", "E")
+a <- sequences(x, y)
+
 quae_postea(a)
 quae_antea(a)
 ```
-
-The function `seq_check()`, which checks to see if sequences contain any discrepant orderings, relies on `quae_postea()`.

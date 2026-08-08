@@ -1,63 +1,61 @@
-#' Sequence Check
-#'
-#' For a \code{list} of partial sequences (of \code{vector} objects), check to see that joint elements of each occur the same order. That is, for two sequences with elements \eqn{A, B, C, D, E} and \eqn{B, D, F, E}, all joint elements must occur in the same order to pass the check. Two sequences \eqn{A, B, C, D, E} and \eqn{A, F, D, C, E} would not pass this check as the elements \eqn{C} and \eqn{D} occur in different orders in either sequence.
-#' 
-#' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and should not be used in naming events in sequences.
-#' 
-#' @param obj A \code{list} of \code{vector} objects which represent a sequence.    
-#' @examples 
-#' x <- c("A", "B", "C", "D", "E")
-#' y <- c("B", "D", "F", "E")
-#' a <- list(x, y)
-#' 
-#' seq_check(a)
-#' 
-#' z <- c("B", "F", "C")
-#' b <- list(x, y, z)
-#' 
-#' seq_check(b)
-#' 
-#' @returns \code{TRUE} or \code{FALSE}
-#' 
-#' @export
-seq_check <- function(obj) {
-    UseMethod("seq_check")
-}
+# #' Sequence Check
+# #'
+# #' For a \code{list} of partial sequences (of \code{vector} objects), check to see that joint elements of each occur the same order. That is, for two sequences with elements \eqn{A, B, C, D, E} and \eqn{B, D, F, E}, all joint elements must occur in the same order to pass the check. Two sequences \eqn{A, B, C, D, E} and \eqn{A, F, D, C, E} would not pass this check as the elements \eqn{C} and \eqn{D} occur in different orders in either sequence.
+# #' 
+# #' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and cannot be used in naming events in sequences. This function is automatically performed when creating a \code{sequences} object (see \code{\link[eratosthenes]{sequences}}).
+# #' 
+# #' @param obj A \code{list} of \code{vector} objects which represent a sequence.    
+# #' @examples 
+# #' x <- events("A", "B", "C", "D", "E")
+# #' y <- events("B", "D", "F", "E")
+# #' 
+# #' seq_check(x, y)
+# #' 
+# #' z <- events("B", "F", "C")
+# #' 
+# #' seq_check(x, y, z)
+# #' 
+# #' @returns \code{TRUE} or \code{FALSE}
+# #' 
+# #' @export
+# seq_check <- function(...) {
+#     UseMethod("seq_check")
+# }
 
-#' @rdname seq_check
-#' @export
-seq_check.list <- function(obj) {
-    qp_ <- quae_postea(obj)
+# #' @rdname seq_check
+# #' @export
+# seq_check.events <- function(...) {
+#     qp_ <- quae_postea(...)
 
-    check <- TRUE
-    for (i in names(qp_)) {
-        if (i != "omega") {
-            if (i %in% qp_[[i]]) {
-                check <- FALSE
-            }
-        }
-    }
+#     check <- TRUE
+#     for (i in names(qp_)) {
+#         if (i != "omega") {
+#             if (i %in% qp_[[i]]) {
+#                 check <- FALSE
+#             }
+#         }
+#     }
 
-    return(check)
-} 
+#     return(check)
+# } 
 
 
 
 #' Synthetic Ranking
 #'
-#' Using a \code{list} two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
+#' Using a \code{sequences} object of two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
 #'
-#' @param obj A \code{list} of \code{vector} objects which represent a sequence.    
+#' @param obj A \code{sequences} object.
 #' @param ties The way in which ties are handled per the \code{\link{rank}} function. The default is \code{"ties = average"}.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E")
-#' y <- c("B", "D", "F", "E")
-#' a <- list(x, y)
+#' x <- events("A", "B", "C", "D", "E")
+#' y <- events("B", "D", "F", "E")
+#' a <- sequences(x, y)
 #' 
 #' synth_rank(a)
 #' 
-#' @returns A single vector containing the synthesized ranking.
+#' @returns An \code{events} object containing the synthesized ranking.
 #' 
 #' @export
 synth_rank <- function(obj, ties = "average") {
@@ -66,22 +64,25 @@ synth_rank <- function(obj, ties = "average") {
 
 #' @rdname synth_rank
 #' @export
-synth_rank.list <- function(obj, ties = "average") {
+synth_rank.sequences <- function(obj, ties = "average") {
     res <- NULL
-    if (seq_check(obj) == TRUE) {
-        elements <- names(obj)
-        qp_ <- quae_postea(obj)
-
-        quot_postea <- numeric(length(elements))
-        names(quot_postea) <- elements
-        for (i in names(qp_)) {
-            quot_postea[i] <- length(qp_[[i]])
-        }
-        res <- rank(quot_postea * -1, ties.method = ties)
-        res <- names(res)[order(res)]
-    } else {
-        message("Sequences are inconsistent.")
+    lens <- sapply(obj, length)
+    if (0 %in% lens | 1 %in% lens) {
+        stop("Events in input sequences must contain two or more elements")
     }
+
+    elements <- names(obj)
+    qp_ <- quae_postea(obj)
+
+    quot_postea <- numeric(length(elements))
+    names(quot_postea) <- elements
+    for (i in names(qp_)) {
+        quot_postea[i] <- length(qp_[[i]])
+    }
+    res <- rank(quot_postea * -1, ties.method = ties)
+    res <- names(res)[order(res)]
+
+    class(res) <- c("events", "character")
     return(res)
 }
 
@@ -91,26 +92,30 @@ synth_rank.list <- function(obj, ties = "average") {
 #'
 #' For a \code{list} of multiple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives all elements that occur after it ("\emph{quae postea}"). This is analogous to a recursive trace through all partial sequences from left to right. A final element \code{"omega"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_antea}}.
 #'
-#' @param obj A \code{list} of \code{vector} objects which represent ordered sequences.    
+#' @param ... Objects of class \code{\link[eratosthenes]{events}}, or a \code{\link[eratosthenes]{sequences}} object, a valid \code{list} of \code{events}.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C")
-#' y <- c("B", "D", "E", "C", "F")
-#' z <- c("C", "G")
-#' a <- list(x, y, z)
+#' x <- events("A", "B", "C")
+#' y <- events("B", "D", "E", "C", "F")
+#' z <- events("C", "G")
 #' 
+#' quae_postea(x)
+#' quae_postea(x, y, z)
+#' 
+#' a <- sequences(x, y, z)
 #' quae_postea(a)
 #' 
 #' @returns A \code{list} of \code{vector} objects, which contain the elements that occur after any one given element in the input sequences. 
 #' 
 #' @export
-quae_postea <- function(obj) {
+quae_postea <- function(...) {
     UseMethod("quae_postea")
 }
 #' 
 #' @rdname quae_postea
 #' @export
-quae_postea.list <- function(obj) {
+quae_postea.events <- function(...) {
+    obj <- list(...)
     elements <- unique(unlist(obj))
     M <- list()
     for (i in 1:length(obj)) {
@@ -128,35 +133,113 @@ quae_postea.list <- function(obj) {
         res[[elements[i]]] <- c(elements[mat[i,] == 1], "omega")
     }
 
-return(res)
+    check <- TRUE
+    for (i in names(res)) {
+        if (i != "omega") {
+            if (i %in% res[[i]]) {
+                check <- FALSE
+            }
+        }
+    }
+
+    if (check == FALSE) {
+        stop('conflicts in element orders for one or more events objects.\nRun seq_diag() for conflicting pairs of events.', call. = FALSE)
+    }
+
+    return(res)
+}
+#' @rdname quae_postea
+#' @export
+quae_postea.list <- function(...) {
+    obj <- list(...)[[1]]
+    chk <- sapply(obj, inherits, "events")
+    if (FALSE %in% chk) {
+        stop("non-events object in list input.")
+    }
+        
+    elements <- unique(unlist(obj))
+    M <- list()
+    for (i in 1:length(obj)) {
+        tmp <- numeric(length(obj[[i]]))
+        for (j in 1:length(obj[[i]])) {
+            tmp[j] <- which(elements == obj[[i]][j])
+        }
+        M[[i]] <- tmp
+    }
+
+    mat <- quae_postea_matrix_cpp(length(elements), M)
+
+    res <- list()
+    for (i in 1:length(elements)) {
+        res[[elements[i]]] <- c(elements[mat[i,] == 1], "omega")
+    }
+
+    check <- TRUE
+    for (i in names(res)) {
+        if (i != "omega") {
+            if (i %in% res[[i]]) {
+                check <- FALSE
+            }
+        }
+    }
+
+    if (check == FALSE) {
+        stop('conflicts in element orders for one or more events objects.\nRun seq_diag() for conflicting pairs of events.', call. = FALSE)
+    }
+
+    return(res)
+}
+#' 
+#' @rdname quae_postea
+#' @export
+quae_postea.sequences <- function(...) {
+    obj <- list(...)[[1]]
+    elements <- unique(unlist(obj))
+    M <- list()
+    for (i in 1:length(obj)) {
+        tmp <- numeric(length(obj[[i]]))
+        for (j in 1:length(obj[[i]])) {
+            tmp[j] <- which(elements == obj[[i]][j])
+        }
+        M[[i]] <- tmp
+    }
+
+    mat <- quae_postea_matrix_cpp(length(elements), M)
+
+    res <- list()
+    for (i in 1:length(elements)) {
+        res[[elements[i]]] <- c(elements[mat[i,] == 1], "omega")
+    }
+
+    return(res)
 }
 
 
 
 #' Quae Antea
 #'
-#' For a \code{list} of multiple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives the elements that occur before it ("\emph{quae antea}"). This is analogous to a recursive trace through all partial sequences from right to left. An element \code{"alpha"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_postea}}.
+#' For a \code{list} of multiple partial sequences of \code{events} objects, generates a \code{list} which, for each element, giving the elements that occur before it ("\emph{quae antea}"). This is analogous to a recursive trace through all partial sequences from right to left. An element \code{"alpha"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_postea}}. 
 #'
-#' @param obj A \code{list} of \code{vector} objects which represent ordered sequences.    
+#' @param ... Objects of class \code{\link[eratosthenes]{events}}, or a \code{\link[eratosthenes]{sequences}} object, a valid \code{list} of \code{events}.
 #'
 #' @examples 
-#' x <- c("A", "B", "C")
-#' y <- c("B", "D", "E", "C", "F")
-#' z <- c("C", "G")
-#' a <- list(x, y, z)
+#' x <- events("A", "B", "C")
+#' y <- events("B", "D", "E", "C", "F")
+#' z <- events("C", "G")
 #' 
-#' quae_antea(a)
+#' quae_antea(x, y, z)
 #' 
 #' @returns A \code{list} of \code{vector} objects, which contain the elements that occur before any one given element in the input sequences. 
 #'
 #' @export
-quae_antea <- function(obj) {
+quae_antea <- function(...) {
     UseMethod("quae_antea")
 }
 #' 
 #' @rdname quae_antea
 #' @export
-quae_antea.list <- function(obj) {
+quae_antea.events <- function(...) {
+    obj <- list(...)
     elements <- unique(unlist(obj))
     M <- list()
     for (i in 1:length(obj)) {
@@ -174,7 +257,83 @@ quae_antea.list <- function(obj) {
         res[[elements[i]]] <- c(elements[mat[i,] == 1], "alpha")
     }
 
-return(res)
+    check <- TRUE
+    for (i in names(res)) {
+        if (i != "alpha") {
+            if (i %in% res[[i]]) {
+                check <- FALSE
+            }
+        }
+    }
+
+    if (check == FALSE) {
+        stop('conflicts in element orders for one or more events objects.\nRun seq_diag() for conflicting pairs of events.', call. = FALSE)
+    }
+    return(res)
+}
+#' 
+#' @rdname quae_antea
+#' @export
+quae_antea.list <- function(...) {
+    obj <- list(...)[[1]]
+    chk <- sapply(obj, inherits, "events")
+    if (FALSE %in% chk) {
+        stop("non-events object in list input.")
+    }
+    elements <- unique(unlist(obj))
+    M <- list()
+    for (i in 1:length(obj)) {
+        tmp <- numeric(length(obj[[i]]))
+        for (j in 1:length(obj[[i]])) {
+            tmp[j] <- which(elements == obj[[i]][j])
+        }
+        M[[i]] <- tmp
+    }
+
+    mat <- quae_antea_matrix_cpp(length(elements), M)
+
+    res <- list()
+    for (i in 1:length(elements)) {
+        res[[elements[i]]] <- c(elements[mat[i,] == 1], "alpha")
+    }
+
+    check <- TRUE
+    for (i in names(res)) {
+        if (i != "alpha") {
+            if (i %in% res[[i]]) {
+                check <- FALSE
+            }
+        }
+    }
+
+    if (check == FALSE) {
+        stop('conflicts in element orders for one or more events objects.\nRun seq_diag() for conflicting pairs of events.', call. = FALSE)
+    }
+    return(res)
+}
+#'
+#' @rdname quae_antea
+#' @export
+quae_antea.sequences <- function(...) {
+    obj <- list(...)[[1]]
+    elements <- unique(unlist(obj))
+    M <- list()
+    for (i in 1:length(obj)) {
+        tmp <- numeric(length(obj[[i]]))
+        for (j in 1:length(obj[[i]])) {
+            tmp[j] <- which(elements == obj[[i]][j])
+        }
+        M[[i]] <- tmp
+    }
+
+    mat <- quae_antea_matrix_cpp(length(elements), M)
+
+    res <- list()
+    for (i in 1:length(elements)) {
+        res[[elements[i]]] <- c(elements[mat[i,] == 1], "alpha")
+    }
+
+    return(res)
 }
 
 
@@ -183,16 +342,16 @@ return(res)
 #'
 #' Given an "input" sequence of elements and another "target" seqeunce that contains fewer elements in a different order, shift the order of the input sequence to match that of the target, keeping all other elements as proximate to one another as possible. This adjusted ranking is accomplished using piecewise linear interpolation between joint elements ranks. That is, joint rankings are plotted, with input rankings along the \eqn{x} axis and target rankings on the \eqn{y} axis. Remaining rankings in the input sequence are assigned a ranking of \eqn{y} based on the piecewise linear function between joint rankings. If the rank order of elements in the target are identical to those in the input, the result is identical to the input. A minimum number of three joint elements in both the input and target are required.
 #' 
-#' @param input A vector of elements in a sequence.
-#' @param target A vector of elements in a sequence, containing at least three of the same elements as \code{input}.
+#' @param input An \code{events} object of unique ordered elements. 
+#' @param target An \code{events} object of unique ordered elements.  containing at least three of the same elements as \code{input}.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J") # the input sequence
-#' y <- c("D", "A", "J") # the target sequence
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J") # the input sequence of events
+#' y <- events("D", "A", "J") # the target sequence of events
 #' 
 #' seq_adj(x, y)
 #' 
-#' @returns A vector of the adjusted sequence.
+#' @returns An \code{events} object of the adjusted sequence.
 #' 
 #' @export
 seq_adj <- function(input, target) {
@@ -201,7 +360,7 @@ seq_adj <- function(input, target) {
 #' 
 #' @rdname seq_adj
 #' @export
-seq_adj.character <- function(input, target) {
+seq_adj.events <- function(input, target) {
     res <- NULL
     joint <- intersect(input, target)
     if (length(joint) > 2) {
@@ -219,8 +378,9 @@ seq_adj.character <- function(input, target) {
         names(res) <- input
         res <- input[order(res)]
     } else {
-        message("Insufficient number of joint elements in input and target sequence (must be > 2).")
+        stop("Insufficient number of joint elements in input and target sequence (must be > 2).")
     }
+    class(res) <- c("events", "character")
     return(res)
 }
 
@@ -242,18 +402,12 @@ seq_adj.character <- function(input, target) {
 #' 
 #' For the use dates of artifact type production, use, and deposition, see the \code{\link[eratosthenes]{gibbs_ad_type}} function.
 #'
-#' @param sequences A \code{list} of relative sequences of elements (e.g., contexts).
+#' @param sequences A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts).
 #' @param max_samples Maximum number of samples to run. Default is \code{10^5}.
 #' @param size The number of samples to take on each iteration of the main Gibbs sampler. Default is \code{10^3}. 
 #' @param mcse_crit Criterion for the Monte Carlo standard error to stop the Gibbs sampler, as based on depositional dates and absolute constraints. The number of Monte Carlo samples for production dates is identical to that depositional dates.
-#' @param tpq A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
-#'   * \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
-#'   * \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated. 
-#'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-#' @param taq A \code{list} containing \emph{termini ante quos}. Each object in the list consists of:
-#'   * \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
-#'   * \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated. 
-#'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.a.q.}
+#' @param tpq A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini post quos}.
+#' @param taq A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini ante quos}.
 #' @param alpha_ An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param trim A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.
@@ -265,19 +419,19 @@ seq_adj.character <- function(input, target) {
 #'    * \code{mcse} The Monte Carlo standard errors (MCSE) of the random variates (fixed t.p./a.q. will have a MCSE of 0.)
 #'
 #' @examples
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- sequences(x, y, z)
 #'  
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
 #'   # seq(37, 41, length = 100) is equivalent in concept to runif(100, 37, 41)) 
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 #' 
@@ -292,33 +446,66 @@ gibbs_ad <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5
 
 #' @rdname gibbs_ad
 #' @export
-gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE) {
+gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE) {
+    if (!(is.null(tpq) | inherits(tpq, "constraints"))) {
+        stop("input tpq must be constraints object. See constraints().")
+    }
+    if (!(is.null(taq) | inherits(taq, "constraints"))) {
+        stop("input taq must be constraints object. See constraints().")
+    }
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
-    if (seq_check(sequences) == FALSE) {
-        stop("Sequences has failed consistency check with seq_check().")
-    }
+    # if (seq_check(sequences) == FALSE) {
+    #     stop("Sequences has failed consistency check with seq_check().")
+    # }
 
     proceed <- synth_rank(sequences)
 
-    if (!is.list(tpq)) {
-        tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
+    if (!inherits(tpq, "constraints")) {
+        tpq <- constraints(absolute(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
     }
-    if (!is.list(taq)) {
-        taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
+    if (!inherits(taq, "constraints")) {
+        taq <- constraints(absolute(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
     }
 
     # proceed_all from tpq, taq, relative, alpha, omega
     proceed_all <- c()
 
     # total number of elements
-    elements <- length(tpq) + length(taq) + length(proceed) + 2
+    elements <- length(proceed) + 2
+    if (!is.null(tpq)) {
+        elements <- elements + length(tpq)
+    }
+    if (!is.null(taq)) {
+        elements <- elements + length(taq)
+    }
 
     # indices
-    tpq_idx <- 1:length(tpq)
-    taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
-    proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+    if (is.null(tpq) & is.null(taq)) {
+        proceed_idx <- 1:length(proceed) 
+    } else if (is.null(tpq) & !is.null(taq)) {
+        taq_idx <- 1:length(taq)
+        proceed_idx <- (1:length(proceed)) + length(taq)
+    } else if (!is.null(tpq) & is.null(taq)) {
+        tpq_idx <- 1:length(tpq)
+        proceed_idx <- (1:length(proceed)) + length(tpq)
+    } else {
+        tpq_idx <- 1:length(tpq)
+        taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
+        proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+    }
+
+    # # proceed_all from tpq, taq, relative, alpha, omega
+    # proceed_all <- c()
+
+    # # total number of elements
+    # elements <- length(tpq) + length(taq) + length(proceed) + 2
+
+    # # indices
+    # tpq_idx <- 1:length(tpq)
+    # taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
+    # proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
 
     gibbs <- matrix(0, nrow = elements, ncol = size)
 
@@ -481,15 +668,21 @@ gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit 
     return(res)
 
 }
-
-
-
+#' 
+#' @rdname gibbs_ad
 #' @export
-print.events <- function(x, ...) {
-    x <- sort(as.vector(names(x)))
-    cat("\n Events (call with $ operator to retrieve samples):\n")
-    cat(" ", x, "\n\n\n")
+gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE) {
+    sequences <- sequences(sequences)
+    gibbs_ad.sequences(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE)
 }
+
+
+# #' @export
+# print.events <- function(x, ...) {
+#     x <- sort(as.vector(names(x)))
+#     cat("\n Events (call with $ operator to retrieve samples):\n")
+#     cat(" ", x, "\n\n\n")
+# }
 
 
 
@@ -596,18 +789,18 @@ summary.type_marginals <- function(object, ...) {
 #' @param legend_pos The position of the legend in the plot. Default is \code{"topright"}.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- sequences(x, y, z)
 #'  
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 #' 
@@ -693,27 +886,27 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' @returns A density histogram of the selected events/aspects.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- sequences(x, y, z)
 #' 
-#' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-#' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-#' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
-#' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-#' f5 <- list(id = "find05", assoc = "I", type = "type2")
-#' f6 <- list(id = "find06", assoc = "H", type = NULL)
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H", type = NULL)
 #' 
-#' artifacts <- list(f1, f2, f3, f4, f5, f6)
+#' artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 #'  
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 #' 
@@ -842,19 +1035,18 @@ histogram.type_marginals <- function(x, events = NULL, aspect = c("production", 
 #' @returns A data frame giving the MC sampling index (\code{idx}), the sample (\code{year}), and the event (\code{event}).
 #' 
 #' @examples
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' 
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- assemblage(x, y, z)
 #' 
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 #' 
@@ -994,7 +1186,6 @@ tidy_marginals.type_marginals <- function(input) {
 #     } else {
 #         stop("data frame must be 2 or three columns.")
 #     }
-
 #     return(result)
 # }
 
@@ -1004,18 +1195,18 @@ tidy_marginals.type_marginals <- function(input) {
 #' 
 #' Given a \code{list} object of finds (with keys of \code{id}, \code{assoc}, \code{type} in each entry), return a vector of the \code{id} elements that belong to one or more specified type.
 #' 
-#' @param input A \code{list} object whose elements are a list containing the keys of \code{id}, \code{assoc}, \code{type}.
+#' @param input An \code{\link[eratosthenes]{assemblage}}, comprising finds.
 #' @param type A vector or element 
 #' 
 #' @examples 
-#' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-#' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-#' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-#' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-#' f5 <- list(id = "find05", assoc = "I", type = "type2")
-#' f6 <- list(id = "find06", assoc = "H", type = NULL)
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H", type = NULL)
 #' 
-#' artifacts <- list(f1, f2, f3, f4, f5, f6)
+#' artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 #' 
 #' ids_of_types(artifacts, type = "type1")
 #' ids_of_types(artifacts, type = c("type1", "type2"))
@@ -1029,21 +1220,17 @@ ids_of_types <- function(input, type = NULL) {
 #' 
 #' @rdname ids_of_types
 #' @export
-ids_of_types.list <- function(input, type = NULL) {
+ids_of_types.assemblage <- function(input, type = NULL) {
     res <- c()
     if (is.vector(type)) {
         for (k in type) {
             for (i in input) {
-                if (!is.na(sum(match(c("id", "assoc", "type"), names(i))))) {
-                    if (length(i$type) > 0) {
-                        for (j in i$type) {
-                            if (j == k) {
-                                res <- c(res, i$id)
-                            }
+                if (length(i$type) > 0) {
+                    for (j in i$type) {
+                        if (j == k) {
+                            res <- c(res, i$id)
                         }
                     }
-                } else {
-                    stop("Finds list object does not contain correct headings (id, assoc, type).")
                 }
             }
         }
@@ -1061,55 +1248,43 @@ ids_of_types.list <- function(input, type = NULL) {
 #' 
 #' See \code{\link[eratosthenes]{gibbs_ad}} for information on consistent batch means and Monte Carlo standard error, which are used to determined convergence for the use date.
 #'
-#' @param sequences A \code{list} of relative sequences of elements (e.g., contexts).
-#' @param finds  A \code{list} of finds related to (contained in) the elements of \code{sequences}, with each element itself a \code{list} containing:
-#'   * \code{id} A \code{character} ID of the  \emph{find}, such as a reference or number.
-#'   * \code{assoc} The element in \code{sequences} to which the find is associated. 
-#'   * \code{type} (Optional) a vector of associated attributes, (sub)types, (sub)classes.
-#'   * \code{residual} (Optional) if \code{TRUE}, indicates that the object is residual to its associated event (\code{assoc}), e.g., had a final deposition prior to its context (default \code{NULL}). Supplying \code{residual = TRUE} in the entry will suppress it from the estimation of production, use, and depositional dates.
+#' @param sequences A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts).
+#' @param finds  An \code{\link[eratosthenes]{assemblage}} object of finds related to (contained in) the elements of \code{sequences}.
 #' @param id A vector of the \code{id} of one or more specific finds whose use date is to be estimated. The values of \code{id} must match those in the \code{list} of \code{finds}. If \code{type} is used, \code{id} is ignored.
 #' @param type A vector of one or more types to estimate a use density for. Must contain a value if \code{id} is \code{NULL}.
 #' @param type_name A customized label for the type (e.g., if one is selecting via \code{id} or has combined subtypes). If only \code{type} is used to select finds, the default will be that label Otherwise the default is simply "Type."
 #' @param max_samples Maximum number of samples to run. Default is \code{10^5}.
 #' @param size The number of samples to take on each iteration of the main Gibbs sampler. Default is \code{10^3}. 
 #' @param mcse_crit Criterion for the Monte Carlo standard error to stop the Gibbs sampler. Only the MCSE of the use date is used as a stopping rule.
-#' @param tpq A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
-#'   * \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
-#'   * \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated. 
-#'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-#'   * \code{type} (Optional). If the \emph{t.p.q.} belongs to a type, it is a assumed that it refers to the production of a find type, and will be accommodated as a production date when marginalizing. 
-#' @param taq A \code{list} containing \emph{termini ante quos}. Each object in the list consists of:
-#'   * \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
-#'   * \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated. 
-#'   * \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-#'   * \code{type} (Optional). If the \emph{t.a.q.} belongs to atype.
+#' @param tpq A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini post quos}.
+#' @param taq A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini ante quos}.
 #' @param alpha_ An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param trim A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.
 #' @param rule The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context, or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- sequences(x, y, z)
 #' 
-#' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-#' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-#' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
-#' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-#' f5 <- list(id = "find05", assoc = "I", type = "type2")
-#' f6 <- list(id = "find06", assoc = "H", type = NULL)
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H", type = NULL)
 #' 
-#' artifacts <- list(f1, f2, f3, f4, f5, f6)
+#' artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 #'  
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' # use dates by specifying ids
 #' gibbs_ad_type(contexts, artifacts, id = c("find04", "find05"),
@@ -1128,9 +1303,15 @@ gibbs_ad_type <- function(sequences, finds = NULL, id = NULL, type = NULL, type_
 #' 
 #' @rdname gibbs_ad_type
 #' @export
-gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, rule = "naive") {
-    if (!is.list(finds)) {
-        stop("Finds must be list object.")
+gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, rule = "naive") {
+    if (!(is.null(finds) | inherits(finds, "assemblage"))) {
+        stop("finds must be NULL or assemblage object. See assemblage().")
+    }
+    if (!(is.null(tpq) | inherits(tpq, "constraints"))) {
+        stop("input tpq must be constraints object. See constraints().")
+    }
+    if (!(is.null(taq) | inherits(taq, "constraints"))) {
+        stop("input taq must be constraints object. See constraints().")
     }
     if (is.null(id) & is.null(type)) {
         stop("Either one or more id or types must be specified.")
@@ -1179,11 +1360,9 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
 
     message("Estimating production, use, and depositional dates for id(s)/type(s) specified.")
 
-    if (seq_check(sequences) == FALSE) {
-        stop("Sequences has failed consistency check with seq_check().")
-    }
-
-
+    # if (seq_check(sequences) == FALSE) {
+    #     stop("Sequences has failed consistency check with seq_check().")
+    # }
 
     proceed <- synth_rank(sequences)
 
@@ -1497,7 +1676,7 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
 #' This function is fairly computationally intensive and thus a lower value of `max_samples` and a higher value of `mcse_crit` may be warranted.
 #'  
 #' @param marginalized An object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.
-#' @param sequences A \code{list} of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.
+#' @param sequences A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.
 #' @param max_samples Maximum number of samples to run. Default is \code{10^5}.
 #' @param size The number of samples to take on each iteration of the main Gibbs sampler. Default is \code{10^3}. 
 #' @param mcse_crit Criterion for the Monte Carlo standard error to stop the Gibbs sampler. A higher MCSE is recommended for situations with a higher number of events in order to reduce computational time.
@@ -1507,27 +1686,27 @@ gibbs_ad_type.list <- function(sequences, finds = NULL, id = NULL, type = NULL, 
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- sequences(x, y, z)
 #' 
-#' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-#' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-#' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-#' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-#' f5 <- list(id = "find05", assoc = "I", type = "type2")
-#' f6 <- list(id = "find06", assoc = "H", type = NULL)
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H", type = NULL)
 #' 
-#' artifacts <- list(f1, f2, f3, f4, f5, f6)
+#' artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 #'  
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 #' 
@@ -1547,6 +1726,16 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
+    if (!inherits(sequences, "sequences")) {
+        stop("input sequences must be sequences object. See sequences().")
+    }
+    if (!(is.null(tpq) | inherits(tpq, "constraints"))) {
+        stop("input tpq must be constraints object. See constraints().")
+    }
+    if (!(is.null(taq) | inherits(taq, "constraints"))) {
+        stop("input taq must be constraints object. See constraints().")
+    }
+
     depmu <- sapply(marginalized$deposition, mean)
     depmcse <- marginalized$mcse[names(marginalized$deposition)]
     depdat <- data.frame(Mean = depmu, MCSE = depmcse)
@@ -1562,15 +1751,31 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     proceed <- synth_rank(sequences)
 
     # proceed_all from tpq, taq, relative, alpha, omega
-    proceed_all <- c()
+    # proceed_all <- c()
 
     # total number of elements
-    elements <- length(tpq) + length(taq) + length(proceed) + 2
+    elements <- length(proceed) + 2
+    if (!is.null(tpq)) {
+        elements <- elements + length(tpq)
+    }
+    if (!is.null(taq)) {
+        elements <- elements + length(taq)
+    }
 
     # indices
-    tpq_idx <- 1:length(tpq)
-    taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
-    proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+    if (is.null(tpq) & is.null(taq)) {
+        proceed_idx <- 1:length(proceed) 
+    } else if (is.null(tpq) & !is.null(taq)) {
+        taq_idx <- 1:length(taq)
+        proceed_idx <- (1:length(proceed)) + length(taq)
+    } else if (!is.null(tpq) & is.null(taq)) {
+        tpq_idx <- 1:length(tpq)
+        proceed_idx <- (1:length(proceed)) + length(tpq)
+    } else {
+        tpq_idx <- 1:length(tpq)
+        taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
+        proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+    }
 
     proceed_all <- rownames(orig_dat)
 
@@ -1590,8 +1795,9 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
         for (i in 1:length(sequences)) {
             sq_ <- sequences[[i]]
             sq_ <-sq_[!(sq_ %in% proceed_all[j])]
-            sequencesMSD[[i]] <- sq_
+            sequencesMSD[[i]] <- events(sq_)
         }
+
         if (length(tpq) > 0) {
             idx <- 1
             for (i in 1:length(tpq)) {
@@ -1599,6 +1805,9 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
                     tpqMSD[[idx]] <- tpq[[i]]
                     idx <- idx + 1
                 }
+            }
+            if (length(tpqMSD) > 0) {
+                tpqMSD <- constraints(tpqMSD)
             }
         }
         if (length(taq) > 0) {
@@ -1609,7 +1818,11 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
                     idx <- idx + 1
                 }
             }
+            if (length(taqMSD) > 0) {
+                taqMSD <- constraints(taqMSD)
+            }
         }
+        sequencesMSD <- sequences(sequencesMSD)
 
         if (length(tpqMSD) == 0 & length(taqMSD) != 0) {
             gibbsLOO <- gibbs_ad(sequencesMSD, max_samples, size, mcse_crit, tpq = NULL, taq = taqMSD, alpha_, omega_, trim = FALSE)
@@ -1693,27 +1906,27 @@ print.msd_data <- function(x, ...) {
 #' @param rule The rule for computing an estimated date of production, if using an artifact type as a target date. See \code{\link[eratosthenes]{gibbs_ad_type}} for details.
 #' 
 #' @examples 
-#' x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-#' y <- c("B", "D", "G", "H", "K")
-#' z <- c("F", "K", "L", "M")
-#' contexts <- list(x, y, z)
+#' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+#' y <- events("B", "D", "G", "H", "K")
+#' z <- events("F", "K", "L", "M")
+#' contexts <- sequences(x, y, z)
 #' 
-#' f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-#' f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-#' f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-#' f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-#' f5 <- list(id = "find05", assoc = "I", type = "type2")
-#' f6 <- list(id = "find06", assoc = "H", type = NULL)
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H", type = NULL)
 #' 
-#' artifacts <- list(f1, f2, f3, f4, f5, f6)
+#' artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 #'  
 #' # external constraints
-#' coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-#' coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-#' destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+#' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+#' destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 #' 
-#' tpq_info <- list(coin1, coin2)
-#' taq_info <- list(destr)
+#' tpq_info <- constraints(coin1, coin2)
+#' taq_info <- constraints(destr)
 #' 
 #' result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 #' 
@@ -1740,6 +1953,19 @@ sq_disp <- function(marginalized, target = NULL, sequences, finds = NULL, max_sa
 #' @rdname sq_disp
 #' @export
 sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = NULL) {
+    if (!inherits(sequences, "sequences")) {
+        stop("sequences must be sequences object. See sequences().")
+    }
+    if (!(is.null(finds) | inherits(finds, "assemblage"))) {
+        stop("finds must be NULL or assemblage object. See assemblage().")
+    }
+    if (!(is.null(tpq) | inherits(tpq, "constraints"))) {
+        stop("input tpq must be constraints object. See constraints().")
+    }
+    if (!(is.null(taq) | inherits(taq, "constraints"))) {
+        stop("input taq must be constraints object. See constraints().")
+    }
+
     if (is.null(target)) {
         stop("Target event must be specified.")
     }
@@ -1797,7 +2023,7 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
         for (i in 1:length(sequences)) {
             sq_ <- sequences[[i]]
             sq_ <-sq_[!(sq_ %in% proceed_all[j])]
-            sequencesMSD[[i]] <- sq_
+            sequencesMSD[[i]] <- events(sq_)
         }
         if (length(tpq) > 0) {
             idx <- 1
@@ -1807,16 +2033,23 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
                     idx <- idx + 1
                 }
             }
-        }
-        if (length(taq) > 0) {
-        idx <- 1
-        for (i in 1:length(taq)) {
-            if (!(taq[[i]]$id %in% proceed_all[j] | taq[[i]]$assoc %in% proceed_all[j])) {
-                taqMSD[[idx]] <- taq[[i]]
-                idx <- idx + 1
+            if (length(tpqMSD) > 0) {
+                tpqMSD <- constraints(tpqMSD)
             }
         }
+        if (length(taq) > 0) {
+            idx <- 1
+            for (i in 1:length(taq)) {
+                if (!(taq[[i]]$id %in% proceed_all[j] | taq[[i]]$assoc %in% proceed_all[j])) {
+                    taqMSD[[idx]] <- taq[[i]]
+                    idx <- idx + 1
+                }
+            }
+            if (length(taqMSD) > 0) {
+                taqMSD <- constraints(taqMSD)
+            }
         }
+        sequencesMSD <- sequences(sequencesMSD)
 
         if (length(tpqMSD) == 0 & length(taqMSD) != 0) {
             gibbsLOO <- gibbs_ad(sequencesMSD, max_samples, size, mcse_crit, tpq = NULL, taq = taqMSD, alpha_, omega_, trim = FALSE)
@@ -1870,6 +2103,18 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
 #' @rdname sq_disp
 #' @export
 sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = "naive") {
+    if (!inherits(sequences, "sequences")) {
+        stop("sequences must be sequences object. See sequences().")
+    }
+    if (!(is.null(finds) | inherits(finds, "assemblage"))) {
+        stop("finds must be NULL or assemblage object. See assemblage().")
+    }
+    if (!(is.null(tpq) | inherits(tpq, "constraints"))) {
+        stop("input tpq must be constraints object. See constraints().")
+    }
+    if (!(is.null(taq) | inherits(taq, "constraints"))) {
+        stop("input taq must be constraints object. See constraints().")
+    }
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
@@ -1922,7 +2167,7 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
         for (i in 1:length(sequences)) {
             sq_ <- sequences[[i]]
             sq_ <-sq_[!(sq_ %in% proceed_all[j])]
-            sequencesSD[[i]] <- sq_
+            sequencesSD[[i]] <- events(sq_)
         }
         idx <- 1
         for (i in 1:length(tpq)) {
@@ -1947,8 +2192,15 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
                 idx <- idx + 1
             }
         }
-
+        sequencesSD <- sequences(sequencesSD)
+        if (length(tpqSD)) {
+            tpqSD <- constraints(tpqSD)
+        }
+        if (length(taqSD)) {
+            taqSD <- constraints(taqSD)
+        }
         if (length(findsSD) > 0) {
+            findsSD <- assemblage(findsSD)
 
             if (length(tpqSD) == 0 & length(taqSD) != 0) {
                 gibbsLOO <- gibbs_ad_type(sequences = sequencesSD, finds = findsSD, id = NULL, type = target, type_name = target, max_samples = max_samples, size = size, mcse_crit = mcse_crit, tpq = NULL, taq = taqSD, alpha_ = alpha_, omega_ = omega_, trim = FALSE, rule = rule)
@@ -1967,9 +2219,10 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
             res[which(rownames(res)==proceed_all[j]) , 2] <- disp_mu
             res[which(rownames(res)==proceed_all[j]) , 3] <- disp_mcse
 
-            cat("\n") } else {
-                cat("Event", proceed_all[j], "skipped: type completely removed from relationships (not possible to estimate).\n")
-            }
+            cat("\n") 
+        } else {
+            cat("Event", proceed_all[j], "skipped: type completely removed from relationships (not possible to estimate).\n")
+        }
     }
 
     message("Estimation of squared displacement complete.")
@@ -1990,4 +2243,461 @@ print.sq_displ_data <- function(x, ...) {
     print.data.frame(x$sq_disp)
     cat("\n")
 }
+
+
+
+
+
+#' Create an Events Object
+#' 
+#' Analogous to the \code{\link[base]{c}} function, to create a sequence of unique events as a vector. Elements may not contain names of \code{"alpha"} or \code{"omega"}, which are restricted for \code{\link[eratosthenes]{quae_antea}} and \code{\link[eratosthenes]{quae_postea}}.
+#' 
+#' @param ... Comma separated character elements, in order from left (earliest) to right (latest).
+#' 
+#' @examples
+#' # "A" before "B", "B" before "C"
+#' x <- events("A", "B", "C")
+#' 
+#' @returns An events object.
+#' 
+#' @export
+events <- function(...) {
+    UseMethod("events")
+}
+#' 
+#' @rdname events
+#' @export
+events.character <- function(...) {
+    out <- c(...)
+    if (length(unique(out)) != length(out)) {
+        stop('events contain duplicate elements.')
+    }
+    if ("alpha" %in% out | "omega" %in% out) {
+        stop('events may not contain elements titled "alpha" or "omega".')
+    }
+    class(out) <- c("events", "character")
+    return(out)
+}
+
+
+
+#' Create a Sequences Object
+#' 
+#' Analogous to the \code{\link[base]{list}} function, a \code{sequences} object contains multiple \code{events} objects (see \code{\link[eratosthenes]{events}}).
+#' 
+#' @param ... objects of \code{events} class, or a \code{list} of \code{events} objects.
+
+#' 
+#' @examples
+#' x <- events("A", "B", "C", "D", "E")
+#' y <- events("B", "D", "F")
+#' z <- events("A", "C", "F", "G")
+#' sequences(x, y, z)
+#' 
+#' @returns A sequences object.
+#' 
+#' @export
+sequences <- function(...) {
+    UseMethod("sequences")
+}
+#' 
+#' @rdname sequences
+#' @export
+sequences.events <- function(...) {
+    quae_postea(...)
+    quae_antea(...)
+
+    out <- list(...)
+    class(out) <- c("sequences", "list")
+    return(out)
+}
+#' @rdname sequences
+#' @export
+sequences.list <- function(...) {
+    out <- list(...)[[1]]
+    chk <- sapply(out, inherits, "events")
+    if (FALSE %in% chk) {
+        stop("list input needs to contain events objects")
+    }
+    quae_postea(out)
+    quae_antea(out)
+
+    class(out) <- c("sequences", "list")
+    return(out)
+}
+
+
+
+
+
+
+
+
+
+
+
+#' @export 
+print.events <- function(...) {
+cat("Events object of",length(...), "elements:\n   ")
+    cat(paste0(..., collapse = ", "))
+    cat("\n")
+}
+
+
+#' @export 
+print.sequences <- function(...) {
+    if (length(...) > 1) {
+        cat("Sequences object of",length(...), "events object:\n   ")
+    } else {
+        cat("Sequences object of",length(...), "events objects:\n   ")
+
+    }
+    cat(paste0(..., collapse = "\n   "))
+    cat("\n")
+}
+
+
+
+#' Sequence Check Diagnostic
+#' 
+#' If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the 
+#' 
+#' @param ... Objects of \code{events} class.
+#' 
+#' @examples
+#' u <- events("A", "D", "E")
+#' v <- events("E", "D")
+#' w <- events("B", "F", "C")
+#' x <- events("A", "B", "C", "D", "E")
+#' 
+#' seq_diag(u, v, w, x)
+#' 
+#' a <- list(u, v, w, x)
+#' seq_diag(a)
+#' 
+#' @returns A sequences object.
+#' 
+#' @export
+seq_diag <- function(...) {
+    UseMethod("seq_diag")
+}
+
+#' @rdname seq_diag
+#' @export
+seq_diag.events <- function(...) {
+    x <- list(...)
+    seq_diag()
+}
+
+#' @rdname seq_diag
+#' @export
+seq_diag.list <- function(...) {
+    x <- list(...)[[1]]
+    out <- list()
+    k <- 1
+    for (ki in 1:(length(x)-1)) {
+        for (kj in (ki+1):length(x)) {
+            #chk <- sequences(x[[i]], x[[j]])
+
+            #####################
+
+            obj <- list(x[[ki]], x[[kj]])
+            elements <- unique(unlist(obj))
+            M <- list()
+            for (i in 1:length(obj)) {
+                tmp <- numeric(length(obj[[i]]))
+                for (j in 1:length(obj[[i]])) {
+                    tmp[j] <- which(elements == obj[[i]][j])
+                }
+                M[[i]] <- tmp
+            }
+
+            mat <- quae_postea_matrix_cpp(length(elements), M)
+
+            res <- list()
+            for (i in 1:length(elements)) {
+                res[[elements[i]]] <- c(elements[mat[i,] == 1], "omega")
+            }
+
+            chk <- TRUE
+            for (i in names(res)) {
+                if (i != "omega") {
+                    if (i %in% res[[i]]) {
+                        chk <- FALSE
+                    }
+                }
+            }
+            
+            if (chk == FALSE) {
+                out[[k]] <- c(ki, kj)
+                k <- k + 1
+            }
+        }
+    }
+
+    most_discrepant <- rev(sort(table(unlist(out))))
+    res <- list(pairs = out, most_discrepant = most_discrepant)
+    class(res) <- c("seq_diag", "list")
+    return(res)
+}
+
+
+
+#' @export 
+print.seq_diag <- function(x) {
+cat("Number of pairs of discrepant sequences:",length(x$pairs), "\nIndices of most frequent events objects in discrepant pairs (sorted in descending order):\n      ")
+    cat(paste0(names(head(x$most_discrepant))), collapse = " ", "\n")
+}
+
+
+
+
+#' Create an Absolute Constraint Object
+#' 
+#' Analogous to the \code{\link[base]{list}} function, to create absolute constraint (\emph{terminus post quem} or \emph{ante quem}). The constraint must contain named elements of \code{"id"}, \code{"assoc"}, and \code{"samples"}, with an option to indicate \code{"type"}.
+#' 
+#' @param id a \code{character} object, giving a unique ID of the constraint
+#' @param assoc the element within an \code{events} object to which the constraint is associated
+#' @param type (optional) a \code{character} object, giving the type of constraint (e.g., a ceramic type, coin, radiocarbon dat). Mutiple types/subtypes/classes can be given as a vector. Default is \code{NULL}.
+#' @param samples a vector of samples drawn from the appertaining probability density function of that constraint
+#' 
+#' @examples
+#' # external constraints
+#' coin1 <- absolute(id = "coin1", assoc = "B", samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = "RIC2 57", samples = seq(37, 41, length = 100))
+#'   # seq(37, 41, length = 100) is equivalent in concept to runif(100, 37, 41))
+#' destr <- absolute(id = "destr", assoc = "J", samples = 79)
+#' 
+#' coin1
+#' coin2
+#' destr
+#' 
+#' @returns An \code{absolute} object.
+#' 
+#' @export
+absolute <- function(id, assoc, type = NULL, samples) {
+    UseMethod("absolute")
+}
+#' 
+#' @rdname absolute
+#' @export
+absolute.character <- function(id, assoc, type = NULL, samples) {
+    if (!is.character(assoc)) {
+        stop("Related context/event (assoc) must be character.")
+    }
+    if (!(is.null(type) | inherits(type, "character"))) {
+        stop("Related type must be either NULL or character.")
+    }
+    if (!is.numeric(samples)) {
+        stop("Samples must be numeric.")
+    }
+    out <- list(id = id, assoc = assoc, type = type, samples = samples)
+    class(out) <- c("absolute", "list")
+    return(out)
+}
+
+
+
+
+#' Create an Constraints Object
+#' 
+#' Analogous to the \code{\link[eratosthenes]{sequences}} function for relative events, this function collects one or more \code{\link[eratosthenes]{absolute}} objects into a single object, for input into \code{\link[eratosthenes]{gibbs_ad}}.
+#' 
+#' @param ... one or more \code{absolute} objects, or a \code{list} of \code{absolute} objects.
+#' 
+#' @examples
+#' # external constraints
+#' coin1 <- absolute(id = "coin1", assoc = "B", samples = runif(100,-320,-300))
+#' coin2 <- absolute(id = "coin2", assoc = "G", type = "RIC2 57", samples = seq(37, 41, length = 100))
+#'   # seq(37, 41, length = 100) is equivalent in concept to runif(100, 37, 41))
+#' destr <- absolute(id = "destr", assoc = "J", samples = 79)
+#' 
+#' tpq <- constraints(coin1, coin2)
+#' taq <- constraints(destr)
+#' 
+#' @returns A \code{constraints} object.
+#' 
+#' @export
+constraints <- function(...) {
+    UseMethod("constraints")
+}
+#' 
+#' @rdname constraints
+#' @export
+constraints.absolute <- function(...) {
+    out <- list(...)
+    ids <- unlist(sapply(out, c)[1,])
+    if (length(unique(ids)) != length(ids)) {
+        stop("duplicate ids in constraints")
+    }
+    class(out) <- c("constraints", "list")
+    return(out)
+}
+#'
+#' @rdname constraints
+#' @export
+constraints.list <- function(...) {
+    out <- list(...)[[1]]
+    chk <- sapply(out, inherits, "absolute")
+    if (FALSE %in% chk) {
+        stop("non-events object in list input.")
+    }
+    ids <- unlist(sapply(out, c)[1,])
+    if (length(unique(ids)) != length(ids)) {
+        stop("duplicate ids in constraints")
+    }
+    class(out) <- c("constraints", "list")
+    return(out)
+}
+
+
+
+#' Create an Finds Object
+#' 
+#' Analogous to the \code{\link[base]{list}} function, to create an object of a find (e.g., artifact or other element) related to a particular context or event. The find must contain named elements of \code{"id"} and \code{"assoc"}, with optional inputs of \code{"type"} and \code{"residual"}, to be collected into a single object via the \code{\link[eratosthenes]{assemblage}} function.
+#' 
+#' @param id a \code{character} object, giving a unique ID of the find.
+#' @param assoc the element (e.g., context) within an \code{events} object to which the find is associated.
+#' @param type (optional) a \code{character} object, giving the type of constraint (e.g., a ceramic type, coin, radiocarbon dat). Mutiple types/subtypes/classes can be given as a vector. Default is \code{NULL}.
+#' @param residual (optional) if \code{TRUE}, indicates that the object is residual to its associated event (\code{assoc}), e.g., had a final deposition to be regarded prior to its context. Supplying \code{residual = TRUE} will suppress it from the estimation of production, use, and depositional dates in the function \code{\link[eratosthenes]{gibbs_ad_type}}. Default is \code{FALSE}.
+#' 
+#' @examples
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H")
+#' 
+#' @returns A \code{finds} object.
+#' 
+#' @export
+finds <- function(id, assoc, type = NULL, residual = FALSE) {
+    UseMethod("finds")
+}
+#' 
+#' @rdname finds
+#' @export
+finds.character <- function(id, assoc, type = NULL, residual = FALSE) {
+    if (!is.character(assoc)) {
+        stop("Related context/event (assoc) must be character.")
+    }
+    if (!(is.null(type) | is.character(type))) {
+        stop("Related type must be either NULL or character.")
+    }
+    if (!(residual == FALSE | residual == TRUE)) {
+        stop("residual must either be TRUE or FALSE.")
+    }
+    out <- list(id = id, assoc = assoc, type = type, residual = residual)
+    class(out) <- c("finds", "list")
+    return(out)
+}
+
+
+
+
+#' Create an Assemblage Object
+#' 
+#' Analogous to the \code{\link[eratosthenes]{sequences}} or \code{\link[eratosthenes]{constraints}} function for relative and absolute events, this function collects one or more \code{\link[eratosthenes]{finds}} objects into a single object, for input into \code{\link[eratosthenes]{gibbs_ad_type}}.
+#' 
+#' @param ... one or more \code{finds} objects.
+#' 
+#' @examples
+#' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+#' f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+#' f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
+#' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+#' f5 <- finds(id = "find05", assoc = "I", type = "type2")
+#' f6 <- finds(id = "find06", assoc = "H")
+#' 
+#' finds_all <- assemblage(f1, f2, f3, f4, f5, f6)
+
+#' @returns An \code{assemblage} object.
+#' 
+#' @export
+assemblage <- function(...) {
+    UseMethod("assemblage")
+}
+#' 
+#' @rdname assemblage
+#' @export
+assemblage.finds <- function(...) {
+    out <- list(...)
+    ids <- unlist(sapply(out, c)[1,])
+    if (length(unique(ids)) != length(ids)) {
+        stop("duplicate ids in finds.")
+    }
+
+    class(out) <- c("assemblage", "list")
+    return(out)
+}
+#' 
+#' @rdname assemblage
+#' @export
+assemblage.list <- function(...) {
+    out <- list(...)[[1]]
+    chk <- sapply(out, inherits, "finds")
+    if (FALSE %in% chk) {
+        stop("non-events object in list input.")
+    }
+    ids <- unlist(sapply(out, c)[1,])
+    if (length(unique(ids)) != length(ids)) {
+        stop("duplicate ids in finds.")
+    }
+
+    class(out) <- c("assemblage", "list")
+    return(out)
+}
+
+
+
+
+
+
+
+
+#' @export 
+print.absolute <- function(...) {
+cat("Absolute constraint object:\n   ")
+    cat(paste0(..., collapse = ", "))
+    cat("\n")
+}
+
+#' @export 
+print.finds <- function(...) {
+cat("Finds object:\n   ")
+    cat(paste0(..., collapse = ", "))
+    cat("\n")
+}
+
+#' @export 
+print.constraints <- function(...) {
+    if (length(...) > 1) {
+        cat("Absolute constraints object of",length(...), "events:\n   ")
+    } else {
+        cat("Absolute constraints object of",length(...), "events:\n   ")
+
+    }
+    cat(paste0(..., collapse = "\n   "))
+    cat("\n")
+}
+
+#' @export 
+print.assemblage <- function(...) {
+    if (length(...) > 1) {
+        cat("Assemblage object of",length(...), "finds object:\n   ")
+    } else {
+        cat("Assemblage object of",length(...), "finds objects:\n   ")
+
+    }
+    cat(paste0(..., collapse = "\n   "))
+    cat("\n")
+}
+
+
+
+
+
+
+
 

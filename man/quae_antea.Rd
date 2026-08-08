@@ -2,28 +2,33 @@
 % Please edit documentation in R/eratosthenes.R
 \name{quae_antea}
 \alias{quae_antea}
+\alias{quae_antea.events}
 \alias{quae_antea.list}
+\alias{quae_antea.sequences}
 \title{Quae Antea}
 \usage{
-quae_antea(obj)
+quae_antea(...)
 
-\method{quae_antea}{list}(obj)
+\method{quae_antea}{events}(...)
+
+\method{quae_antea}{list}(...)
+
+\method{quae_antea}{sequences}(...)
 }
 \arguments{
-\item{obj}{A \code{list} of \code{vector} objects which represent ordered sequences.}
+\item{...}{Objects of class \code{\link[eratosthenes]{events}}, or a \code{\link[eratosthenes]{sequences}} object, a valid \code{list} of \code{events}.}
 }
 \value{
 A \code{list} of \code{vector} objects, which contain the elements that occur before any one given element in the input sequences.
 }
 \description{
-For a \code{list} of multiple partial sequences (of \code{vector} objects), generate another \code{list} which, for each element, gives the elements that occur before it ("\emph{quae antea}"). This is analogous to a recursive trace through all partial sequences from right to left. An element \code{"alpha"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_postea}}.
+For a \code{list} of multiple partial sequences of \code{events} objects, generates a \code{list} which, for each element, giving the elements that occur before it ("\emph{quae antea}"). This is analogous to a recursive trace through all partial sequences from right to left. An element \code{"alpha"} is added to all sets to avoid empty vectors. See also \code{\link[eratosthenes]{quae_postea}}.
 }
 \examples{
-x <- c("A", "B", "C")
-y <- c("B", "D", "E", "C", "F")
-z <- c("C", "G")
-a <- list(x, y, z)
+x <- events("A", "B", "C")
+y <- events("B", "D", "E", "C", "F")
+z <- events("C", "G")
 
-quae_antea(a)
+quae_antea(x, y, z)
 
 }

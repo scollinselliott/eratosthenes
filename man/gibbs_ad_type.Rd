@@ -2,7 +2,7 @@
 % Please edit documentation in R/eratosthenes.R
 \name{gibbs_ad_type}
 \alias{gibbs_ad_type}
-\alias{gibbs_ad_type.list}
+\alias{gibbs_ad_type.sequences}
 \title{Gibbs Sampler for Archaeological Dates: Artifact Types}
 \usage{
 gibbs_ad_type(
@@ -22,7 +22,7 @@ gibbs_ad_type(
   rule = "naive"
 )
 
-\method{gibbs_ad_type}{list}(
+\method{gibbs_ad_type}{sequences}(
   sequences,
   finds = NULL,
   id = NULL,
@@ -40,15 +40,9 @@ gibbs_ad_type(
 )
 }
 \arguments{
-\item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts).}
+\item{sequences}{A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts).}
 
-\item{finds}{A \code{list} of finds related to (contained in) the elements of \code{sequences}, with each element itself a \code{list} containing:
-\itemize{
-\item \code{id} A \code{character} ID of the  \emph{find}, such as a reference or number.
-\item \code{assoc} The element in \code{sequences} to which the find is associated.
-\item \code{type} (Optional) a vector of associated attributes, (sub)types, (sub)classes.
-\item \code{residual} (Optional) if \code{TRUE}, indicates that the object is residual to its associated event (\code{assoc}), e.g., had a final deposition prior to its context (default \code{NULL}). Supplying \code{residual = TRUE} in the entry will suppress it from the estimation of production, use, and depositional dates.
-}}
+\item{finds}{An \code{\link[eratosthenes]{assemblage}} object of finds related to (contained in) the elements of \code{sequences}.}
 
 \item{id}{A vector of the \code{id} of one or more specific finds whose use date is to be estimated. The values of \code{id} must match those in the \code{list} of \code{finds}. If \code{type} is used, \code{id} is ignored.}
 
@@ -62,21 +56,9 @@ gibbs_ad_type(
 
 \item{mcse_crit}{Criterion for the Monte Carlo standard error to stop the Gibbs sampler. Only the MCSE of the use date is used as a stopping rule.}
 
-\item{tpq}{A \code{list} containing \emph{termini post quos}. Each object in the list consists of:
-\itemize{
-\item \code{id} A \code{character} ID of the  \emph{t.p.q.}, such as a reference or number.
-\item \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated.
-\item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-\item \code{type} (Optional). If the \emph{t.p.q.} belongs to a type, it is a assumed that it refers to the production of a find type, and will be accommodated as a production date when marginalizing.
-}}
+\item{tpq}{A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini post quos}.}
 
-\item{taq}{A \code{list} containing \emph{termini ante quos}. Each object in the list consists of:
-\itemize{
-\item \code{id} A \code{character} ID of the  \emph{t.a.q.}, such as a reference or number.
-\item \code{assoc} The element in \code{sequences} to which the \emph{t.p.q.} is associated.
-\item \code{samples} A vector of samples drawn from the appertaining probability density function of that \emph{t.p.q.}
-\item \code{type} (Optional). If the \emph{t.a.q.} belongs to atype.
-}}
+\item{taq}{A \code{\link[eratosthenes]{constraints}} object containing all \emph{termini ante quos}.}
 
 \item{alpha_}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
 
@@ -96,27 +78,27 @@ Estimate a densities for the production, use, and deposition dates of an artifac
 See \code{\link[eratosthenes]{gibbs_ad}} for information on consistent batch means and Monte Carlo standard error, which are used to determined convergence for the use date.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
 
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
+f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
+f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- finds(id = "find05", assoc = "I", type = "type2")
+f6 <- finds(id = "find06", assoc = "H", type = NULL)
 
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 
 # use dates by specifying ids
 gibbs_ad_type(contexts, artifacts, id = c("find04", "find05"),
