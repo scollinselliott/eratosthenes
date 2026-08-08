@@ -2,7 +2,7 @@
 # #'
 # #' For a \code{list} of partial sequences (of \code{vector} objects), check to see that joint elements of each occur the same order. That is, for two sequences with elements \eqn{A, B, C, D, E} and \eqn{B, D, F, E}, all joint elements must occur in the same order to pass the check. Two sequences \eqn{A, B, C, D, E} and \eqn{A, F, D, C, E} would not pass this check as the elements \eqn{C} and \eqn{D} occur in different orders in either sequence.
 # #' 
-# #' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and cannot be used in naming events in sequences. This function is automatically performed when creating a \fcode{sequences} object (see \code{\link[eratosthenes]{sequences}}).
+# #' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and cannot be used in naming events in sequences. This function is automatically performed when creating a \code{sequences} object (see \code{\link[eratosthenes]{sequences}}).
 # #' 
 # #' @param obj A \code{list} of \code{vector} objects which represent a sequence.    
 # #' @examples 
@@ -2331,9 +2331,6 @@ events <- function(...) {
 #' @export
 events.character <- function(...) {
     out <- c(...)
-    if (is.null(out)) {
-        print("FEFe")
-    }
     if (TRUE %in% (c(NA, NaN, Inf, -Inf) %in% out)) {
         stop('events cannot contain NA, NaN, Inf')
     }
