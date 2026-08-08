@@ -1077,32 +1077,32 @@ tidy_marginals <- function(input) {
 tidy_marginals.marginals <- function(input) {
     events <- c(names(input$deposition), names(input$externals), names(input$production))
     master <- c(input$deposition, input$externals, input$production)
-    dat <- data.frame(year = 0, event = 0)
+    dat <- data.frame(idx = 0, year = 0, event = 0)
     for (i in 1:length(events)) {
         item <- events[i]
         if (!(item %in% names(master))) {
-            stop('One or more event names not contained in marginals.')
+            stop('one or more event names not contained in marginals.')
         }
-        dat <- rbind(dat, data.frame(year = master[[item]], event = item))
-        dat <- dat[-1 , ]
-        rownames(dat) <- NULL
-        dat$event <- factor(dat$event)
-    }  
+        dat <- rbind(dat, data.frame(idx = c(1:length(master[[item]])), year = master[[item]], event = item))
+    } 
+    dat <- dat[-1 , ]
+    rownames(dat) <- NULL
+    dat$event <- factor(dat$event)
     return(dat)
 }
 #' 
 #' @rdname tidy_marginals
 #' @export
 tidy_marginals.type_marginals <- function(input) {
-    dat <- data.frame(x = c(), event = c())
+    dat <- data.frame(idx = c(), year = c(), event = c())
 
     dep_samples <- input$type$deposition
     prd_samples <- input$type$production
     use_samples <- input$type$use
 
-    dat <- rbind(dat, data.frame(x = use_samples, event = paste0(input$name, " - Use")))
-    dat <- rbind(dat, data.frame(x = dep_samples, event = paste0(input$name, " - Deposition")))
-    dat <- rbind(dat, data.frame(x = prd_samples, event = paste0(input$name, " - Production")))
+    dat <- rbind(dat, data.frame(idx = 1:length(use_samples),year = use_samples, event = paste0(input$name, " - Use")))
+    dat <- rbind(dat, data.frame(idx = 1:length(dep_samples), year = dep_samples, event = paste0(input$name, " - Deposition")))
+    dat <- rbind(dat, data.frame(idx = 1:length(prd_samples),year = prd_samples, event = paste0(input$name, " - Production")))
     dat$event <- factor(dat$event)
 
     return(dat)
