@@ -441,8 +441,7 @@ The basic objects in `eratosthenes` are:
 - `absolute` `constraints`, as either *termini post* or *ante quos*,
   expressed as samples from a probability density
 
-Information related to these three items must be formatted in objects of
-a `list` class, as follows.
+Information on these object classes follow.
 
 ### Sequences
 

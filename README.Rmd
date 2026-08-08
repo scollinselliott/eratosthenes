@@ -254,7 +254,7 @@ The basic objects in `eratosthenes` are:
 * an `assemblage` of `finds`, elements which belong to those events, typically artifacts
 * `absolute` `constraints`, as either _termini post_ or _ante quos_, expressed as samples from a probability density
 
-Information related to these three items must be formatted in objects of a `list` class, as follows.
+Information on these object classes follow. 
 
 ### Sequences
 
