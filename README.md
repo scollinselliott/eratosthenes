@@ -798,7 +798,7 @@ Some functions related to relative sequences:
   argument of `seq_diag()`, the order of `events` is randomly permuted,
   such that `seq_diag()` can be run repeatedly to see which `events`
   tend to be producing disagreements most of the time. As `sequences()`
-  validates input for agreement, The `seq_diag()` function can take a
+  validates input for agreement, the `seq_diag()` function can take a
   `list` of `events` as input.
 
 - `seq_adj()` provides the means to coerce an “input” `events` object to
