@@ -104,7 +104,7 @@ contexts_invalid <- list(seq1, seq2, seq3, seq4, seq5, seq6, seq_invalid1, seq7,
 seq_diag(contexts_invalid)
 ```
 
-The `seq_diag()` proceeds iteratively through all events, and so if there are seqeunces of events which are assured to be valid, those should be placed earlier in the inputs. The `shuffle` argument in `seq_diag()` randomly permutes the order in which `events` are checked, and can be called to check discrepancies if there is no information about which `events` are more valid than others. 
+The `seq_diag()` proceeds iteratively through all events, and so if there are sequences of events which are assured to be valid, those should be placed earlier in the inputs. The `shuffle` argument in `seq_diag()` randomly permutes the order in which `events` are checked, and can be called to check discrepancies if there is no information about which `events` are more valid than others. 
 
 In sum, the `sequences` object contains all of the information about the relative relationships of the contexts, in terms of which come before or after one another, which should be based on a stated rationale (typically, sequences from a seriation, stratigraphic sequences, or even hypotheses).
 
@@ -312,7 +312,7 @@ tpq_info <- constraints(coin1, coin2)
 taq_info <- constraints(destr)
 ```
 
-It can be noted that absolute constraints can belong to a type. Any artifact which carries absolute dating information (i.e., extrinsic to the joint conditional density) should be assigned as an absolute constraint, not as a find. It assumed that if a _t.p.q_ has a type, it refers to the artifact's date of production, and is treated as such (see the section [Dates of the Production, Use, and Deposition of a Type](#dates-related-to-artifacts-types) below).
+It can be noted that absolute constraints can belong to a type. Any artifact which carries absolute dating information (i.e., extrinsic to the joint conditional density) should be assigned as an absolute constraint, not as a find. It assumed that if a _t.p.q_ has a type, it refers to the artifact's date of production, and is treated as such (see the section [Dates Related to Artifact Types](#dates-related-to-artifact-types) below).
 
 The `"samples"` argument of an absolute date can take any form:
 
@@ -348,7 +348,7 @@ calBC <- 1950 - calib
 hist(calBC, breaks = 100)
 ```
 
-It is recommended though that one use their preferred calibration software (see the example using `Bchron` in the [Tutorial: Archaeological Example](#tutorial-arhaeological-example) above).
+It is recommended though that one use their preferred calibration software (see the example using `Bchron` in the [Tutorial: Archaeological Example](#tutorial-archaeological-example) above).
 
 ## Estimating Dates
 
@@ -376,7 +376,7 @@ See the section [Evaluating Displacement](#evaluating-displacement) below for to
 
 The function `gibbs_ad()` takes as inputs the following objects:
 
-* `sequences` : A `seqeunces` object, containing relative sequences of contexts or events.
+* `sequences` : A `sequences` object, containing relative sequences of contexts or events.
 * `max_samples` : The maximum number of samples to run, which will stop the main sampling routine even if convergence has not been achieved (default is `10^5`).
 * `size` : How many samples to take between each check for convergence (default is `10^3`). 
 * `mcse_crit` : The criterion of the mean MCSE at which to stop the sampler (default is `0.5`)
@@ -412,14 +412,14 @@ The function works from the principle of the presence/absence of the specified t
 
 The `gibbs_ad_type()` function takes the following inputs, similar to `gibbs_ad()`, but with some additional fields:
 
-* `sequences` : A `seqeunces` object, containing relative sequences of contexts or events.
-* `finds` : Either the `list` object of finds originally used as input to produce `gibbs`, or a `data.frame` of two columns, the first column listing the context and the second the incidence of the id or type in that context. 
+* `sequences` : A `sequences` object, containing relative sequences of contexts or events.
+* `finds` : Either the `assemblage` object of finds originally used as input to produce `gibbs`, or a `data.frame` of two columns, the first column listing the context and the second the incidence of the id or type in that context. 
   * If a find entry contains the expression `"residual = TRUE"`, it indicates that its association with the context should not be taken into account. Primarily, this indicates that a finds depositional date occured prior to the context it pertains to (i.e., it has been redeposited from an earlier time), but it can also be used to suppress the association of finds which may be spurious.
 * `id` : A vector of the `id` of one or more specific finds whose use date is to be estimated. The values of `id` must match those in the `list` of `finds`. If `type` is used, `id` is ignored.
 * `type` : A vector of one or more types to estimate a use density for. Must contain a value if `id` is left as `NULL`.
 * `type_name` : A customized label for the type (e.g., if one is pooling together multiple `id`/`type` entries). If only one `type` has been entered, that label is used. Otherwise it defaults to just `"Type"`.
 * `max_samples`, `size`, `mcse_crit`, `trim` : The same information used for determining the maximum length of the Gibbs sampler and when convergence has been achieved, as well as whether to trim events, [as above](#dates-of-events-in-sequences-and-absolute-constraints). Note that the `mcse_crit`, as a stopping rule, applies still to the sequential events/absolute constraints, but MCSE will still be reported for the estimates of the production, use, and depositional dates.
-* `tpq` and `taq` :  Format must follow that illustrated in the Section above on [Absolute Constraints](#absolute-constraints). 
+* `tpq` and `taq` : `constraints` objects, as described in the section on [Absolute Constraints](#absolute-constraints). 
 * `rule`: the rule for determining the earliest date of production of an artifact type. Initial threshold boundaries are first established between the earliest depositional context containing an artifact of that type and the next earliest context which lacks it. Then, the following rules will sample a date accordingly:
   * `naive`: samples are drawn between the initial threshold sample and the depositional date of that artifact.
   * `earliest`: samples are drawn within the initial threshold boundaries.

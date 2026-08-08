@@ -184,7 +184,7 @@ seq_diag(contexts_invalid)
 ```
 
 The `seq_diag()` proceeds iteratively through all events, and so if
-there are seqeunces of events which are assured to be valid, those
+there are sequences of events which are assured to be valid, those
 should be placed earlier in the inputs. The `shuffle` argument in
 `seq_diag()` randomly permutes the order in which `events` are checked,
 and can be called to check discrepancies if there is no information
@@ -521,8 +521,8 @@ artifact which carries absolute dating information (i.e., extrinsic to
 the joint conditional density) should be assigned as an absolute
 constraint, not as a find. It assumed that if a *t.p.q* has a type, it
 refers to the artifact’s date of production, and is treated as such (see
-the section [Dates of the Production, Use, and Deposition of a
-Type](#dates-related-to-artifacts-types) below).
+the section [Dates Related to Artifact
+Types](#dates-related-to-artifact-types) below).
 
 The `"samples"` argument of an absolute date can take any form:
 
@@ -568,7 +568,7 @@ hist(calBC, breaks = 100)
 
 It is recommended though that one use their preferred calibration
 software (see the example using `Bchron` in the [Tutorial:
-Archaeological Example](#tutorial-arhaeological-example) above).
+Archaeological Example](#tutorial-archaeological-example) above).
 
 ## Estimating Dates
 
@@ -627,7 +627,7 @@ other within the joint conditional density.
 
 The function `gibbs_ad()` takes as inputs the following objects:
 
-- `sequences` : A `seqeunces` object, containing relative sequences of
+- `sequences` : A `sequences` object, containing relative sequences of
   contexts or events.
 - `max_samples` : The maximum number of samples to run, which will stop
   the main sampling routine even if convergence has not been achieved
@@ -702,12 +702,12 @@ use are sampled between production and deposition.
 The `gibbs_ad_type()` function takes the following inputs, similar to
 `gibbs_ad()`, but with some additional fields:
 
-- `sequences` : A `seqeunces` object, containing relative sequences of
+- `sequences` : A `sequences` object, containing relative sequences of
   contexts or events.
-- `finds` : Either the `list` object of finds originally used as input
-  to produce `gibbs`, or a `data.frame` of two columns, the first column
-  listing the context and the second the incidence of the id or type in
-  that context.
+- `finds` : Either the `assemblage` object of finds originally used as
+  input to produce `gibbs`, or a `data.frame` of two columns, the first
+  column listing the context and the second the incidence of the id or
+  type in that context.
   - If a find entry contains the expression `"residual = TRUE"`, it
     indicates that its association with the context should not be taken
     into account. Primarily, this indicates that a finds depositional
@@ -730,8 +730,8 @@ The `gibbs_ad_type()` function takes the following inputs, similar to
   sequential events/absolute constraints, but MCSE will still be
   reported for the estimates of the production, use, and depositional
   dates.
-- `tpq` and `taq` : Format must follow that illustrated in the Section
-  above on [Absolute Constraints](#absolute-constraints).
+- `tpq` and `taq` : `constraints` objects, as described in the section
+  on [Absolute Constraints](#absolute-constraints).
 - `rule`: the rule for determining the earliest date of production of an
   artifact type. Initial threshold boundaries are first established
   between the earliest depositional context containing an artifact of
