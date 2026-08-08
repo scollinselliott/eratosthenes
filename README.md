@@ -939,9 +939,14 @@ Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
 <div id="ref-callegarin_rirha_2016-2" class="csl-entry">
 
 Callegarin, L., M. Kbiri Alaoui, A. Ichkhakh, and J.-C. Roux, eds. 2016.
-*Rirha : Site Antique Et Médiéval Du Maroc II. Période Maurétanienne (Ve
-Siècle Av. J.-C. - 40 Ap. J.-C.)*. Collection de La Casa de Velázquez
-151. Madrid: Casa de Velázquez.
+*Rirha : <span class="nocase">site</span>
+<span class="nocase">antique</span> <span class="nocase">et</span>
+<span class="nocase">médiéval</span> <span class="nocase">du</span>
+Maroc II. Période <span class="nocase">maurétanienne</span> (Ve
+<span class="nocase">siècle</span> <span class="nocase">av.</span>
+J.-C. - 40 <span class="nocase">ap.</span> J.-C.)*. Collection
+<span class="nocase">de</span> <span class="nocase">la</span> Casa
+<span class="nocase">de</span> Velázquez 151. Madrid: Casa de Velázquez.
 
 </div>
 
