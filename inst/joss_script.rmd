@@ -1,0 +1,169 @@
+
+---
+bibliography: "REFERENCES.bib"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Code
+
+Replication code for paper, "eratosthenes: Synchronizing archaeological chronologies with a focus on artifact types," _Journal of Open Source Software_. As the Gibbs sampling can take a minute with actual data, this script is provided separately, rather than as a vignette.
+
+```{r}
+library(eratosthenes)
+library(Bchron)
+library(paletteer)
+```
+
+To create sequences:
+
+```{r, seq}
+seq00001 <- events("Rirha US 5182", "Rirha US 5154") 
+seq00002 <- events("Byrsa II B 19.4", "Byrsa II B 19.2")
+seq00003 <- events("Rirha US 5154", "Planier A")
+seq00004 <- events("El Sec", "Filicudi F", "Tour Fondue", "Cabrera 2", "Tour d'Agnello", "Sanguinaires A", "Lazaret")
+seq00005 <- events("Madrague de Giens", "Planier C", "Cap Béar C", "Planier A")
+seq00006 <- events("Cabrera 2", "Grand Congloué A", "Lazaret", "Byrsa II B 19.2", "Punta Scaletta", "Isla Pedrosa", "Cavalière", "Madrague de Giens")
+seq00007 <- events("Mazotos", "El Sec")
+seq00008 <- events("Grand Congloué A", "Héliopolis B", "Punta Scaletta")
+
+contexts_20250628 <- sequences(seq00001, seq00002, seq00003, seq00004, seq00005, seq00006, seq00007, seq00008)
+```
+
+To create finds:
+
+```{r, finds}
+id1 <- finds(id = "id 1", assoc = "Isla Pedrosa", type = "AMPH Dressel 1B", residual = TRUE)
+id865 <- finds(id = "id 865", assoc = "Rirha US 5154", type = "AMPH Dressel 1B")
+id1202 <- finds(id = "id 1202", assoc = "Madrague de Giens", type = "AMPH Dressel 1B")
+id1285 <- finds(id = "id 1285", assoc = "Planier C", type = "AMPH Dressel 1B")
+id1364 <- finds(id = "id 1364", assoc = "Cap Béar C", type = c("AMPH Dressel 1B", "AMPH Dressel 1B Tarraconensis"))
+
+finds_20250628 <- assemblage(id1, id865, id1202, id1285, id1364)
+```
+
+To create absolute constraints, _t.p.q._:
+
+```{r, tpq}
+tpq_20250628 <- list()
+
+eratosthenes_rcdates <- read.csv("extdata/rc20250628.csv")
+
+## calibrate and insert rc dates into tpq
+for (i in 1:nrow(eratosthenes_rcdates)) {
+    calib <- BchronCalibrate(ages = eratosthenes_rcdates$mu[i],
+                             ageSds = eratosthenes_rcdates$sigma[i],
+                             calCurves = "intcal20")
+    x <- 1950 - sampleAges(calib)
+    tpq_20250628[[i]] <- absolute(id = eratosthenes_rcdates$id[i],
+                              assoc = eratosthenes_rcdates$assoc[i],
+                              samples = x)
+}
+
+tpq_20250628 <- constraints(tpq_20250628)
+```
+
+To create absolute constraints, _t.a.q._:
+
+```{r, taq}
+Carthage_Destr_1 <- absolute(id = "Carthage_Destr_1", assoc = "Byrsa II B 19.2", samples = -146)
+Planier_A_abs <- absolute(id = "Planier_A_abs", assoc = "Planier A", samples = seq(1, 15, length.out = 100))
+
+taq_20250628 <- constraints(Carthage_Destr_1, Planier_A_abs)
+```
+
+Marginalize contexts and constraints:
+
+```{r, gibbs_ad}
+marginals_20250628 <- gibbs_ad(contexts_20250628, tpq = tpq_20250628, taq = taq_20250628, quiet = TRUE)
+```
+
+Determine production, use, and deposition:
+
+```{r, gibbs_ad_type}
+type_dressel1b_20250628 <- gibbs_ad_type(sequence = contexts_20250628, finds =  finds_20250628, type = "AMPH Dressel 1B", tpq = tpq_20250628, taq = taq_20250628, quiet = TRUE)
+```
+
+# Graphics
+
+Selected events:
+
+```{r, hist1, fig.width = 8, fig.height = 5, fig.align = "center"}
+histogram(marginals_20250628, events = c("Byrsa II B 19.2", "Rirha US 5154", "Mazotos", "El Sec", "Grand Congloué A", "Cavalière", "Madrague de Giens"), ylim = c(0,0.028), palette = paletteer_d("MetBrewer::Moreau"), opacity = 0.5)
+```
+
+Production, use, and deposition of Dressel 1B-type amphora:
+
+```{r, hist2, fig.width = 8, fig.height = 5, fig.align = "center"}
+histogram(type_dressel1b_20250628, xlim = c(-300,20), ylim = c(0, 0.010), palette = paletteer_d("MetBrewer::Moreau")[c(7,4,1)], legend = "topleft") 
+```
+
+# Comments
+
+These initial sequences were developed on the basis of preexisitng approximate dates, and where “convenience” is mentioned it means that the sequence has been defined largely on arbitrary grounds, and future sequencing should work to remove that association.
+
+Absolute constraints included as _t.p.q._ are two sets of radiocarbon dates, one from the site of Rirha in Morocco [@callegarin_rirha_2016-2 41] and the other a batch of 11 dates from the Mazotos shipwreck near Cyprus [@manning_dating_2022]. The _t.a.q._ comprise the sack of Carthage in 146 BCE, related to depositional sequences at
+the site [@lancel_byrsa_1982, 194], and the conventional date of the Planier A shipwreck [@corsi-sciallano_epaves_1985, 17-25]. Radiocarbon dates (uncalibrated) were processed using the file `rc20250628.csv`, contained in the `/inst/extdata` directory of the package.
+
+Finds note: if one attributes Dr. 1B amphora to the wreck of Isla Pedrosa, the date of that type is pulled heavily toward the mid-2nd century BCE, within this dataset.
+
+## Sequences
+
+Ids are not retained in the sequences object `contexts_20250628`, but
+are used as a reference number.
+
+| Id | Sequence | References | Notes |
+|:---|:---------|:-----------|:------|
+| `seq00001` | c(`"Rirha US 5182"`, `"Rirha US 5154"`) | @callegarin_rirha_2016-2[41] |  No direct stratigraphic relationship, but Rirha US 5182 considered to date well before US 5154. |
+| `seq00002` | c(`"Byrsa II B 19.4"`, `"Byrsa II B 19.2"`) | @lancel_byrsa_1982[194] | |
+| `seq00003` | c(`"Rirha US 5154"`, `"Planier A"`) | @callegarin_rirha_2016-2[40] | Convenience determination. Rirha US 5154 considered to date to the first decades of the 1st c. BCE. |
+| `seq00004` | c(`"El Sec"`, `"Filicudi F"`, `"Tour Fondue"`, `"Cabrera 2"`, `"Tour d'Agnello"`, `"Sanguinaires A"`, `"Lazaret"`) | @cerda_barco_1987; @cibecchini_nuovi_2013[425] | Based on conventional approximate absolute dates. | 
+| `seq00005` | c(`"Madrague de Giens"`, `"Planier C"`, `"Cap Béar C"`, `"Planier A"`) | @tchernia_lepave_1978, @liou_recherches_1985, @corsi-sciallano_epaves_1985[17-25]; @parker_ancient_1992[97-98, 249-250,315-317] | Based on conventional approximate absolute dates. |
+| `seq00006` | c(`"Cabrera 2"`, `"Grand Congloué A"`, `"Lazaret"`, `"Byrsa II B 19.2"`, `"Punta Scaletta"`, `"Isla Pedrosa"`, `"Cavalière"`, `"Madrague de Giens"`) | @tchernia_lepave_1978; @parker_ancient_1992; @sanmarti_grego_cronologiy_1998 | Based on conventional approximate absolute dates. |
+| `seq00007` |  c(`"Mazotos"`, `"El Sec"`) |  | Based on conventional approximate absolute dates. |
+| `seq00008` | c(`"Grand Congloué A"`, `"Héliopolis B"`, `"Punta Scaletta"`) |  @parker_ancient_1992[211] | Based on conventional approximate absolute dates. |
+                              |
+
+## Absolute Constraints 
+
+### _Termini post quos_
+
+All radiocarbon dates were calibrated using `Bchron` [@haslett_simple_2008] with the IntCal20 atmospheric data [@reimer_intcal20_2020].
+
+| id | assoc | Reference | Notes     |
+|:---|:------|:----------|:---------|
+| `"RH A08 US 5182"` | `"Rirha US 5182"` | @callegarin_rirha_2016-2[41] |Radiocarbon date. |
+| `"VERA-6082a"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage).  |
+| `"VERA-6082b"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"VERA-6082c"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"VERA-6082d"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-31836"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-31877"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-32005"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-32006"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-32794"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-32795"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+| `"OxA-32796"` | `"Mazotos"` | @manning_dating_2022 | Radiocarbon date. Olive pit (final voyage). |
+
+### _Termini ante quos_
+
+| id | assoc | Reference | Notes     |
+|:---|:------|:----------|:---------|
+|`"Carthage_Destr_1"` | `"Byrsa II B 19.2"` | |  | 146 BCE |
+|`"Planier_A_abs"` | `"Planier A"` | @parker_ancient_1992[315; @corsi-sciallano_epaves_1985[17-25] | 1-15 CE, Conventional date of shipwreck.  |
+
+## Finds
+
+| id |  assoc | type | residual | Reference | Notes |
+|:---|:-------|:-----|:---------|:----------|:-------|
+| `"id 1"` | `"Isla Pedrosa"` | `"AMPH Dressel 1B"` | `TRUE` | @parker_ancient_1992[217-218] | |
+| `"id 865"` |  `"Rirha US 5154"` | `"AMPH Dressel 1B"` | | @callegarin_rirha_2016-2[40]  | | 
+| `"id 1202"` |  `"Madrague de Giens"` | `"AMPH Dressel 1B"` | | @callegarin_rirha_2016-2[40]; @tchernia_lepave_1978;@liou_recherches_1985  |  |
+| `"id 1285"` |  `"Planier C"` | `"AMPH Dressel 1B"` |  | @liou_recherches_1985[553-556]   |  |
+| `"id 1364"` |  `"Cap Béar C"` | c(`"AMPH Dressel 1B"`, `"AMPH Dressel 1B Tarraconensis"`) |   | @liou_recherches_1985 |  |
+
+# References
+

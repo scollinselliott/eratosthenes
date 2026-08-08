@@ -199,11 +199,11 @@ hypotheses).
 
 ### Creating a Finds Object
 
-Next, a separate object for the finds data must be created. If a
-particular find has absolute chronological information associated with
-it (just the object itself, not the type), it should not be entered
-here, but rather as an `absolute` constraint (on which see below). To
-start, each find is a `finds` object with the following information:
+Next, a separate object for the finds data is created. If a particular
+find has absolute chronological information associated with it (the
+object itself, not the type), it should not be created here, but rather
+as an `absolute` constraint (on which see below). To start, each find is
+a `finds` object with the following information:
 
 ``` r
 id1 <- finds(id = "id 1",
@@ -251,31 +251,57 @@ finds <- assemblage(id1, id865, id1202, id1285, id1364)
 
 ### Creating Absolute Constraints Objects
 
-The last step is to create `lists` of the absolute constraints which
-pertain to contexts as either *termini post quos* or *termini ante
-quos*. Absolute constraints have the same fields as a find, but include
-another field, `samples`, which contains the absolute dates (see
-[Absolute Constraints](#absolute-constraints) below). Two separate
-`lists`, one for *t.p.q.* and the other for *t.a.q.*, are created as
-follows.
+Absolute constraints may be either *termini post quos* (*t.p.q.*) or
+*termini ante quos* (*t.a.q.)*, which are created as `absolute` objects
+(see [Absolute Constraints](#absolute-constraints) below). The structure
+of an `absolute` object is the same as that of a `finds` object,
+omitting the `"residual"` field, but requiring numeric input for the
+field `"samples"`, which provide the absolute calendrical dates with
+which the `absolute` object is associated. Just as `finds` are contained
+within a single `assemblage` object, `absolute` objects are contained
+with `constraints`.
 
-The *termini post quos* will include radiocarbon dates. A vector of
-samples of calibrated dates, e.g., `c(375, 371, 370, ...)` may be
-entered, but it is more expedient to call one of the R packages
-available to calibrate dates and then assign their output into the
-`list`. Here, uncalibrated dates were uploaded as a `csv` file which was
-processed using `Bchron` (Haslett and Parnell 2008). The following code
-shows how to loop over a table of uncalibrated dates in order to draw
-samples from the calibrated date and insert them into a list of *t.p.q.*
-with an `id` and associated context (`assoc`):
+For example *termini ante quos* for this tutorial include the
+destruction of Carthage in 146 BCE, which the deposit B 19.2 on Byrsa
+Hill predates, as well as a range of conventional absolute dates, ca.
+1-15 CE, for the Planier A shipwreck (to give a finite endpoint for this
+tutorial).
+
+``` r
+Carthage_Destr_1 <- absolute(id = "Carthage_Destr_1",
+                         assoc = "Byrsa II B 19.2",
+                        samples = -146)
+Planier_A_abs <- absolute(id = "Planier_A_abs",
+                      assoc = "Planier A",
+                      samples = seq(1, 15, length.out = 100))
+
+taq_info <- constraints(Carthage_Destr_1, Planier_A_abs)
+```
+
+The *termini post quos* are created in the same way. However, *t.p.q.*
+will often feature calibrated radiocarbon (cal. r.c.) dates, whose
+`samples` argument will consist of thousands of draws from their
+probability density function. The most expedient way to convey
+`"samples"` for cal. r.c. dates is to store the information on the
+uncalibrated mean and standard deviation, and then to use a package to
+generate the calibrated dates,
+
+Here, a `csv` file is used to store information on uncalibrated r.c.
+dates, which may be found in the `inst/extdata` folder of the package.
+This selection of dates comes from Callegarin et al. (2016, 41) and
+Manning, Lorentzen, and Demesticha (2022). The script below uses
+`Bchron` (Haslett and Parnell 2008), looping over the table of
+uncalibrated dates in order to draw samples from the calibrated date’s
+p.d.f. and insert them into a list of *t.p.q.*, with an `id` and
+associated context (`assoc`). Note that a `constraints` object may also
+be applied to a `list` of `absolute` objects, such that additional
+*t.p.q.* can be appended after the cal. r.c. dates:
 
 ``` r
 # create an empty list to contain all tpq
 tpq_info <- list()
 
-# The csv file at https://volweb.utk.edu/~scolli46/eratosthenes/data/rc20250628.csv
-# contains a table of uncalibrated radiocarbon dates
-eratosthenes_rcdates <- read.csv("rc20250628.csv")
+eratosthenes_rcdates <- read.csv('inst/extdata/rc20250628.csv')
 
 library(Bchron)
 
@@ -286,27 +312,12 @@ for (i in 1:nrow(eratosthenes_rcdates)) {
                              calCurves = "intcal20")
     x <- 1950 - sampleAges(calib)
 
-    # this 
-    tpq_info[[i]] <- list(id = eratosthenes_rcdates$id[i],
+    tpq_info[[i]] <- absolute(id = eratosthenes_rcdates$id[i],
                      assoc = eratosthenes_rcdates$assoc[i],
                      samples = x)
 }
-```
 
-The *termini ante quos* include the destruction of Carthage in 146 BCE,
-which the deposit B 19.2 on Byrsa Hill predates, as well as a range of
-absolute dates, ca. 1-15 CE, for the Planier A shipwreck (to give a
-finite endpoint for this tutorial).
-
-``` r
-Carthage_Destr_1 <- list(id = "Carthage_Destr_1",
-                         assoc = "Byrsa II B 19.2",
-                        samples = -146)
-Planier_A_abs <- list(id = "Planier_A_abs",
-                      assoc = "Planier A",
-                      samples = seq(1, 15, length.out = 100))
-
-taq_info <- list(Carthage_Destr_1, Planier_A_abs)
+tpq_info <- constraints(tpq_info)
 ```
 
 With the inputs of these sequences, finds, and absolute constraints, we
@@ -475,13 +486,13 @@ which pertain to elements of the sequences contained in `contexts`
 above”
 
 ``` r
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = TRUE)
+f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- finds(id = "find05", assoc = "I", type = "type2")
+f6 <- finds(id = "find06", assoc = "H", type = NULL)
+artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 ```
 
 ### Absolute Constraints
@@ -493,12 +504,12 @@ headings, but include one additional heading of `samples` which contains
 the absolute dates pertinent to that *t.p.q.* or *t.a.q*.
 
 ``` r
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100, -320, -300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = runif(100, 37, 41))
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100, -320, -300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = runif(100, 37, 41))
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraint(coin1, coin2)
+taq_info <- constraint(destr)
 ```
 
 It can be noted that absolute constraints can belong to a type. Any
@@ -886,6 +897,15 @@ Bayesian Radiocarbon Calibration Tool.” *Internet Archaeology* 7.
 
 </div>
 
+<div id="ref-callegarin_rirha_2016-2" class="csl-entry">
+
+Callegarin, L., M. Kbiri Alaoui, A. Ichkhakh, and J.-C. Roux, eds. 2016.
+*Rirha : Site Antique Et Médiéval Du Maroc II. Période Maurétanienne (Ve
+Siècle Av. J.-C. - 40 Ap. J.-C.)*. Collection de La Casa de Velázquez
+151. Madrid: Casa de Velázquez.
+
+</div>
+
 <div id="ref-collins-elliott_lakhesis_underreview" class="csl-entry">
 
 Collins-Elliott, S. A. Under Review. “Lakhesis: Consensus Seriation via
@@ -990,6 +1010,15 @@ Levy, E., G. Geeraerts, F. Pluquet, E. Piasetzky, and A. Fantalkin.
 <div id="ref-loughton_arverni_2014" class="csl-entry">
 
 Loughton, M. 2014. *The Arverni and Roman Wine*. Oxford: Archaeopress.
+
+</div>
+
+<div id="ref-manning_dating_2022" class="csl-entry">
+
+Manning, S. W., B. Lorentzen, and S. Demesticha. 2022. “Dating
+Mediterranean Shipwrecks: The Mazotos Ship, Radiocarbon Dating and the
+Need for Independent Chronological Anchors.” *Antiquity* 96: 968–80.
+<https://doi.org/10.15184/aqy.2022.76>.
 
 </div>
 
