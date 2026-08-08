@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 <a href="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020"><img src="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020/status.svg"></a>
+[![CRAN
+status](https://www.r-pkg.org/badges/version/eratosthenes)](https://CRAN.R-project.org/package=eratosthenes)
 <!-- badges: end -->
 
 The `R` package `eratosthenes` aims to provide a general, flexible
