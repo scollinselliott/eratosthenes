@@ -464,11 +464,11 @@ Sequences](#evaluating-sequences) below.
 
 ### Finds
 
-Finds should be formatted as a `list` of `lists`, each of which contains
-the entries of the following:
+Finds are created with the `finds()` function, which at its core is a
+`list` with the following headings:
 
 - `id` : a unique identification number or code
-- `assoc` : an element in the sequences `list` to which that find or
+- `assoc` : the element in the `sequences` object to which that find or
   element pertains
 - `type` : optional – one or more types, attributes, features, or
   aspects that pertain to that find (`NULL` if none)
@@ -477,9 +477,7 @@ the entries of the following:
   was found, and will not be considered when estimating aspects of the
   date of a type (production, use, and deposition).
 
-In the following example, the `artifacts` object contains six artifacts
-which pertain to elements of the sequences contained in `contexts`
-above”
+For example:
 
 ``` r
 f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
@@ -488,35 +486,45 @@ f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = T
 f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
 f5 <- finds(id = "find05", assoc = "I", type = "type2")
 f6 <- finds(id = "find06", assoc = "H", type = NULL)
+```
+
+All `finds` are then contained within a single `assemblage` object:
+
+``` r
 artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
 ```
 
 ### Absolute Constraints
 
-Constraints should be given as two separate `lists`, one for *termini
-post quos* and the other for *termini ante quos*. These take the same
-form as the finds object, as a `list` of `lists`, with the same
-headings, but include one additional heading of `samples` which contains
-the absolute dates pertinent to that *t.p.q.* or *t.a.q*.
+Absolute constraints comprise *termini post quos* and the other for
+*termini ante quos*, which share the same object class. To create an
+absolute constraint, use the `absolute()` function:
 
 ``` r
 coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100, -320, -300))
 coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = runif(100, 37, 41))
 destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
+```
 
-tpq_info <- constraint(coin1, coin2)
-taq_info <- constraint(destr)
+The `constraints()` function then groups together several `absolute`
+objects (just as `assemblage()` does for `finds` objects). One will
+typically have just two `constraints`, one for the *t.p.q.* and one for
+the *t.a.q.*:
+
+``` r
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 ```
 
 It can be noted that absolute constraints can belong to a type. Any
 artifact which carries absolute dating information (i.e., extrinsic to
 the joint conditional density) should be assigned as an absolute
-constraint. It assumed that if a *t.p.q* has a type, it refers to the
-artifact’s date of production, and is treated as such (see the section
-[Dates of the Production, Use, and Deposition of a
+constraint, not as a find. It assumed that if a *t.p.q* has a type, it
+refers to the artifact’s date of production, and is treated as such (see
+the section [Dates of the Production, Use, and Deposition of a
 Type](#dates-related-to-artifacts-types) below).
 
-Absolute dates can take any form:
+The `"samples"` argument of an absolute date can take any form:
 
 - Single dates, e.g., `79` for 79 CE.
 - Samples between two potential dates for a date range, e.g., `-91:-88`,
@@ -557,6 +565,10 @@ for (i in 1:length(uncalib)) {
 calBC <- 1950 - calib
 hist(calBC, breaks = 100)
 ```
+
+It is recommended though that one use their preferred calibration
+software (see the example using `Bchron` in the [Tutorial:
+Archaeological Example](#tutorial-arhaeological-example) above).
 
 ## Estimating Dates
 
@@ -604,6 +616,9 @@ There are two functions in `eratosthenes` for estimating dates:
   use, and deposition of a specified artifact type, given sequences and
   constraints.
 
+These functions require objects of classes `sequences`, `assemblage`,
+and `constraints` (on which see above).
+
 See the section [Evaluating Displacement](#evaluating-displacement)
 below for tools on assessing the effective influence of events upon each
 other within the joint conditional density.
@@ -612,7 +627,8 @@ other within the joint conditional density.
 
 The function `gibbs_ad()` takes as inputs the following objects:
 
-- `sequences` : A `list` of relative sequences of contexts or events.
+- `sequences` : A `seqeunces` object, containing relative sequences of
+  contexts or events.
 - `max_samples` : The maximum number of samples to run, which will stop
   the main sampling routine even if convergence has not been achieved
   (default is `10^5`).
@@ -620,10 +636,11 @@ The function `gibbs_ad()` takes as inputs the following objects:
   (default is `10^3`).
 - `mcse_crit` : The criterion of the mean MCSE at which to stop the
   sampler (default is `0.5`)
-- `tpq` and `taq`: Separate `lists` that indicate any elements that
-  provide extrinsic (i.e., absolute) chronological information, as
-  *termini post* and *ante quos*. Format must follow that illustrated in
-  the Section above on [Absolute Constraints](#absolute-constraints).
+- `tpq` and `taq`: Separate `constraints` objects that indicate any
+  elements that provide extrinsic (i.e., absolute) chronological
+  information, as *termini post* and *ante quos*. Format must follow
+  that illustrated in the Section above on [Absolute
+  Constraints](#absolute-constraints).
 - `alpha_` and `omega_`: lowest and highest bounds within which to
   sample.
 - `trim`: whether to remove contexts from the output that are before or
@@ -663,18 +680,18 @@ are ideal constructs used to categorize artifacts, the notion of a
 “type” has flexibility. While only one “type” at a time can be estimated
 with `gibbs_ad_type()`, here, a “type” can be defined on the basis of:
 
-- One or more `id` in the finds list.
-- One or more `type` in the finds list.
+- One or more `id` in the `assemblage` object.
+- One or more `type` in the `assemblage` object.
 
 That is, one can pool together multiple finds as a type on the basis of
-their `id`, even if they were not so explicitly given a `type` in the
-finds object. Similarly, one can pool together more than one type of
+their `id`, even if they were not explicitly given a `type` as such
+initially. Similarly, one can pool together more than one type of
 artifact, e.g., if one is dealing with multiple subtypes and one wants
 to evaluate them as a single type (e.g., pooling the labels of “Late
 Greco-Italic amphora”, “MGS V amphora”, “MGS VI amphora” into a single
 type).
 
-The function works on the principle of the presence/absence of the
+The function works from the principle of the presence/absence of the
 specified type in a given context. First, it identifies all contexts in
 the sequences to which it has been assigned (i.e., been deposited).
 Then, it uses a stipulated rule to identify the earliest moment of
@@ -685,7 +702,8 @@ use are sampled between production and deposition.
 The `gibbs_ad_type()` function takes the following inputs, similar to
 `gibbs_ad()`, but with some additional fields:
 
-- `sequences` : A `list` of relative sequences of contexts or events.
+- `sequences` : A `seqeunces` object, containing relative sequences of
+  contexts or events.
 - `finds` : Either the `list` object of finds originally used as input
   to produce `gibbs`, or a `data.frame` of two columns, the first column
   listing the context and the second the incidence of the id or type in
@@ -779,7 +797,9 @@ Some functions related to relative sequences:
   therefore should be placed first. By setting `shuffle = TRUE` in the
   argument of `seq_diag()`, the order of `events` is randomly permuted,
   such that `seq_diag()` can be run repeatedly to see which `events`
-  tend to be producing disagreements most of the time.
+  tend to be producing disagreements most of the time. As `sequences()`
+  validates input for agreement, The `seq_diag()` function can take a
+  `list` of `events` as input.
 
 - `seq_adj()` provides the means to coerce an “input” `events` object to
   a discrepant “target” `events` object, which contains fewer elements.
