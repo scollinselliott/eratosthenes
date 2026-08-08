@@ -34,6 +34,7 @@ test_that("events works", {
     expect_error(events(TRUE, FALSE))
     expect_error(events("A", Inf, "L", "M"))
     expect_error(events("A", -Inf, "L", "M"))
+    expect_error(events("A", NULL, "L", "M"))
     expect_error(events("A", "B", "C", "A"))
     expect_error(events("alpha", "B", "C", "A"))
     expect_error(events("A", "omega", "C", "A"))

@@ -2,7 +2,7 @@
 # #'
 # #' For a \code{list} of partial sequences (of \code{vector} objects), check to see that joint elements of each occur the same order. That is, for two sequences with elements \eqn{A, B, C, D, E} and \eqn{B, D, F, E}, all joint elements must occur in the same order to pass the check. Two sequences \eqn{A, B, C, D, E} and \eqn{A, F, D, C, E} would not pass this check as the elements \eqn{C} and \eqn{D} occur in different orders in either sequence.
 # #' 
-# #' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and cannot be used in naming events in sequences. This function is automatically performed when creating a \code{sequences} object (see \code{\link[eratosthenes]{sequences}}).
+# #' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and cannot be used in naming events in sequences. This function is automatically performed when creating a \fcode{sequences} object (see \code{\link[eratosthenes]{sequences}}).
 # #' 
 # #' @param obj A \code{list} of \code{vector} objects which represent a sequence.    
 # #' @examples 
@@ -67,8 +67,8 @@ synth_rank <- function(obj, ties = "average") {
 synth_rank.sequences <- function(obj, ties = "average") {
     res <- NULL
     lens <- sapply(obj, length)
-    if (0 %in% lens | 1 %in% lens) {
-        stop("Events in input sequences must contain two or more elements")
+    if (any(lens < 2)) {
+        stop("events in input sequences must contain two or more elements", call. = FALSE)
     }
 
     elements <- names(obj)
@@ -116,6 +116,9 @@ quae_postea <- function(...) {
 #' @export
 quae_postea.events <- function(...) {
     obj <- list(...)
+    if (0 %in% vapply(obj, length, 1L)) {
+        stop('input contains NULL element', call. = FALSE)
+    }
     elements <- unique(unlist(obj))
     M <- list()
     for (i in 1:length(obj)) {
@@ -194,6 +197,9 @@ quae_postea.list <- function(...) {
 #' @export
 quae_postea.sequences <- function(...) {
     obj <- list(...)[[1]]
+    if (0 %in% vapply(obj, length, 1L)) {
+        stop('input contains NULL element', call. = FALSE)
+    }
     elements <- unique(unlist(obj))
     M <- list()
     for (i in 1:length(obj)) {
@@ -240,6 +246,9 @@ quae_antea <- function(...) {
 #' @export
 quae_antea.events <- function(...) {
     obj <- list(...)
+    if (0 %in% vapply(obj, length, 1L)) {
+        stop('input contains NULL element', call. = FALSE)
+    }
     elements <- unique(unlist(obj))
     M <- list()
     for (i in 1:length(obj)) {
@@ -276,6 +285,9 @@ quae_antea.events <- function(...) {
 #' @export
 quae_antea.list <- function(...) {
     obj <- list(...)[[1]]
+    if (0 %in% vapply(obj, length, 1L)) {
+        stop('input contains NULL element', call. = FALSE)
+    }
     chk <- sapply(obj, inherits, "events")
     if (FALSE %in% chk) {
         stop("non-events object in list input.")
@@ -2272,6 +2284,9 @@ events <- function(...) {
 #' @export
 events.character <- function(...) {
     out <- c(...)
+    if (is.null(out)) {
+        print("FEFe")
+    }
     if (TRUE %in% (c(NA, NaN, Inf, -Inf) %in% out)) {
         stop('events cannot contain NA, NaN, Inf')
     }
@@ -2330,7 +2345,7 @@ sequences.list <- function(...) {
     out <- list(...)[[1]]
     chk <- sapply(out, inherits, "events")
     if (FALSE %in% chk) {
-        stop("list input needs to contain events objects")
+        stop("list input needs to contain events objects", call. = FALSE)
     }
     quae_postea(out)
     quae_antea(out)
