@@ -59,8 +59,9 @@ eschewing the following:
 - overly cumbersome chronological relationships. As `eratosthenes`
   samples points along the continuum, there is only before and after. If
   desired, overlaping events can be expressed in sequence construction:
-  e.g., for sequences `c("A", "B", "C")` and `c("A", "D", "E", "C")`,
-  events `"B"` and `"D", "E"` will overlap with each other.
+  e.g., for sequences $A \prec B \prec C$ and
+  $A \prec D \prec E \prec C$, events $B$\` and $D , E$ will overlap
+  with each other.
 
 The focus of the package is on the structure of the joint conditional,
 rather than specific probability models. Hence, `eratosthenes` relies on
