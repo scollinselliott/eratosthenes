@@ -4,7 +4,7 @@
 \alias{seq_diag}
 \alias{seq_diag.events}
 \alias{seq_diag.list}
-\title{Sequence Check Diagnostic}
+\title{Sequence Diagnostic}
 \usage{
 seq_diag(...)
 
@@ -19,7 +19,7 @@ seq_diag(...)
 A sequences object.
 }
 \description{
-If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the
+If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the pairs of indices of the \code{events} which do not agree, as well as the most frequently attested \code{events} which are in disagreement.
 }
 \examples{
 u <- events("A", "D", "E")

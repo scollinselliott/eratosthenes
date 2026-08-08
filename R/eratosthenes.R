@@ -1196,7 +1196,7 @@ tidy_marginals.type_marginals <- function(input) {
 #' Given a \code{list} object of finds (with keys of \code{id}, \code{assoc}, \code{type} in each entry), return a vector of the \code{id} elements that belong to one or more specified type.
 #' 
 #' @param input An \code{\link[eratosthenes]{assemblage}}, comprising finds.
-#' @param type A vector or element 
+#' @param type A character vector or element
 #' 
 #' @examples 
 #' f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
@@ -1211,7 +1211,7 @@ tidy_marginals.type_marginals <- function(input) {
 #' ids_of_types(artifacts, type = "type1")
 #' ids_of_types(artifacts, type = c("type1", "type2"))
 #' 
-#' @returns A vector of ids within a \code{list} object of \code{finds} class, 
+#' @returns A character vector of ids within a \code{list} object of \code{finds} class, 
 #' 
 #' @export
 ids_of_types <- function(input, type = NULL) {
@@ -1222,7 +1222,7 @@ ids_of_types <- function(input, type = NULL) {
 #' @export
 ids_of_types.assemblage <- function(input, type = NULL) {
     res <- c()
-    if (is.vector(type)) {
+    if (is.character(type)) {
         for (k in type) {
             for (i in input) {
                 if (length(i$type) > 0) {
@@ -1234,7 +1234,10 @@ ids_of_types.assemblage <- function(input, type = NULL) {
                 }
             }
         }
-    return(res)
+    if (is.null(res)) {
+        stop("No matches for specified type.")
+    }
+    return(unique(res))
     } else {
         stop("type is not vector object.")
     }
@@ -2279,6 +2282,13 @@ events.character <- function(...) {
     return(out)
 }
 
+#' @export 
+print.events <- function(...) {
+cat("Events object of",length(...), "elements:\n   ")
+    cat(paste0(..., collapse = ", "))
+    cat("\n")
+}
+
 
 
 #' Create a Sequences Object
@@ -2326,24 +2336,6 @@ sequences.list <- function(...) {
     return(out)
 }
 
-
-
-
-
-
-
-
-
-
-
-#' @export 
-print.events <- function(...) {
-cat("Events object of",length(...), "elements:\n   ")
-    cat(paste0(..., collapse = ", "))
-    cat("\n")
-}
-
-
 #' @export 
 print.sequences <- function(...) {
     if (length(...) > 1) {
@@ -2358,9 +2350,9 @@ print.sequences <- function(...) {
 
 
 
-#' Sequence Check Diagnostic
+#' Sequence Diagnostic
 #' 
-#' If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the 
+#' If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the pairs of indices of the \code{events} which do not agree, as well as the most frequently attested \code{events} which are in disagreement.
 #' 
 #' @param ... Objects of \code{events} class.
 #' 
@@ -2441,14 +2433,11 @@ seq_diag.list <- function(...) {
     return(res)
 }
 
-
-
 #' @export 
 print.seq_diag <- function(x) {
 cat("Number of pairs of discrepant sequences:",length(x$pairs), "\nIndices of most frequent events objects in discrepant pairs (sorted in descending order):\n      ")
     cat(paste0(names(head(x$most_discrepant))), collapse = " ", "\n")
 }
-
 
 
 
@@ -2495,7 +2484,6 @@ absolute.character <- function(id, assoc, type = NULL, samples) {
     class(out) <- c("absolute", "list")
     return(out)
 }
-
 
 
 
@@ -2595,7 +2583,6 @@ finds.character <- function(id, assoc, type = NULL, residual = FALSE) {
 
 
 
-
 #' Create an Assemblage Object
 #' 
 #' Analogous to the \code{\link[eratosthenes]{sequences}} or \code{\link[eratosthenes]{constraints}} function for relative and absolute events, this function collects one or more \code{\link[eratosthenes]{finds}} objects into a single object, for input into \code{\link[eratosthenes]{gibbs_ad_type}}.
@@ -2638,7 +2625,7 @@ assemblage.list <- function(...) {
     out <- list(...)[[1]]
     chk <- sapply(out, inherits, "finds")
     if (FALSE %in% chk) {
-        stop("non-events object in list input.")
+        stop("non-finds object in list input.")
     }
     ids <- unlist(sapply(out, c)[1,])
     if (length(unique(ids)) != length(ids)) {
@@ -2648,11 +2635,6 @@ assemblage.list <- function(...) {
     class(out) <- c("assemblage", "list")
     return(out)
 }
-
-
-
-
-
 
 
 
@@ -2693,11 +2675,5 @@ print.assemblage <- function(...) {
     cat(paste0(..., collapse = "\n   "))
     cat("\n")
 }
-
-
-
-
-
-
 
 

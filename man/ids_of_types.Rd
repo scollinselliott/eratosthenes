@@ -12,10 +12,10 @@ ids_of_types(input, type = NULL)
 \arguments{
 \item{input}{An \code{\link[eratosthenes]{assemblage}}, comprising finds.}
 
-\item{type}{A vector or element}
+\item{type}{A character vector or element}
 }
 \value{
-A vector of ids within a \code{list} object of \code{finds} class,
+A character vector of ids within a \code{list} object of \code{finds} class,
 }
 \description{
 Given a \code{list} object of finds (with keys of \code{id}, \code{assoc}, \code{type} in each entry), return a vector of the \code{id} elements that belong to one or more specified type.

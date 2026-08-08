@@ -84,6 +84,18 @@ test_that("assemblage works", {
   expect_error(assemblage(f1, f1, f3, f4, f5, f6))
 })
 
+test_that("id_of_types works", {
+  g1 <- ids_of_types(artifacts, "form2")
+  g2 <- ids_of_types(artifacts, c("form1", "type1"))
+
+  expect_true("find02" %in% g1)
+  expect_equal(sum(c("find01", "find03", "find04", "find02") %in% g2), 4)
+
+  expect_error(ids_of_types(artifacts, "foo"))
+  expect_error(ids_of_types(artifacts))
+  expect_error(ids_of_types())
+})
+
 # constraints
 
 test_that("absolute works", {
