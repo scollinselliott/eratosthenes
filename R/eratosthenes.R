@@ -2405,9 +2405,10 @@ print.sequences <- function(...) {
 
 #' Sequence Diagnostic
 #' 
-#' If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the pairs of indices of the \code{events} which do not agree, as well as the most frequently attested \code{events} which are in disagreement.
+#' If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks \code{\link[eratosthenes]{events}} objects for instances of disagreement, by proceeding through all \code{events} in order, agglomerating them and checking for sequence validty. Hence, there are \code{events} which are assured to be valid, these should be placed first in the input to \code{seq_diag}. If there is no information about the validity of the \code{events}, the \code{shuffle} option can be set to \code{TRUE}, which will randomly permute the order in which \code{events} are agglomerated.
 #' 
 #' @param ... Objects of \code{events} class.
+#' @param shuffle Whether to randomly permute the order of the \code{events}. Default is \code{FALSE}
 #' 
 #' @examples
 #' u <- events("A", "D", "E")
@@ -2423,73 +2424,92 @@ print.sequences <- function(...) {
 #' @returns A sequences object.
 #' 
 #' @export
-seq_diag <- function(...) {
+seq_diag <- function(..., shuffle = FALSE) {
     UseMethod("seq_diag")
 }
 
 #' @rdname seq_diag
 #' @export
-seq_diag.events <- function(...) {
+seq_diag.events <- function(..., shuffle = FALSE) {
     x <- list(...)
     seq_diag(x)
 }
 
 #' @rdname seq_diag
 #' @export
-seq_diag.list <- function(...) {
+seq_diag.list <- function(..., shuffle = FALSE) {
     x <- list(...)[[1]]
-    out <- list()
-    k <- 1
-    for (ki in 1:(length(x)-1)) {
-        for (kj in (ki+1):length(x)) {
-            #chk <- sequences(x[[i]], x[[j]])
+    chk <- sapply(x, inherits, "absolute")
 
-            #####################
-
-            obj <- list(x[[ki]], x[[kj]])
-            elements <- unique(unlist(obj))
-            M <- list()
-            for (i in 1:length(obj)) {
-                tmp <- numeric(length(obj[[i]]))
-                for (j in 1:length(obj[[i]])) {
-                    tmp[j] <- which(elements == obj[[i]][j])
-                }
-                M[[i]] <- tmp
-            }
-
-            mat <- quae_postea_matrix_cpp(length(elements), M)
-
-            res <- list()
-            for (i in 1:length(elements)) {
-                res[[elements[i]]] <- c(elements[mat[i,] == 1], "omega")
-            }
-
-            chk <- TRUE
-            for (i in names(res)) {
-                if (i != "omega") {
-                    if (i %in% res[[i]]) {
-                        chk <- FALSE
-                    }
-                }
-            }
-            
-            if (chk == FALSE) {
-                out[[k]] <- c(ki, kj)
-                k <- k + 1
-            }
-        }
+    if (0 %in% vapply(x, length, 1L)) {
+        stop('input contains NULL element', call. = FALSE)
     }
 
-    most_discrepant <- as.numeric(names(rev(sort(table(unlist(out))))))
-    res <- list(pairs = out, most_discrepant = most_discrepant)
+    idx <- 1:length(x)
+    valid <- logical(length(x))
+    valid[] <- FALSE
+
+    if (shuffle == TRUE) {
+        idx <- sample(idx)
+    }
+
+    first <- idx[1]
+    other <- idx[2:length(idx)]
+
+    valid[first] <- TRUE
+
+    for (k in other) {
+        valid[k] <- TRUE
+
+        obj <- x[valid]
+
+        elements <- unique(unlist(obj))
+        M <- list()
+        for (i in 1:length(obj)) {
+            tmp <- numeric(length(obj[[i]]))
+            for (j in 1:length(obj[[i]])) {
+                tmp[j] <- which(elements == obj[[i]][j])
+            }
+            M[[i]] <- tmp
+        }
+
+        mat <- quae_postea_matrix_cpp(length(elements), M)
+
+        res <- list()
+        for (i in 1:length(elements)) {
+            res[[elements[i]]] <- c(elements[mat[i,] == 1], "omega")
+        }
+
+        check <- TRUE
+        for (i in names(res)) {
+            if (i != "omega") {
+                if (i %in% res[[i]]) {
+                    check <- FALSE
+                }
+            }
+        }
+
+        if (check == FALSE) {
+            valid[k] <- FALSE
+        }
+
+    }
+
+    discrepant <- idx[!valid]
+    res <- list(idx = discrepant, events = x[discrepant])
     class(res) <- c("seq_diag", "list")
     return(res)
 }
 
 #' @export 
-print.seq_diag <- function(x, ...) {
-cat("Number of pairs of discrepant sequences:",length(x$pairs), "\nIndices of most frequent events objects in discrepant pairs (sorted in descending order):\n      ")
-    cat(paste0(x$most_discrepant[1:min(length(x$most_discrepant),10)]), collapse = " ", "\n")
+print.seq_diag <- function(...) {
+    x <- list(...)[[1]]
+    cat("Number of discrepant events objects: ",length(x$idx), "\n")
+    cat("   Index   Events\n")
+    for (i in 1:length(x$idx)) {
+        cat("     ", paste0(x$idx[i]), "   ", paste0(x$events[i]), "\n")
+    }
+    cat("\n")
 }
 
 

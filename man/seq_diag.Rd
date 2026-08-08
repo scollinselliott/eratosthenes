@@ -6,20 +6,22 @@
 \alias{seq_diag.list}
 \title{Sequence Diagnostic}
 \usage{
-seq_diag(...)
+seq_diag(..., shuffle = FALSE)
 
-\method{seq_diag}{events}(...)
+\method{seq_diag}{events}(..., shuffle = FALSE)
 
-\method{seq_diag}{list}(...)
+\method{seq_diag}{list}(..., shuffle = FALSE)
 }
 \arguments{
 \item{...}{Objects of \code{events} class.}
+
+\item{shuffle}{Whether to randomly permute the order of the \code{events}. Default is \code{FALSE}}
 }
 \value{
 A sequences object.
 }
 \description{
-If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks all \code{\link[eratosthenes]{events}} objects for instances of disagreement, pairwise. The output will give the pairs of indices of the \code{events} which do not agree, as well as the most frequently attested \code{events} which are in disagreement.
+If the creation of a \code{\link[eratosthenes]{sequences}} object has failed, this function checks \code{\link[eratosthenes]{events}} objects for instances of disagreement, by proceeding through all \code{events} in order, agglomerating them and checking for sequence validty. Hence, there are \code{events} which are assured to be valid, these should be placed first in the input to \code{seq_diag}. If there is no information about the validity of the \code{events}, the \code{shuffle} option can be set to \code{TRUE}, which will randomly permute the order in which \code{events} are agglomerated.
 }
 \examples{
 u <- events("A", "D", "E")

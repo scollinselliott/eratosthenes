@@ -174,20 +174,27 @@ contexts <- sequences(seq1, seq2, seq3, seq4, seq5, seq6, seq7, seq8)
 The `sequences()` function automatically checks that all `events` accord
 with one another. Both `events()` and `sequences()` will return error
 messages if the input is not valid (e.g., an `event` object contains
-duplicate entries, or multiple `events` are in conflicting orderings. In
+duplicate entries, or multiple `events` have conflicting orderings). In
 such cases, `seq_diag()` function can be used to run a diagnostic check
-on a collection of `events` to see which \`events are in disagreement:
+on a collection of `events` to see which events are in disagreement.
 
 ``` r
-seq_invald <- events("Madrague de Giens", "El Sec")
-contexts_invalid <- list(seq1, seq2, seq3, seq4, seq5, seq6, seq7, seq8, seq_invald))
+seq_invalid1 <- events("Madrague de Giens", "El Sec", "Cabrera 2")
+contexts_invalid <- list(seq1, seq2, seq3, seq4, seq5, seq6, seq_invalid1, seq7, seq8)
 seq_diag(contexts_invalid)
 ```
 
-A `sequences` object contains all of the information about the relative
-relationships of the contexts, in terms of which come before or after
-one another, which should be based on a stated rationale (typically,
-sequences from a seriation, stratigraphic sequences, or even
+The `seq_diag()` proceeds iteratively through all events, and so if
+there are seqeunces of events which are assured to be valid, those
+should be placed earlier in the inputs. The `shuffle` argument in
+`seq_diag()` randomly permutes the order in which `events` are checked,
+and can be called to check discrepancies if there is no information
+about which `events` are more valid than others.
+
+In sum, the `sequences` object contains all of the information about the
+relative relationships of the contexts, in terms of which come before or
+after one another, which should be based on a stated rationale
+(typically, sequences from a seriation, stratigraphic sequences, or even
 hypotheses).
 
 ### Creating a Finds Object

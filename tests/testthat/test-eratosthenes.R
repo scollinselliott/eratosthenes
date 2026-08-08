@@ -78,12 +78,15 @@ test_that("seq_adj works", {
 })
 
 test_that("seq_diag works", {
-  tmp <- list(events(x), events(y), events(z), events(u), events(v), events(w))
-  res_diag <- seq_diag(tmp)
+  tmp1 <- list(events(x), events(y), events(z), events(u), events(v), events(w))
+  tmp2 <- list(events(x), events(y), events(z), events(u), events(w), events(v))
+
+  res_diag1 <- seq_diag(tmp1)
+  res_diag2 <- seq_diag(tmp2)
   
-  expect_s3_class(res_diag, c("seq_diag", "list"))
-  expect_equal(length(res_diag$pairs), 2)
-  expect_equal(tmp[[res_diag$most_discrepant[1]]], events(w))
+  expect_s3_class(res_diag1, c("seq_diag", "list"))
+  expect_equal(res_diag1$idx, 6)
+  expect_equal(res_diag2$idx, 5)
 })
 
 
