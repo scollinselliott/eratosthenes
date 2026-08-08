@@ -230,8 +230,8 @@ The estimates naturally depend on the inputs, and this tutorial has used only a 
 Revising chronologies, or evaluating the impact of choices upon or interventions within a chronology, is performed directly on the inputs. If we reconsider  the view that the Dressel 1B is part of the Isla Pedrosa wreck, we can set `residual = FALSE` and reassign the `id1` object, reassign the finds object, and re-run the `gibbs_ad_type()` function:
 
 ``` r
-id1 <- list(id = "id 1", assoc = "Isla Pedrosa", type = "AMPH Dressel 1B", residual = FALSE)
-finds <- list(id1, id865, id1202, id1285, id1364)
+id1 <- finds(id = "id 1", assoc = "Isla Pedrosa", type = "AMPH Dressel 1B", residual = FALSE)
+finds <- assemblage(id1, id865, id1202, id1285, id1364)
 dr_1b <- gibbs_ad_type(contexts, finds, type = "AMPH Dressel 1B", tpq = tpq_info, taq = taq_info)
 ```
 
@@ -437,9 +437,8 @@ Managing and evaluating the validity of relative sequences consists of checking 
 
 Some functions related to relative sequences:
 
-* `seq_diag()` detects which `events` are in disagreement, proceeding by agglomerating `events` one-by-one, starting with the first `events` object. If one knows which sequences are valid _a priori_, these therefore should be placed first. The 
+* `seq_diag()` detects which `events` are in disagreement, proceeding by agglomerating `events` one-by-one, starting with the first `events` object. If one knows which sequences are valid _a priori_, these therefore should be placed first. By setting `shuffle = TRUE` in the argument of `seq_diag()`, the order of `events` is randomly permuted, such that `seq_diag()` can be run repeatedly to see which `events` tend to be producing disagreements most of the time.
 
-  whether partial sequences agree in their relative ordering of elements.
 * `seq_adj()` provides the means to coerce an "input" `events` object to a discrepant "target" `events` object, which contains fewer elements. E.g., if one has obtained an optimal seriation of contexts (of both single, unrelated deposits and stratigraphic deposits) as determined by the presence/absence of find-types, which conflicts with a sequence obtained from a stratigraphic sequence whose physical relationships are certain, this function will reorder the optimal seriation, fitting any single deposits missing from the stratigraphic sequence accordingly.
 
 The package `eratosthenes` does not have functionality to produce seriations or ordinations, since R packages such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `boral` [@hui_boral_2016], `ecoCopula` [@popovic_fast_2022], `VGAM` [@yee_new_2004], and `lakhesis` [@collins-elliott_lakhesis_2026] can perform this task already.
@@ -486,6 +485,10 @@ result_type1 <- gibbs_ad_type(contexts, finds = artifacts, type = "type1",
 sq_disp(result_type1, sequences = contexts, finds = artifacts,
         max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 ```
+
+## Bug Reports, Requests, and Contributions
+
+`eratosthenes` is licesned under GPL-3.0. If users experience bugs, errors, or problems with the software, please create an [issue](https://github.com/scollinselliott/eratosthenes/issues), describing the nature of problem with the input used that resulted in the error. Alternatively users can contact the package author and maintainer at [sce@utk.edu](mailto:sce@utk.edu). Users are welcome to suggest new features or improvements; contributions should be discussed with the package author first.
 
 ## References
 

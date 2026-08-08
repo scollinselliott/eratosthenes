@@ -403,8 +403,8 @@ object, reassign the finds object, and re-run the `gibbs_ad_type()`
 function:
 
 ``` r
-id1 <- list(id = "id 1", assoc = "Isla Pedrosa", type = "AMPH Dressel 1B", residual = FALSE)
-finds <- list(id1, id865, id1202, id1285, id1364)
+id1 <- finds(id = "id 1", assoc = "Isla Pedrosa", type = "AMPH Dressel 1B", residual = FALSE)
+finds <- assemblage(id1, id865, id1202, id1285, id1364)
 dr_1b <- gibbs_ad_type(contexts, finds, type = "AMPH Dressel 1B", tpq = tpq_info, taq = taq_info)
 ```
 
@@ -777,10 +777,10 @@ Some functions related to relative sequences:
 - `seq_diag()` detects which `events` are in disagreement, proceeding by
   agglomerating `events` one-by-one, starting with the first `events`
   object. If one knows which sequences are valid *a priori*, these
-  therefore should be placed first. The
-
-  whether partial sequences agree in their relative ordering of
-  elements.
+  therefore should be placed first. By setting `shuffle = TRUE` in the
+  argument of `seq_diag()`, the order of `events` is randomly permuted,
+  such that `seq_diag()` can be run repeatedly to see which `events`
+  tend to be producing disagreements most of the time.
 
 - `seq_adj()` provides the means to coerce an “input” `events` object to
   a discrepant “target” `events` object, which contains fewer elements.
@@ -875,6 +875,17 @@ result_type1 <- gibbs_ad_type(contexts, finds = artifacts, type = "type1",
 sq_disp(result_type1, sequences = contexts, finds = artifacts,
         max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 ```
+
+## Bug Reports, Requests, and Contributions
+
+`eratosthenes` is licesned under GPL-3.0. If users experience bugs,
+errors, or problems with the software, please create an
+[issue](https://github.com/scollinselliott/eratosthenes/issues),
+describing the nature of problem with the input used that resulted in
+the error. Alternatively users can contact the package author and
+maintainer at <sce@utk.edu>. Users are welcome to suggest new features
+or improvements; contributions should be discussed with the package
+author first.
 
 ## References
 
