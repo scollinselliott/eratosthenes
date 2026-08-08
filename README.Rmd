@@ -62,7 +62,7 @@ Such determinations are the result of many comparisons of stratigraphic and sing
 
 In order to obtain a probability density for any aspect of dating the Dressel 1B (that is, its production, use, and/or deposition), `eratosthenes` avoids the awkward synthesis of this chronological information by estimating dates directly from archaeological record itself, in the information provided by contexts (in **[sequences](#sequences)**, howsoever established), **[finds](#finds)**, which are contained in those contexts, and **[absolute constraints](#absolute-constraints)** for those contexts, as inputs. In other words, it formalizes the logic of dating finds which is already in practice, yielding a probability density instead of a qualitative appraisal of the object's dates of production, use, and deposition.
 
-The following aims to be a concrete tutorial that gives step-by-step instructions to obtain probability density functions on the production, use, and deposition of the Dressel 1B type using `eratosthenes`. Further information on the data for this tutorial is found **[here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)**.
+The following aims to be a concrete tutorial that gives step-by-step instructions to obtain probability density functions on the production, use, and deposition of the Dressel 1B type using `eratosthenes`. Further information on the data for this tutorial is found in the `joss_code.rmd` file located in the `inst/` directory.
 
 ### Creating a Sequences Object
 

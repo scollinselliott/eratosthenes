@@ -128,8 +128,8 @@ deposition.
 The following aims to be a concrete tutorial that gives step-by-step
 instructions to obtain probability density functions on the production,
 use, and deposition of the Dressel 1B type using `eratosthenes`. Further
-information on the data for this tutorial is found
-**[here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)**.
+information on the data for this tutorial is found in the
+`joss_code.rmd` file located in the `inst/` directory.
 
 ### Creating a Sequences Object
 
