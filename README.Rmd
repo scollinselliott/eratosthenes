@@ -78,7 +78,7 @@ library(eratosthenes)
 seq1 <- events("Rirha US 5182", "Rirha US 5154") 
 ```
 
-Multiple sequences can, and typically will, be given. To define seven more sequences for this tutorial, we have additional deposits from the site of Carthage (Byrsa Hill) and also several shipwrecks ([further information here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)):
+Multiple sequences can, and typically will, be given. To define seven more sequences for this tutorial, we have additional deposits from the site of Carthage (Byrsa Hill) and also several shipwrecks (see the `joss_code.rmd` file in the `inst/` directory for more information):
 
 ``` r
 seq2 <- events("Byrsa II B 19.4", "Byrsa II B 19.2")
@@ -196,7 +196,7 @@ The resulting `dr_1b` object contains samples of dates (production, use, and dep
 histogram(dr_1b, xlim = c(-300,20), ylim = c(0, 0.010), legend = "topleft") 
 ```
 
-Which shows the probable dates of production, use, and deposition separately (see [Fig. 3 of the _JOSS_ paper](https://raw.githubusercontent.com/openjournals/joss-papers/joss.08559/joss.08559/10.21105.joss.08559.pdf) awaiting review), indicating which dates are more probable than others.
+Which will show the probable dates of production, use, and deposition separately, indicating which dates are more probable than others.
 
 To determine a highest density region (HDR) of the dates, i.e., the range of the most probable dates according to a given percentage, we can construct a histogram of the dates with 100 bins (i.e., as a percentage) and sort them by their density, choosing, for example, the 10% and 95% regions of the most probable dates of the production of the type. 
 
@@ -309,7 +309,7 @@ Absolute dates can take any form:
 
 * Single dates, e.g., `79` for 79 CE.
 * Samples between two potential dates for a date range, e.g., `-91:-88`, `seq(-91, -88, length = 10^5)`, or `runif(10^5, -91, -88)` for 91-88 BCE.
-* Samples from a bespoke density, e.g., from a calibrated radiocarbon date. `eratosthenes` does not provide functionality for calibrating dates, which can be accomplished using preexisting software or directly from a calibration curve. As a brief example, given an uncalibrated date and its standard deviation, a crude sample of calibrated dates can be drawn from the IntCal20 curve data, available from IntCal [here](https://www.intcal.org/curves/intcal20.14c) [@reimer_intcal20_2020], using the following script:
+* Samples from a bespoke density, e.g., from a calibrated radiocarbon date. `eratosthenes` does not provide functionality for calibrating dates, which can be accomplished using preexisting software or directly from a calibration curve. As a brief example, given an uncalibrated date and its standard deviation, a crude sample of calibrated dates can be drawn from the IntCal20 curve data, available from IntCal [@reimer_intcal20_2020], using the following script:
 
 ``` r
 intcal20 <- read.csv("../path/to/intcal20.14c")
@@ -370,6 +370,7 @@ The function `gibbs_ad()` takes as inputs the following objects:
 * `tpq` and `taq`: Separate `lists` that indicate any elements that provide extrinsic (i.e., absolute) chronological information, as _termini post_ and _ante quos_. Format must follow that illustrated in the Section above on [Absolute Constraints](#absolute-constraints).
 * `alpha_` and `omega_`: lowest and highest bounds within which to sample.
 * `trim`: whether to remove contexts from the output that are before or after user-provided _t.p.q._ and _t.a.q._ (i.e., those which depend on `alpha_` and `omega_`).
+* `quiet`: whether to suppress messages/output on the progress of the function.
 
 For example, to sample from the sequences, finds, and constraints given above, the following inputs are entered into the `gibbs_ad()` function: 
 
@@ -409,6 +410,7 @@ The `gibbs_ad_type()` function takes the following inputs, similar to `gibbs_ad(
 * `rule`: the rule for determining the earliest date of production of an artifact type. Initial threshold boundaries are first established between the earliest depositional context containing an artifact of that type and the next earliest context which lacks it. Then, the following rules will sample a date accordingly:
   * `naive`: samples are drawn between the initial threshold sample and the depositional date of that artifact.
   * `earliest`: samples are drawn within the initial threshold boundaries.
+* `quiet`: whether to suppress messages/output on the progress of the function.
 
 As use dates are drawn between production and depositional dates, if one chooses `"earliest"` as the rule, then the use density is equivalent to that of the `"naive"` production density. It should also be noted that, for this function, Gibbs sampling is only used for the depositional sequences and absolute constraints, not for production, use, and deposition (i.e, the use date does not affect the production date, nor is the depositional date affected by the production date).
 
@@ -435,10 +437,12 @@ Managing and evaluating the validity of relative sequences consists of checking 
 
 Some functions related to relative sequences:
 
-* `seq_check()` sees whether partial sequences agree in their relative ordering of elements.
-* `seq_adj()` provides the means to coerce an "input" sequence to a discrepant "target" sequence which contains fewer elements. E.g., if one has obtained an optimal seriation of contexts (of both single, unrelated deposits and stratigraphic deposits) as determined by the presence/absence of find-types, which conflicts with a sequence obtained from a stratigraphic sequence whose physical relationships are certain, this function will reorder the optimal seriation, fitting any single deposits missing from the stratigraphic sequence accordingly.
+* `seq_diag()` detects which `events` are in disagreement, proceeding by agglomerating `events` one-by-one, starting with the first `events` object. If one knows which sequences are valid _a priori_, these therefore should be placed first. The 
 
-The package `eratosthenes` does not have functionality to produce seriations or ordinations, since R packages such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `boral` [@hui_boral_2016], `ecoCopula` [@popovic_fast_2022], `VGAM` [@yee_new_2004], and `lakhesis` [@collins-elliott_lakhesis_underreview] can perform this task already.
+  whether partial sequences agree in their relative ordering of elements.
+* `seq_adj()` provides the means to coerce an "input" `events` object to a discrepant "target" `events` object, which contains fewer elements. E.g., if one has obtained an optimal seriation of contexts (of both single, unrelated deposits and stratigraphic deposits) as determined by the presence/absence of find-types, which conflicts with a sequence obtained from a stratigraphic sequence whose physical relationships are certain, this function will reorder the optimal seriation, fitting any single deposits missing from the stratigraphic sequence accordingly.
+
+The package `eratosthenes` does not have functionality to produce seriations or ordinations, since R packages such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `boral` [@hui_boral_2016], `ecoCopula` [@popovic_fast_2022], `VGAM` [@yee_new_2004], and `lakhesis` [@collins-elliott_lakhesis_2026] can perform this task already.
 
 ## Evaluating Displacement 
 

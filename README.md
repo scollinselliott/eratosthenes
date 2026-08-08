@@ -151,9 +151,8 @@ seq1 <- events("Rirha US 5182", "Rirha US 5154")
 
 Multiple sequences can, and typically will, be given. To define seven
 more sequences for this tutorial, we have additional deposits from the
-site of Carthage (Byrsa Hill) and also several shipwrecks ([further
-information
-here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)):
+site of Carthage (Byrsa Hill) and also several shipwrecks (see the
+`joss_code.rmd` file in the `inst/` directory for more information):
 
 ``` r
 seq2 <- events("Byrsa II B 19.4", "Byrsa II B 19.2")
@@ -346,10 +345,8 @@ listing the mean dates. The densities can be visualized using the
 histogram(dr_1b, xlim = c(-300,20), ylim = c(0, 0.010), legend = "topleft") 
 ```
 
-Which shows the probable dates of production, use, and deposition
-separately (see [Fig. 3 of the *JOSS*
-paper](https://raw.githubusercontent.com/openjournals/joss-papers/joss.08559/joss.08559/10.21105.joss.08559.pdf)
-awaiting review), indicating which dates are more probable than others.
+Which will show the probable dates of production, use, and deposition
+separately, indicating which dates are more probable than others.
 
 To determine a highest density region (HDR) of the dates, i.e., the
 range of the most probable dates according to a given percentage, we can
@@ -532,8 +529,7 @@ Absolute dates can take any form:
   directly from a calibration curve. As a brief example, given an
   uncalibrated date and its standard deviation, a crude sample of
   calibrated dates can be drawn from the IntCal20 curve data, available
-  from IntCal [here](https://www.intcal.org/curves/intcal20.14c) (Reimer
-  et al. 2020), using the following script:
+  from IntCal (Reimer et al. 2020), using the following script:
 
 ``` r
 intcal20 <- read.csv("../path/to/intcal20.14c")
@@ -634,6 +630,8 @@ The function `gibbs_ad()` takes as inputs the following objects:
 - `trim`: whether to remove contexts from the output that are before or
   after user-provided *t.p.q.* and *t.a.q.* (i.e., those which depend on
   `alpha_` and `omega_`).
+- `quiet`: whether to suppress messages/output on the progress of the
+  function.
 
 For example, to sample from the sequences, finds, and constraints given
 above, the following inputs are entered into the `gibbs_ad()` function:
@@ -726,6 +724,8 @@ The `gibbs_ad_type()` function takes the following inputs, similar to
     the depositional date of that artifact.
   - `earliest`: samples are drawn within the initial threshold
     boundaries.
+- `quiet`: whether to suppress messages/output on the progress of the
+  function.
 
 As use dates are drawn between production and depositional dates, if one
 chooses `"earliest"` as the rule, then the use density is equivalent to
@@ -774,13 +774,19 @@ of the elements.
 
 Some functions related to relative sequences:
 
-- `seq_check()` sees whether partial sequences agree in their relative
-  ordering of elements.
-- `seq_adj()` provides the means to coerce an “input” sequence to a
-  discrepant “target” sequence which contains fewer elements. E.g., if
-  one has obtained an optimal seriation of contexts (of both single,
-  unrelated deposits and stratigraphic deposits) as determined by the
-  presence/absence of find-types, which conflicts with a sequence
+- `seq_diag()` detects which `events` are in disagreement, proceeding by
+  agglomerating `events` one-by-one, starting with the first `events`
+  object. If one knows which sequences are valid *a priori*, these
+  therefore should be placed first. The
+
+  whether partial sequences agree in their relative ordering of
+  elements.
+
+- `seq_adj()` provides the means to coerce an “input” `events` object to
+  a discrepant “target” `events` object, which contains fewer elements.
+  E.g., if one has obtained an optimal seriation of contexts (of both
+  single, unrelated deposits and stratigraphic deposits) as determined
+  by the presence/absence of find-types, which conflicts with a sequence
   obtained from a stratigraphic sequence whose physical relationships
   are certain, this function will reorder the optimal seriation, fitting
   any single deposits missing from the stratigraphic sequence
@@ -790,8 +796,8 @@ The package `eratosthenes` does not have functionality to produce
 seriations or ordinations, since R packages such as `seriation`
 (Hahsler, Hornik, and Buchcta 2008), `vegan` (Oksanen et al. 2024),
 `boral` (Hui 2016), `ecoCopula` (Popovic, Hui, and Warton 2022), `VGAM`
-(Yee 2004), and `lakhesis` (Collins-Elliott Under Review) can perform
-this task already.
+(Yee 2004), and `lakhesis` (Collins-Elliott 2026) can perform this task
+already.
 
 ## Evaluating Displacement
 
@@ -906,11 +912,12 @@ Siècle Av. J.-C. - 40 Ap. J.-C.)*. Collection de La Casa de Velázquez
 
 </div>
 
-<div id="ref-collins-elliott_lakhesis_underreview" class="csl-entry">
+<div id="ref-collins-elliott_lakhesis_2026" class="csl-entry">
 
-Collins-Elliott, S. A. Under Review. “Lakhesis: Consensus Seriation via
+Collins-Elliott, S. A. 2026. “Lakhesis: Consensus Seriation via
 Iterative Regression of Partial Rankings for Binary Data.” *Journal of
-Applied Statistics*, Under Review.
+Applied Statistics*, 1–23.
+<https://doi.org/10.1080/02664763.2026.2672564>.
 
 </div>
 
