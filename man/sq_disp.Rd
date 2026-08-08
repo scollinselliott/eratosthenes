@@ -18,7 +18,8 @@ sq_disp(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = "naive"
+  rule = "naive",
+  quiet = FALSE
 )
 
 \method{sq_disp}{marginals}(
@@ -33,7 +34,8 @@ sq_disp(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = NULL
+  rule = NULL,
+  quiet = FALSE
 )
 
 \method{sq_disp}{type_marginals}(
@@ -48,7 +50,8 @@ sq_disp(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = "naive"
+  rule = "naive",
+  quiet = FALSE
 )
 }
 \arguments{
@@ -75,6 +78,8 @@ sq_disp(
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
 \item{rule}{The rule for computing an estimated date of production, if using an artifact type as a target date. See \code{\link[eratosthenes]{gibbs_ad_type}} for details.}
+
+\item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
 Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.

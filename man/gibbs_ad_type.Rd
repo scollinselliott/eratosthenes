@@ -19,7 +19,8 @@ gibbs_ad_type(
   alpha_ = -5000,
   omega_ = 1950,
   trim = TRUE,
-  rule = "naive"
+  rule = "naive",
+  quiet = FALSE
 )
 
 \method{gibbs_ad_type}{sequences}(
@@ -36,7 +37,8 @@ gibbs_ad_type(
   alpha_ = -5000,
   omega_ = 1950,
   trim = TRUE,
-  rule = "naive"
+  rule = "naive",
+  quiet = FALSE
 )
 }
 \arguments{
@@ -67,6 +69,8 @@ gibbs_ad_type(
 \item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.}
 
 \item{rule}{The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context, or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.}
+
+\item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
 A \code{list} of class \code{type_marginals} of the density of a use date, conditional upon production and depositional dates.

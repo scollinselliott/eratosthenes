@@ -14,7 +14,8 @@ msd(
   tpq = NULL,
   taq = NULL,
   alpha_ = -5000,
-  omega_ = 1950
+  omega_ = 1950,
+  quiet = FALSE
 )
 
 \method{msd}{marginals}(
@@ -26,7 +27,8 @@ msd(
   tpq = NULL,
   taq = NULL,
   alpha_ = -5000,
-  omega_ = 1950
+  omega_ = 1950,
+  quiet = FALSe
 )
 }
 \arguments{
@@ -47,6 +49,8 @@ msd(
 \item{alpha_}{An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.}
 
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
+
+\item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
 Output is a list containing a data frame \code{MSD_stats} giving the mean MC date, the MCSE, the MSD, the variance of the squared displacements (not the standard error), and sample size, as well as a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.

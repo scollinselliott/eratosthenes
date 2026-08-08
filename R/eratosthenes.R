@@ -423,6 +423,7 @@ seq_adj.events <- function(input, target) {
 #' @param alpha_ An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param trim A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.
+#' @param quiet Whether to supress messages/progress output while function is running. Default is \code{FALSE}.
 #' 
 #' @returns A \code{list} object of class \code{marginals} which contains the following:
 #'    * \code{deposition} A \code{list} of samples from the marginal density of each context's depositional date.
@@ -452,13 +453,13 @@ seq_adj.events <- function(input, target) {
 #' 
 #' @export
 #' @importFrom Rdpack reprompt
-gibbs_ad <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE) {
+gibbs_ad <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, quiet = FALSE) {
     UseMethod("gibbs_ad")
 }
 
 #' @rdname gibbs_ad
 #' @export
-gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE) {
+gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, quiet = FALSE) {
     if (!(is.null(tpq) | inherits(tpq, "constraints"))) {
         stop("input tpq must be constraints object. See constraints().")
     }
@@ -581,12 +582,16 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
     }
 
     # initial sampler
-    message("Assigning initial random values (this may take a moment)...")
+    if (quiet == FALSE) {
+        message("Assigning initial random values (this may take a moment)...")
+    }
 
     gibbs[,1] <- gibbs_ad_initial_cpp(gibbs[,1], tpq_idx, PsiMatrix, tpq, taq_idx, PhiMatrix, taq, proceed_idx, init_sample)
 
     # main sampler
-    message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
+    if (quiet == FALSE) {
+        message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
+    }
 
     gibbs <- gibbs_ad_cpp(gibbs, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
 
@@ -623,13 +628,19 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
         # do not include fixed single-point events as part of estimating MCSE
         mcse <- mcse[mcse > 0] 
 
-        cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
+        if (quiet == FALSE) {
+            cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
+        }
         if (mean(mcse) < mcse_crit) {
             mcse_check <- TRUE
-            message("\nMCSE criterion passed. Finishing.")
+            if (quiet == FALSE) {
+                message("\nMCSE criterion passed. Finishing.")
+            }
         } else {
             if (ncol(gibbs) >= max_samples) {
-                message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
+                if (quiet == FALSE) {
+                    message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
+                }
                 mcse_check <- TRUE
             } else {
 
@@ -683,9 +694,9 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
 #' 
 #' @rdname gibbs_ad
 #' @export
-gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE) {
+gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, quiet = FALSE) {
     sequences <- sequences(sequences)
-    gibbs_ad.sequences(sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE)
+    gibbs_ad.sequences(sequences, max_samples = max_samples, size = size, mcse_crit = mcse_crit, tpq = tpq, taq = tpq, alpha_ = alpha_, omega_ = omega_, trim = trim, quiet = quiet)
 }
 
 
@@ -1277,6 +1288,8 @@ ids_of_types.assemblage <- function(input, type = NULL) {
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param trim A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.
 #' @param rule The rule for computing an estimated date of production of a find-type, either \code{"earliest"}, selecting a production date between the earliest deposition of that type and the next most earliest context, or \code{"naive"} (the default), which will select a production date any time between the distribution of that "earliest" date and the depositional date of that artifact.
+#' @param quiet Whether to supress messages/progress output while function is running. Default is \code{FALSE}.
+
 #' 
 #' @examples 
 #' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -1312,13 +1325,13 @@ ids_of_types.assemblage <- function(input, type = NULL) {
 #' @returns A \code{list} of class \code{type_marginals} of the density of a use date, conditional upon production and depositional dates.
 #' 
 #' @export
-gibbs_ad_type <- function(sequences, finds = NULL, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, rule = "naive") {
+gibbs_ad_type <- function(sequences, finds = NULL, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, rule = "naive", quiet = FALSE) {
     UseMethod("gibbs_ad_type")
 }
 #' 
 #' @rdname gibbs_ad_type
 #' @export
-gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, rule = "naive") {
+gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = NULL, type_name = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, trim = TRUE, rule = "naive", quiet = FALSE) {
     if (!(is.null(finds) | inherits(finds, "assemblage"))) {
         stop("finds must be NULL or assemblage object. See assemblage().")
     }
@@ -1333,7 +1346,9 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
     } else {
         if (!is.null(type)) {
             if (!is.null(id)) {
-                message('Defaulting to type (omit or specify "type = NULL" to use id).')
+                if (quiet == FALSE) {
+                    message('Defaulting to type (omit or specify "type = NULL" to use id).')
+                }
             }
             id <- ids_of_types(finds, type)
         }
@@ -1373,7 +1388,9 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
         stop("No ids or types associated with events found.")
     }
 
-    message("Estimating production, use, and depositional dates for id(s)/type(s) specified.")
+    if (quiet == FALSE) {
+        message("Estimating production, use, and depositional dates for id(s)/type(s) specified.")
+    }
 
     # if (seq_check(sequences) == FALSE) {
     #     stop("Sequences has failed consistency check with seq_check().")
@@ -1468,7 +1485,9 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
     }
 
     # initial sampler
-    message("Assigning initial random values (this may take a moment)...")
+    if (quiet == FALSE) {
+        message("Assigning initial random values (this may take a moment)...")
+    }
 
     gibbs[,1] <- gibbs_ad_initial_cpp(gibbs[,1], tpq_idx, PsiMatrix, tpq, taq_idx, PhiMatrix, taq, proceed_idx, init_sample)
 
@@ -1480,8 +1499,10 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
     contexts_prior_absent <- contexts_prior[contexts_prior %in% contexts_type_absent_idx & !(contexts_prior %in%  c((length(proceed_all)-1), length(proceed_all)))]
 
     # main sampler
-    message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
-    cat("Note: MCSE stopping criterion is only applied to sequences/constraints, not finds.\n")
+    if (quiet == FALSE) {
+        message("Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.")
+        cat("Note: MCSE stopping criterion is only applied to sequences/constraints, not finds.\n")
+    }
 
     gibbs <- gibbs_ad_cpp(gibbs, tpq_idx, PsiMatrix, tpq , taq_idx, PhiMatrix, taq, proceed_idx)
 
@@ -1557,13 +1578,19 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
         # do not include fixed single-point events as part of estimating MCSE
         mcse <- mcse[mcse > 0] 
 
-        cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
+        if (quiet == FALSE) {
+            cat("\r", paste0("Samples: ", ncol(gibbs), "     Mean MCSE: ",  round(mean(mcse),3)))
+        }
         if (mean(mcse) < mcse_crit) {
             mcse_check <- TRUE
-            message("\nMCSE criterion passed. Finishing.")
+            if (quiet == FALSE) {
+                message("\nMCSE criterion passed. Finishing.")
+            }
         } else {
             if (ncol(gibbs) >= max_samples) {
-                message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
+                if (quiet == FALSE) {
+                    message("\nMC samples exceeded maximum stipulated without passing MCSE criterion. Finishing.")
+                }
                 mcse_check <- TRUE
             } else {
 
@@ -1699,6 +1726,7 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
 #' @param taq A \code{list} containing \emph{termini ante quos} used to compute \code{marginalized}. See \code{\link[eratosthenes]{gibbs_ad}} for details.
 #' @param alpha_ An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
+#' @param quiet Whether to supress messages/progress output while function is running. Default is \code{FALSE}.
 #' 
 #' @examples 
 #' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -1731,13 +1759,13 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
 #' @returns Output is a list containing a data frame \code{MSD_stats} giving the mean MC date, the MCSE, the MSD, the variance of the squared displacements (not the standard error), and sample size, as well as a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 #' 
 #' @export
-msd <- function(marginalized, sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950) {
+msd <- function(marginalized, sequences, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, quiet = FALSE) {
     UseMethod("msd")
 }
 #' 
 #' @rdname msd
 #' @export
-msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950) {
+msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, quiet = FALSe) {
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
@@ -1798,10 +1826,14 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
     orig_dat$MSD_var <- NA
     orig_dat$MSD_n <- NA
 
-    message("Beginning jackknife/LOO-style routine to compute MSD. This may take a while, depending on the number of events / mcse_crit...\n")
+    if (quiet == FALSE) {
+        message("Beginning jackknife/LOO-style routine to compute MSD. This may take a while, depending on the number of events / mcse_crit...\n")
+    }
 
     for (j in 1:length(proceed_all)) {
-        cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
+        if (quiet == FALSE) {
+            cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
+        }
         MCmean <- orig_dat[proceed_all[j],]$Mean
 
         sequencesMSD <- list()
@@ -1870,8 +1902,9 @@ msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 1
 
         cat("\n")
     }
-
-    message("Estimation of MSD complete.")
+    if (quiet == FALSE) {
+       message("Estimation of MSD complete.")
+    }
     bounds_ <- c(alpha_, omega_)
     names(bounds_) <- c("alpha", "omega")
 
@@ -1919,6 +1952,7 @@ print.msd_data <- function(x, ...) {
 #' @param alpha_ An initial \emph{t.p.q.} to limit any elements which may occur before the first provided \emph{t.p.q.} Default is \code{-5000}.
 #' @param omega_ A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.
 #' @param rule The rule for computing an estimated date of production, if using an artifact type as a target date. See \code{\link[eratosthenes]{gibbs_ad_type}} for details.
+#' @param quiet Whether to supress messages/progress output while function is running. Default is \code{FALSE}.
 #' 
 #' @examples 
 #' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
@@ -1961,13 +1995,13 @@ print.msd_data <- function(x, ...) {
 #' @returns Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 #' 
 #' @export
-sq_disp <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = "naive") {
+sq_disp <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = "naive", quiet = FALSE) {
     UseMethod("sq_disp")
 }
 #' 
 #' @rdname sq_disp
 #' @export
-sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = NULL) {
+sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = NULL, quiet = FALSE) {
     if (!inherits(sequences, "sequences")) {
         stop("sequences must be sequences object. See sequences().")
     }
@@ -2026,10 +2060,14 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
 
     orig_dat$sq_disp <- NA
 
-    message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    if (quiet == FALSE) {
+        message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    }
 
     for (j in 1:length(proceed_all)) {
-        cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
+        if (quiet == FALSE) {
+            cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
+        }
         MCmean <- orig_dat[proceed_all[j],]$Mean
 
         sequencesMSD <- list()
@@ -2103,7 +2141,9 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
         cat("\n")
     }
 
-    message("Estimation of squared displacement complete.")
+    if (quiet == FALSE) {
+        message("Estimation of squared displacement complete.")
+    }
     bounds_ <- c(alpha_, omega_)
     names(bounds_) <- c("alpha", "omega")
 
@@ -2117,7 +2157,7 @@ sq_disp.marginals <- function(marginalized, target = NULL, sequences, finds = NU
 #' 
 #' @rdname sq_disp
 #' @export
-sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = "naive") {
+sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = "naive", quiet = FALSE) {
     if (!inherits(sequences, "sequences")) {
         stop("sequences must be sequences object. See sequences().")
     }
@@ -2171,10 +2211,14 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
     res <- data.frame(sq_disp = rep(NA, length(proceed_all)), disp_MCmean = rep(NA, length(proceed_all)), disp_MCSE = rep(NA, length(proceed_all)) )
     rownames(res) <- proceed_all
 
-    message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    if (quiet == FALSE) {
+        message("Beginning jackknife/LOO-style routine to compute squared displacement. This may take a while, depending on the number of events / mcse_crit...\n")
+    }
 
     for (j in 1:length(proceed_all)) {
-        cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
+        if (quiet == FALSE) {
+            cat("Depositional Event / Absolute Constraint: ", proceed_all[j], "\n")
+        }
 
         sequencesSD <- list()
         tpqSD <- list()
@@ -2236,11 +2280,15 @@ sq_disp.type_marginals <- function(marginalized, target = NULL, sequences, finds
 
             cat("\n") 
         } else {
-            cat("Event", proceed_all[j], "skipped: type completely removed from relationships (not possible to estimate).\n")
+            if (quiet == FALSE) {
+                cat("Event", proceed_all[j], "skipped: type completely removed from relationships (not possible to estimate).\n")
+            }
         }
     }
 
-    message("Estimation of squared displacement complete.")
+    if (quiet == FALSE) {
+        message("Estimation of squared displacement complete.")
+    }
     bounds_ <- c(alpha_, omega_)
     names(bounds_) <- c("alpha", "omega")
 

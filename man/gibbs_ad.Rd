@@ -15,7 +15,8 @@ gibbs_ad(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  trim = TRUE
+  trim = TRUE,
+  quiet = FALSE
 )
 
 \method{gibbs_ad}{sequences}(
@@ -27,7 +28,8 @@ gibbs_ad(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  trim = TRUE
+  trim = TRUE,
+  quiet = FALSE
 )
 
 \method{gibbs_ad}{list}(
@@ -39,7 +41,8 @@ gibbs_ad(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  trim = TRUE
+  trim = TRUE,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -60,6 +63,8 @@ gibbs_ad(
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
 \item{trim}{A logical value to determine whether elements that occur before the first \emph{t.p.q.} and after the last \emph{t.a.q.} should be omitted from the results (i.e., to "trim" elements at the ends of the sequence, whose marginal densities depend on the selection of \code{alpha_} and \code{omega_}). Default is \code{TRUE}.}
+
+\item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
 A \code{list} object of class \code{marginals} which contains the following:
