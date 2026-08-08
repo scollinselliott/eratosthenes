@@ -2272,6 +2272,9 @@ events <- function(...) {
 #' @export
 events.character <- function(...) {
     out <- c(...)
+    if (TRUE %in% (c(NA, NaN, Inf, -Inf) %in% out)) {
+        stop('events cannot contain NA, NaN, Inf')
+    }
     if (length(unique(out)) != length(out)) {
         stop('events contain duplicate elements.')
     }

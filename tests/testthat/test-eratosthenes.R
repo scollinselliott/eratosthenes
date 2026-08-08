@@ -4,6 +4,7 @@ w <- c("I", "G", "C")
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
 y <- c("B", "D", "G", "H", "K")
 z <- c("F", "K", "L", "M")
+
 contexts <- sequences(events(x), events(y), events(z))
 
 # finds
@@ -28,6 +29,11 @@ test_that("events works", {
     expect_s3_class(events_, c("events", "character"))
     expect_error(events())
     expect_error(events(1, 2, 3, 4))
+    expect_error(events("A", NA, "L", "M"))
+    expect_error(events("A", NaN, "L", "M"))
+    expect_error(events(TRUE, FALSE))
+    expect_error(events("A", Inf, "L", "M"))
+    expect_error(events("A", -Inf, "L", "M"))
     expect_error(events("A", "B", "C", "A"))
     expect_error(events("alpha", "B", "C", "A"))
     expect_error(events("A", "omega", "C", "A"))
