@@ -879,7 +879,8 @@ sq_disp(result_type1, sequences = contexts, finds = artifacts,
 ## Bug Reports, Requests, and Contributions
 
 `eratosthenes` is licesned under GPL-3.0. If users experience bugs,
-errors, or problems with the software, please create an
+errors, or problems with the software, or otherwise need guidance or
+help, please create an
 [issue](https://github.com/scollinselliott/eratosthenes/issues),
 describing the nature of problem with the input used that resulted in
 the error. Alternatively users can contact the package author and
