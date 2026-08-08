@@ -25,7 +25,7 @@ Takes the results of \code{\link[eratosthenes]{gibbs_ad}} or \code{\link[eratost
 x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
 y <- events("B", "D", "G", "H", "K")
 z <- events("F", "K", "L", "M")
-contexts <- assemblage(x, y, z)
+contexts <- sequences(x, y, z)
 
 # external constraints
 coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))

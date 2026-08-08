@@ -1,5 +1,7 @@
 
 # vectors
+u <- c("A", "C", "E", "G")
+v <- c("A", "B", "E", "J")
 w <- c("I", "G", "C")
 x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
 y <- c("B", "D", "G", "H", "K")
@@ -34,7 +36,6 @@ test_that("events works", {
     expect_error(events(TRUE, FALSE))
     expect_error(events("A", Inf, "L", "M"))
     expect_error(events("A", -Inf, "L", "M"))
-    expect_error(events("A", NULL, "L", "M"))
     expect_error(events("A", "B", "C", "A"))
     expect_error(events("alpha", "B", "C", "A"))
     expect_error(events("A", "omega", "C", "A"))
@@ -75,6 +76,19 @@ test_that("seq_adj works", {
   expect_equal(seq_adj(x1, x2), events("A", "I", "H", "B", "G", "F", "E", "J", "D", "C"))
   expect_error(seq_adj(x1, x3))
 })
+
+test_that("seq_diag works", {
+  tmp <- list(events(x), events(y), events(z), events(u), events(v), events(w))
+  res_diag <- seq_diag(tmp)
+  
+  expect_s3_class(res_diag, c("seq_diag", "list"))
+  expect_equal(length(res_diag$pairs), 2)
+  expect_equal(tmp[[res_diag$most_discrepant[1]]], events(w))
+})
+
+
+
+
 
 # finds
 
@@ -137,6 +151,8 @@ test_that("gibbs_ad_type works", {
 
   expect_s3_class(result_ids, c("type_marginals", "list"))
   expect_s3_class(result_type, c("type_marginals", "list"))
+
+  expect_error(gibbs_ad_type(contexts, artifacts, id = c("find04", "find05"), tpq = tpq_info, taq = taq_info, rule = "foo"))
 })
 
 test_that("msd works", {

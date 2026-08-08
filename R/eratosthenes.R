@@ -469,9 +469,6 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
-    # if (seq_check(sequences) == FALSE) {
-    #     stop("Sequences has failed consistency check with seq_check().")
-    # }
 
     proceed <- synth_rank(sequences)
 
@@ -1061,7 +1058,7 @@ histogram.type_marginals <- function(x, events = NULL, aspect = c("production", 
 #' x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
 #' y <- events("B", "D", "G", "H", "K")
 #' z <- events("F", "K", "L", "M")
-#' contexts <- assemblage(x, y, z)
+#' contexts <- sequences(x, y, z)
 #' 
 #' # external constraints
 #' coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
@@ -1353,6 +1350,8 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
             id <- ids_of_types(finds, type)
         }
     }
+
+    rule <- match.arg(rule, c("naive", "earliest"))
     
     contexts_type <- c()
     for (j in finds) {
@@ -1765,7 +1764,7 @@ msd <- function(marginalized, sequences, max_samples = 10^5, size = 10^3, mcse_c
 #' 
 #' @rdname msd
 #' @export
-msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, quiet = FALSe) {
+msd.marginals <- function(marginalized, sequences,  max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, quiet = FALSE) {
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
@@ -2446,7 +2445,7 @@ seq_diag <- function(...) {
 #' @export
 seq_diag.events <- function(...) {
     x <- list(...)
-    seq_diag()
+    seq_diag(x)
 }
 
 #' @rdname seq_diag
@@ -2495,16 +2494,16 @@ seq_diag.list <- function(...) {
         }
     }
 
-    most_discrepant <- rev(sort(table(unlist(out))))
+    most_discrepant <- as.numeric(names(rev(sort(table(unlist(out))))))
     res <- list(pairs = out, most_discrepant = most_discrepant)
     class(res) <- c("seq_diag", "list")
     return(res)
 }
 
 #' @export 
-print.seq_diag <- function(x) {
+print.seq_diag <- function(x, ...) {
 cat("Number of pairs of discrepant sequences:",length(x$pairs), "\nIndices of most frequent events objects in discrepant pairs (sorted in descending order):\n      ")
-    cat(paste0(names(head(x$most_discrepant))), collapse = " ", "\n")
+    cat(paste0(x$most_discrepant[1:min(length(x$most_discrepant),10)]), collapse = " ", "\n")
 }
 
 

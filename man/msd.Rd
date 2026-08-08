@@ -28,7 +28,7 @@ msd(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  quiet = FALSe
+  quiet = FALSE
 )
 }
 \arguments{
