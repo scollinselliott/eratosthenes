@@ -129,7 +129,7 @@ The following aims to be a concrete tutorial that gives step-by-step
 instructions to obtain probability density functions on the production,
 use, and deposition of the Dressel 1B type using `eratosthenes`. Further
 information on the data for this tutorial is found in the
-`joss_code.rmd` file located in the `inst/` directory.
+`eda20250628.rmd` file located in the `inst/` directory.
 
 ### Creating a Sequences Object
 
@@ -152,7 +152,7 @@ seq1 <- events("Rirha US 5182", "Rirha US 5154")
 Multiple sequences can, and typically will, be given. To define seven
 more sequences for this tutorial, we have additional deposits from the
 site of Carthage (Byrsa Hill) and also several shipwrecks (see the
-`joss_code.rmd` file in the `inst/` directory for more information):
+`eda20250628.rmd` file in the `inst/` directory for more information):
 
 ``` r
 seq2 <- events("Byrsa II B 19.4", "Byrsa II B 19.2")
