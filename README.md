@@ -53,15 +53,15 @@ eschewing the following:
   behavioral events, but ideal (and often contested) constructs used to
   make sense of the past. If desired, an investigator can always enter
   period-related events, e.g., `"Archaic Period - Start"`, into their
-  list of sequences.
+  sequences.
 - discretization of time into intervals. Samples are drawn along the
   continuum.
 - overly cumbersome chronological relationships. As `eratosthenes`
   samples points along the continuum, there is only before and after. If
   desired, overlaping events can be expressed in sequence construction:
   e.g., for sequences $A \prec B \prec C$ and
-  $A \prec D \prec E \prec C$, events $B$\` and $D , E$ will overlap
-  with each other.
+  $A \prec D \prec E \prec C$, events $B$ and $D , E$ will overlap with
+  each other.
 
 The focus of the package is on the structure of the joint conditional,
 rather than specific probability models. Hence, `eratosthenes` relies on
@@ -133,15 +133,20 @@ information on the data for this tutorial is found
 
 ### Creating a Sequences Object
 
-First, sequences are given as vectors, with contexts entered as elements
-earlier to later, from left to right. The sequence `seq1` below gives a
-sequence of just two depositional contexts, from the archaeological site
-of Rirha in Morocco, `Rirha US 5182` and `Rirha US 5154`, with
-`Rirha US 5182` being the earlier of the two:
+There are two fundamental objects for sequences:
+
+- `events`, which are a sequence of events (e.g., archaeological
+  contexts) in order from left (earliest) to right (latest)
+- `sequences`, which are a collection (list) of `events`
+
+For example, the `events` object `seq1` below gives a sequence of just
+two depositional contexts, from the archaeological site of Rirha in
+Morocco, `Rirha US 5182` and `Rirha US 5154`, with `Rirha US 5182` being
+the earlier of the two:
 
 ``` r
 library(eratosthenes)
-seq1 <- c("Rirha US 5182", "Rirha US 5154") 
+seq1 <- events("Rirha US 5182", "Rirha US 5154") 
 ```
 
 Multiple sequences can, and typically will, be given. To define seven
@@ -151,47 +156,53 @@ information
 here](https://volweb.utk.edu/~scolli46/eratosthenes/eda20250628.html)):
 
 ``` r
-seq2 <- c("Byrsa II B 19.4", "Byrsa II B 19.2")
-seq3 <- c("Rirha US 5154", "Planier A")
-seq4 <- c("El Sec", "Filicudi F", "Tour Fondue", "Cabrera 2", "Tour d'Agnello", "Sanguinaires A", "Lazaret")
-seq5 <- c("Madrague de Giens", "Planier C", "Cap Béar C", "Planier A")
-seq6 <- c("Cabrera 2", "Grand Congloué A", "Lazaret", "Byrsa II B 19.2", "Punta Scaletta", "Isla Pedrosa", "Cavalière", "Madrague de Giens")
-seq7 <- c("Mazotos", "El Sec")
-seq8 <- c("Grand Congloué A", "Héliopolis B", "Punta Scaletta")
+seq2 <- events("Byrsa II B 19.4", "Byrsa II B 19.2")
+seq3 <- events("Rirha US 5154", "Planier A")
+seq4 <- events("El Sec", "Filicudi F", "Tour Fondue", "Cabrera 2", "Tour d'Agnello", "Sanguinaires A", "Lazaret")
+seq5 <- events("Madrague de Giens", "Planier C", "Cap Béar C", "Planier A")
+seq6 <- events("Cabrera 2", "Grand Congloué A", "Lazaret", "Byrsa II B 19.2", "Punta Scaletta", "Isla Pedrosa", "Cavalière", "Madrague de Giens")
+seq7 <- events("Mazotos", "El Sec")
+seq8 <- events("Grand Congloué A", "Héliopolis B", "Punta Scaletta")
 ```
 
-A single `list` object is then created which contains all of the
-sequences:
+A `sequences` object is then created which contains all of the `events`:
 
 ``` r
-contexts <- list(seq1, seq2, seq3, seq4, seq5, seq6, seq7, seq8)
+contexts <- sequences(seq1, seq2, seq3, seq4, seq5, seq6, seq7, seq8)
 ```
 
-In order to check that all sequences accord with one another, we run the
-`seq_check()` function, which will return a value of `TRUE` if there are
-no conflicts:
+The `sequences()` function automatically checks that all `events` accord
+with one another. Both `events()` and `sequences()` will return error
+messages if the input is not valid (e.g., an `event` object contains
+duplicate entries, or multiple `events` are in conflicting orderings. In
+such cases, `seq_diag()` function can be used to run a diagnostic check
+on a collection of `events` to see which \`events are in disagreement:
 
 ``` r
-seq_check(contexts)
+seq_invald <- events("Madrague de Giens", "El Sec")
+contexts_invalid <- list(seq1, seq2, seq3, seq4, seq5, seq6, seq7, seq8, seq_invald))
+seq_diag(contexts_invalid)
 ```
 
-The `contexts` object therefore contains all of the information about
-the relationships of the contexts, in terms of which come before or
-after one another, which should be based on a stated rationale.
+A `sequences` object contains all of the information about the relative
+relationships of the contexts, in terms of which come before or after
+one another, which should be based on a stated rationale (typically,
+sequences from a seriation, stratigraphic sequences, or even
+hypotheses).
 
 ### Creating a Finds Object
 
 Next, a separate object for the finds data must be created. If a
 particular find has absolute chronological information associated with
 it (just the object itself, not the type), it should not be entered
-here, but rather as an absolute constraint (on which see below). To
-start, each find is a `list` object with the following information:
+here, but rather as an `absolute` constraint (on which see below). To
+start, each find is a `finds` object with the following information:
 
 ``` r
-id1 <- list(id = "id 1",
-            assoc = "Isla Pedrosa",
-            type = "AMPH Dressel 1B",
-            residual = TRUE)
+id1 <- finds(id = "id 1",
+             assoc = "Isla Pedrosa",
+             type = "AMPH Dressel 1B",
+             residual = TRUE)
 ```
 
 Each find, indexed with an `id`, must be linked to a context given in
@@ -211,10 +222,10 @@ optional, and more than one entry can be given for `type`, as the next
 four types show:
 
 ``` r
-id865 <- list(id = "id 865", assoc = "Rirha US 5154", type = "AMPH Dressel 1B")
-id1202 <- list(id = "id 1202", assoc = "Madrague de Giens", type = "AMPH Dressel 1B")
-id1285 <- list(id = "id 1285", assoc = "Planier C", type = "AMPH Dressel 1B")
-id1364 <- list(id = "id 1364", assoc = "Cap Béar C", type = c("AMPH Dressel 1B", "AMPH Dressel 1B Tarraconensis"))
+id865 <- finds(id = "id 865", assoc = "Rirha US 5154", type = "AMPH Dressel 1B")
+id1202 <- finds(id = "id 1202", assoc = "Madrague de Giens", type = "AMPH Dressel 1B")
+id1285 <- finds(id = "id 1285", assoc = "Planier C", type = "AMPH Dressel 1B")
+id1364 <- finds(id = "id 1364", assoc = "Cap Béar C", type = c("AMPH Dressel 1B", "AMPH Dressel 1B Tarraconensis"))
 ```
 
 The last find, `id1364`, belongs to the production group of Dressel 1B
@@ -224,11 +235,11 @@ associated context will be used in estimating dates if an investigator
 is obtaining dates for either `AMPH Dressel 1B` or
 `AMPH Dressel 1B Tarraconensis`.
 
-Finally, a single `list` object is then created which contains all of
-the finds:
+Finally, a single `assemblage` object is then created which contains all
+of the finds:
 
 ``` r
-finds <- list(id1, id865, id1202, id1285, id1364)
+finds <- assemblage(id1, id865, id1202, id1285, id1364)
 ```
 
 ### Creating Absolute Constraints Objects
@@ -405,13 +416,14 @@ below (see [Evaluating Displacement](#evaluating-displacement)).
 
 ## Usage
 
-The basic items of interest in `eratosthenes` are:
+The basic objects in `eratosthenes` are:
 
-- **sequences** of relative events, typically stratigraphic deposits,
+- `sequences` of relative `events`, typically stratigraphic deposits,
   but also isolated contexts such as may be part of a frequency or
   contextual seriation
-- **finds**, elements which belong to those events, typically artifacts
-- **absolute constraints**, as either *termini post* or *ante quos*,
+- an `assemblage` of `finds`, elements which belong to those events,
+  typically artifacts
+- `absolute` `constraints`, as either *termini post* or *ante quos*,
   expressed as samples from a probability density
 
 Information related to these three items must be formatted in objects of
@@ -419,20 +431,22 @@ a `list` class, as follows.
 
 ### Sequences
 
-Relative sequences should run in order from left (earliest) to right
-(latest). All sequences should consist of vectors, contained in a
-`list`. In the following example, the object `contexts` contains three
-sequences of events.
+Each relative sequences should run in order from left (earliest) to
+right (latest), created as an `events` object. A `sequences` object is
+then created from the `events`. In the following example, the object
+`contexts` is created using `sequences()`, containing three sequences of
+`events`.
 
 ``` r
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
 ```
 
-See also the section [Evaluating Sequences](#evaluating-sequences)
-below.
+If `sequences()` returns an error, it will likely be due to two or more
+`events` having a conflicting ordering. See the section [Evaluating
+Sequences](#evaluating-sequences) below.
 
 ### Finds
 
