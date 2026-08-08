@@ -2336,6 +2336,7 @@ sequences.events <- function(...) {
     quae_antea(...)
 
     out <- list(...)
+    names(out) <- NULL
     class(out) <- c("sequences", "list")
     return(out)
 }
@@ -2350,6 +2351,7 @@ sequences.list <- function(...) {
     quae_postea(out)
     quae_antea(out)
 
+    names(out) <- NULL
     class(out) <- c("sequences", "list")
     return(out)
 }
