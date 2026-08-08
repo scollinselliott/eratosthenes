@@ -56,7 +56,7 @@ msd(
 Output is a list containing a data frame \code{MSD_stats} giving the mean MC date, the MCSE, the MSD, the variance of the squared displacements (not the standard error), and sample size, as well as a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 }
 \description{
-Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}. MSD is not intended for finds, as production, use, and depositional dates, as these are themselves contingent upon the relative/absolute events.
+Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}. MSD is not intended for finds, in their production, use, and depositional dates, since these aspects are themselves contingent upon the variates of relative/absolute events.
 }
 \details{
 The MSD entails the following jackknife/leave-one-out style routine:

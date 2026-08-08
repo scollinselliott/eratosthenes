@@ -19,12 +19,15 @@ sequences(...)
 A sequences object.
 }
 \description{
-Analogous to the \code{\link[base]{list}} function, a \code{sequences} object contains multiple \code{events} objects (see \code{\link[eratosthenes]{events}}).
+Analogous to the \code{\link[base]{list}} function, a \code{sequences} object contains multiple \code{\link[eratosthenes]{events}} objects.
 }
 \examples{
 x <- events("A", "B", "C", "D", "E")
 y <- events("B", "D", "F")
 z <- events("A", "C", "F", "G")
 sequences(x, y, z)
+
+a <- list(x, y, z)
+sequences(a)
 
 }

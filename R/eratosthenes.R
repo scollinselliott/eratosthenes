@@ -352,7 +352,7 @@ quae_antea.sequences <- function(...) {
 
 #' Adjust Sequence to Target
 #'
-#' Given an "input" sequence of elements and another "target" seqeunce that contains fewer elements in a different order, shift the order of the input sequence to match that of the target, keeping all other elements as proximate to one another as possible. This adjusted ranking is accomplished using piecewise linear interpolation between joint elements ranks. That is, joint rankings are plotted, with input rankings along the \eqn{x} axis and target rankings on the \eqn{y} axis. Remaining rankings in the input sequence are assigned a ranking of \eqn{y} based on the piecewise linear function between joint rankings. If the rank order of elements in the target are identical to those in the input, the result is identical to the input. A minimum number of three joint elements in both the input and target are required.
+#' Given an "input" sequence of elements and another "target" sequence that contains fewer elements in a different order, shift the order of the input sequence to match that of the target, keeping all other elements as proximate to one another as possible. This adjusted ranking is accomplished using piecewise linear interpolation between joint elements ranks. That is, joint rankings are plotted, with input rankings along the \eqn{x} axis and target rankings on the \eqn{y} axis. Remaining rankings in the input sequence are assigned a ranking of \eqn{y} based on the piecewise linear function between joint rankings. If the rank order of elements in the target are identical to those in the input, the result is identical to the input. A minimum number of three joint elements in both the input and target are required.
 #' 
 #' @param input An \code{events} object of unique ordered elements. 
 #' @param target An \code{events} object of unique ordered elements.  containing at least three of the same elements as \code{input}.
@@ -697,14 +697,6 @@ gibbs_ad.list <- function(sequences, max_samples = 10^5, size = 10^3, mcse_crit 
 }
 
 
-# #' @export
-# print.events <- function(x, ...) {
-#     x <- sort(as.vector(names(x)))
-#     cat("\n Events (call with $ operator to retrieve samples):\n")
-#     cat(" ", x, "\n\n\n")
-# }
-
-
 
 #' @export 
 print.marginals <- function(x, ...) {
@@ -794,7 +786,7 @@ summary.type_marginals <- function(object, ...) {
 
 #' Traceplot of Gibbs Samples
 #' 
-#' Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}}. Maximum number of simulatenous events to display is 12.  for plotting a density histogram of events.
+#' Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}}. Maximum number of simultaneous events to display is 12.  for plotting a density histogram of events.
 #' 
 #' See also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
@@ -1702,7 +1694,7 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
 
 #' Mean Squared Displacement of Events
 #' 
-#' Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}. MSD is not intended for finds, as production, use, and depositional dates, as these are themselves contingent upon the relative/absolute events.
+#' Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}. MSD is not intended for finds, in their production, use, and depositional dates, since these aspects are themselves contingent upon the variates of relative/absolute events.
 #' 
 #' The MSD entails the following jackknife/leave-one-out style routine:
 #' 
@@ -1991,7 +1983,7 @@ print.msd_data <- function(x, ...) {
 #' type1_sqdisp <- sq_disp(result_type1, sequences = contexts, finds = artifacts,
 #'                         max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 #'
-#' @returns Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
+#' @returns Output is a list containing a data frame \code{sq_disp} giving the displacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 #' 
 #' @export
 sq_disp <- function(marginalized, target = NULL, sequences, finds = NULL, max_samples = 10^5, size = 10^3, mcse_crit = 0.5, tpq = NULL, taq = NULL, alpha_ = -5000, omega_ = 1950, rule = "naive", quiet = FALSE) {
@@ -2308,8 +2300,6 @@ print.sq_displ_data <- function(x, ...) {
 
 
 
-
-
 #' Create an Events Object
 #' 
 #' Analogous to the \code{\link[base]{c}} function, to create a sequence of unique events as a vector. Elements may not contain names of \code{"alpha"} or \code{"omega"}, which are restricted for \code{\link[eratosthenes]{quae_antea}} and \code{\link[eratosthenes]{quae_postea}}.
@@ -2319,6 +2309,7 @@ print.sq_displ_data <- function(x, ...) {
 #' @examples
 #' # "A" before "B", "B" before "C"
 #' x <- events("A", "B", "C")
+#' x
 #' 
 #' @returns An events object.
 #' 
@@ -2355,7 +2346,7 @@ cat("Events object of",length(...), "elements:\n   ")
 
 #' Create a Sequences Object
 #' 
-#' Analogous to the \code{\link[base]{list}} function, a \code{sequences} object contains multiple \code{events} objects (see \code{\link[eratosthenes]{events}}).
+#' Analogous to the \code{\link[base]{list}} function, a \code{sequences} object contains multiple \code{\link[eratosthenes]{events}} objects.
 #' 
 #' @param ... objects of \code{events} class, or a \code{list} of \code{events} objects.
 
@@ -2365,6 +2356,9 @@ cat("Events object of",length(...), "elements:\n   ")
 #' y <- events("B", "D", "F")
 #' z <- events("A", "C", "F", "G")
 #' sequences(x, y, z)
+#' 
+#' a <- list(x, y, z)
+#' sequences(a)
 #' 
 #' @returns A sequences object.
 #' 
@@ -2402,12 +2396,7 @@ sequences.list <- function(...) {
 
 #' @export 
 print.sequences <- function(...) {
-    if (length(...) > 1) {
-        cat("Sequences object of",length(...), "events object:\n   ")
-    } else {
-        cat("Sequences object of",length(...), "events objects:\n   ")
-
-    }
+    cat("Sequences object of",length(...), "events:\n   ")
     cat(paste0(..., collapse = "\n   "))
     cat("\n")
 }
@@ -2567,6 +2556,9 @@ absolute.character <- function(id, assoc, type = NULL, samples) {
 #' tpq <- constraints(coin1, coin2)
 #' taq <- constraints(destr)
 #' 
+#' tpq
+#' taq
+#' 
 #' @returns A \code{constraints} object.
 #' 
 #' @export
@@ -2606,7 +2598,7 @@ constraints.list <- function(...) {
 
 #' Create an Finds Object
 #' 
-#' Analogous to the \code{\link[base]{list}} function, to create an object of a find (e.g., artifact or other element) related to a particular context or event. The find must contain named elements of \code{"id"} and \code{"assoc"}, with optional inputs of \code{"type"} and \code{"residual"}, to be collected into a single object via the \code{\link[eratosthenes]{assemblage}} function.
+#' Analogous to the \code{\link[base]{list}} function, to create an object of a find (e.g., artifact or other element) related to a particular context or event. The find must contain named elements of \code{"id"} and \code{"assoc"}, with optional inputs of \code{"type"} and \code{"residual"}, to be collected into a single object via the \code{\link[eratosthenes]{assemblage}} function. Finds which are datable to absolute constraints should be created as an \code{\link[eratosthenes]{absolute}} object.
 #' 
 #' @param id a \code{character} object, giving a unique ID of the find.
 #' @param assoc the element (e.g., context) within an \code{events} object to which the find is associated.
@@ -2620,6 +2612,13 @@ constraints.list <- function(...) {
 #' f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
 #' f5 <- finds(id = "find05", assoc = "I", type = "type2")
 #' f6 <- finds(id = "find06", assoc = "H")
+#' 
+#' f1
+#' f2
+#' f3
+#' f4
+#' f5
+#' f6
 #' 
 #' @returns A \code{finds} object.
 #' 
@@ -2662,7 +2661,8 @@ finds.character <- function(id, assoc, type = NULL, residual = FALSE) {
 #' f6 <- finds(id = "find06", assoc = "H")
 #' 
 #' finds_all <- assemblage(f1, f2, f3, f4, f5, f6)
-
+#' finds_all
+#' 
 #' @returns An \code{assemblage} object.
 #' 
 #' @export
@@ -2705,8 +2705,12 @@ assemblage.list <- function(...) {
 #' @export 
 print.absolute <- function(...) {
 cat("Absolute constraint object:\n   ")
-    cat(paste0(..., collapse = ", "))
-    cat("\n")
+    x <- list(...)[[1]]
+    cat(paste0("id: ", x$id, "\n   assoc: ", x$assoc, " \n   "))
+    if (!is.null(x$type)) {
+        cat(paste0("type: ", x$type, "\n   "))
+    }
+    cat(paste0("mean of samples: ", round(mean(x$samples),2), "\n"))
 }
 
 #' @export 
@@ -2718,14 +2722,18 @@ cat("Finds object:\n   ")
 
 #' @export 
 print.constraints <- function(...) {
-    if (length(...) > 1) {
-        cat("Absolute constraints object of",length(...), "events:\n   ")
-    } else {
-        cat("Absolute constraints object of",length(...), "events:\n   ")
-
+    y <- list(...)[[1]]
+    cat("Absolute constraints object of",length(y), "events:\n   \n")
+    for (i in 1:length(y)) {
+        x <- y[[i]]
+        
+        cat(paste0("id: ", x$id, "\n   assoc: ", x$assoc, " \n   "))
+        if (!is.null(x$type)) {
+            cat(paste0("type: ", x$type, "\n   "))
+        }
+        cat(paste0("mean of samples: ", round(mean(x$samples),2), "\n"))
+        cat("\n")
     }
-    cat(paste0(..., collapse = "\n   "))
-    cat("\n")
 }
 
 #' @export 

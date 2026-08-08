@@ -30,4 +30,6 @@ f5 <- finds(id = "find05", assoc = "I", type = "type2")
 f6 <- finds(id = "find06", assoc = "H")
 
 finds_all <- assemblage(f1, f2, f3, f4, f5, f6)
+finds_all
+
 }

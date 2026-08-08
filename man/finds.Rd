@@ -22,7 +22,7 @@ finds(id, assoc, type = NULL, residual = FALSE)
 A \code{finds} object.
 }
 \description{
-Analogous to the \code{\link[base]{list}} function, to create an object of a find (e.g., artifact or other element) related to a particular context or event. The find must contain named elements of \code{"id"} and \code{"assoc"}, with optional inputs of \code{"type"} and \code{"residual"}, to be collected into a single object via the \code{\link[eratosthenes]{assemblage}} function.
+Analogous to the \code{\link[base]{list}} function, to create an object of a find (e.g., artifact or other element) related to a particular context or event. The find must contain named elements of \code{"id"} and \code{"assoc"}, with optional inputs of \code{"type"} and \code{"residual"}, to be collected into a single object via the \code{\link[eratosthenes]{assemblage}} function. Finds which are datable to absolute constraints should be created as an \code{\link[eratosthenes]{absolute}} object.
 }
 \examples{
 f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
@@ -31,5 +31,12 @@ f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"), residual = T
 f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
 f5 <- finds(id = "find05", assoc = "I", type = "type2")
 f6 <- finds(id = "find06", assoc = "H")
+
+f1
+f2
+f3
+f4
+f5
+f6
 
 }

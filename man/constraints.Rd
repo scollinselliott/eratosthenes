@@ -31,4 +31,7 @@ destr <- absolute(id = "destr", assoc = "J", samples = 79)
 tpq <- constraints(coin1, coin2)
 taq <- constraints(destr)
 
+tpq
+taq
+
 }

@@ -82,7 +82,7 @@ sq_disp(
 \item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
-Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
+Output is a list containing a data frame \code{sq_disp} giving the displacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 }
 \description{
 Computes the squared displacement for a target event within the joint conditional density, estimating how much the omission of every other event will change the date of the target. See also \code{\link[eratosthenes]{msd}}. If the target event is a find or type, the displacement of the use date is used, since use is contingent upon both production and deposition.

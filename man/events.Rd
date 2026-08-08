@@ -21,5 +21,6 @@ Analogous to the \code{\link[base]{c}} function, to create a sequence of unique 
 \examples{
 # "A" before "B", "B" before "C"
 x <- events("A", "B", "C")
+x
 
 }
