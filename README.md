@@ -35,7 +35,7 @@ dates of a type’s production, use, and deposition. The method of
 sampling employed in `eratosthenes` involves a two-step process of Gibbs
 sampling, using consistent batch means (CBM) and Monte Carlo standard
 errors (MCSE) to determine convergence (Jones et al. 2006; Flegal,
-Haran, and Jones 2008). Finaly, `eratosthenes` provides tools for
+Haran, and Jones 2008). Finally, `eratosthenes` provides tools for
 analyzing the impact of events on each other with the conditional
 structure stipulated by the investigator, by implementing a
 jackknife-style estimator of squared displacement (how much the date of
@@ -58,7 +58,7 @@ eschewing the following:
   continuum.
 - overly cumbersome chronological relationships. As `eratosthenes`
   samples points along the continuum, there is only before and after. If
-  desired, overlaping events can be expressed in sequence construction:
+  desired, overlapping events can be expressed in sequence construction:
   e.g., for sequences $A \prec B \prec C$ and
   $A \prec D \prec E \prec C$, events $B$ and $D , E$ will overlap with
   each other.
@@ -419,7 +419,7 @@ are, shifting them earlier:
     > hpd_95
     [1] -342.884905    8.820347
 
-Having a probablistically determined date for artifacts that works
+Having a probabilistically determined date for artifacts that works
 directly from the basis of their archaeological relationships evades the
 need to account for chronological discrepancies, and moreover affords
 the ability to work entirely within a formal, mathematical environment
@@ -515,7 +515,7 @@ the joint conditional density) should be assigned as an absolute
 constraint. It assumed that if a *t.p.q* has a type, it refers to the
 artifact’s date of production, and is treated as such (see the section
 [Dates of the Production, Use, and Deposition of a
-Type](#dates-of-the-production-use-and-deposition%20of-a-type) below).
+Type](#dates-related-to-artifacts-types) below).
 
 Absolute dates can take any form:
 
@@ -602,8 +602,8 @@ There are two functions in `eratosthenes` for estimating dates:
 - `gibbs_ad()` estimates the marginal density of the date of events in
   sequences and absolute constraints (*t.p./a.q*).
 - `gibbs_ad_type()` estimates densities of the date of the production,
-  use, and deposition of a specified artifact type, given seuqences and
-  cosntraints.
+  use, and deposition of a specified artifact type, given sequences and
+  constraints.
 
 See the section [Evaluating Displacement](#evaluating-displacement)
 below for tools on assessing the effective influence of events upon each
@@ -655,7 +655,7 @@ Information on the `marginals` object can be accessed with `print()` and
 be produced using `plot()` and `histogram()` respectively (see packag
 documentation for details).
 
-### Dates of the Production, Use, and Deposition of a Type
+### Dates Related to Artifact Types
 
 Determining the date of the production, use, and deposition of an
 artifact type uses the same method of Gibbs sampling discussed above,
@@ -794,7 +794,7 @@ Some functions related to relative sequences:
 
 The package `eratosthenes` does not have functionality to produce
 seriations or ordinations, since R packages such as `seriation`
-(Hahsler, Hornik, and Buchcta 2008), `vegan` (Oksanen et al. 2024),
+(Hahsler, Hornik, and Buchta 2008), `vegan` (Oksanen et al. 2024),
 `boral` (Hui 2016), `ecoCopula` (Popovic, Hui, and Warton 2022), `VGAM`
 (Yee 2004), and `lakhesis` (Collins-Elliott 2026) can perform this task
 already.
@@ -878,7 +878,7 @@ sq_disp(result_type1, sequences = contexts, finds = artifacts,
 
 ## Bug Reports, Requests, and Contributions
 
-`eratosthenes` is licesned under GPL-3.0. If users experience bugs,
+`eratosthenes` is licensed under GPL-3.0. If users experience bugs,
 errors, or problems with the software, or otherwise need guidance or
 help, please create an
 [issue](https://github.com/scollinselliott/eratosthenes/issues),
@@ -969,7 +969,7 @@ Transactions on Pattern Analysis and Machine Intelligence* 6: 721–41.
 
 <div id="ref-hahsler_getting_2008" class="csl-entry">
 
-Hahsler, M., K. Hornik, and C. Buchcta. 2008. “Getting Things in Order:
+Hahsler, M., K. Hornik, and C. Buchta. 2008. “Getting Things in Order:
 An Introduction to the R Package Seriation.” *Journal of Statistical
 Software* 25: 1–34. <https://doi.org/10.18637/jss.v025.i03>.
 

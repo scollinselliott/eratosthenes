@@ -22,14 +22,14 @@ knitr::opts_chunk$set(
 
 The `R` package `eratosthenes` aims to provide a general, flexible toolkit for archaeological chronology-building by incorporating, computationally, all relevant sources of information on uncertain archaeological or historical dates. Archaeological dates are subject to relational conditions (via seriation or stratigraphic relationships) and absolute constraints (such as radiocarbon dates, datable artifacts, or other known historical events, as _termini post_ or _ante quos_), which prompt the use of a joint conditional probability density to convey those relationships. The date of any one event can then be marginalized from that full, joint conditional distribution. `Rcpp` is used for faster sampling [@eddelbuettel_extending_2018].
 
-While software exists for calibrating and conditioning radiocarbon dates upon relative constraints, such as `OxCal` [@bronk_ramsey_bayesian_2009] and `BCal` [@buck_bcal_1999], as well as R packages `oxcAAR` [@hinz_oxcaar_2021], `Bchron` [@haslett_simple_2008], and `rcarbon` [@crema_spatio-temporal_2017], along with software for general chronological modeling like `Chronomodel` [@lanos_hierarchical_2017] and `ChronoLog` [@levy_chronological_2021], formal methods for dating artifacts and artifact types are lacking. One of the major goals of  `eratosthenes` is to advance the synchronism of chronologies and the crafting of large-scale chronological models that rely heavily upon artifact typologies. The package therefore facilitates the marginalization of dates of a type's production, use, and deposition. The method of sampling employed in `eratosthenes` involves a two-step process of Gibbs sampling, using consistent batch means (CBM) and Monte Carlo standard errors (MCSE) to determine convergence [@jones_fixed-width_2006; @flegal_markov_2008]. Finaly, `eratosthenes` provides tools for analyzing the impact of events on each other with the conditional structure stipulated by the investigator, by implementing a jackknife-style estimator of squared displacement (how much the date of one event shifts when another is omitted). Ancillary functions include checking for discrepancies in sequences of events and constraining optimal seriations to known sequences. 
+While software exists for calibrating and conditioning radiocarbon dates upon relative constraints, such as `OxCal` [@bronk_ramsey_bayesian_2009] and `BCal` [@buck_bcal_1999], as well as R packages `oxcAAR` [@hinz_oxcaar_2021], `Bchron` [@haslett_simple_2008], and `rcarbon` [@crema_spatio-temporal_2017], along with software for general chronological modeling like `Chronomodel` [@lanos_hierarchical_2017] and `ChronoLog` [@levy_chronological_2021], formal methods for dating artifacts and artifact types are lacking. One of the major goals of  `eratosthenes` is to advance the synchronism of chronologies and the crafting of large-scale chronological models that rely heavily upon artifact typologies. The package therefore facilitates the marginalization of dates of a type's production, use, and deposition. The method of sampling employed in `eratosthenes` involves a two-step process of Gibbs sampling, using consistent batch means (CBM) and Monte Carlo standard errors (MCSE) to determine convergence [@jones_fixed-width_2006; @flegal_markov_2008]. Finally, `eratosthenes` provides tools for analyzing the impact of events on each other with the conditional structure stipulated by the investigator, by implementing a jackknife-style estimator of squared displacement (how much the date of one event shifts when another is omitted). Ancillary functions include checking for discrepancies in sequences of events and constraining optimal seriations to known sequences. 
 
 The package is motivated by a philosophy of generalism and minimalism, eschewing the following:
 
 * intervals or durative events. If desired, such instances can be asserted as two separate point events in sequences, e.g., `"X - Start"` and `"X - End"`.
 * periods and phases. Periods and phases are not actual material or behavioral events, but ideal (and often contested) constructs used to make sense of the past. If desired, an investigator can always enter period-related events, e.g., `"Archaic Period - Start"`, into their sequences.
 * discretization of time into intervals. Samples are drawn along the continuum.
-* overly cumbersome chronological relationships. As `eratosthenes` samples points along the continuum, there is only before and after. If desired, overlaping events can be expressed in sequence construction: e.g., for sequences $A \prec B \prec C$  and $A \prec D \prec E \prec C$, events $B$ and $D , E$ will overlap with each other.
+* overly cumbersome chronological relationships. As `eratosthenes` samples points along the continuum, there is only before and after. If desired, overlapping events can be expressed in sequence construction: e.g., for sequences $A \prec B \prec C$  and $A \prec D \prec E \prec C$, events $B$ and $D , E$ will overlap with each other.
 
 The focus of the package is on the structure of the joint conditional, rather than specific probability models. Hence, `eratosthenes` relies on the continuous uniform for estimating relative events. Any model can however be used for absolute constraints, from single points to customized densities.
 
@@ -244,7 +244,7 @@ Performing the same steps as above to estimate the 10% and 95% HDR of the dates 
 [1] -342.884905    8.820347
 ```
 
-Having a probablistically determined date for artifacts that works directly from the basis of their archaeological relationships evades the need to account for chronological discrepancies, and moreover affords the ability to work entirely within a formal, mathematical environment when it comes to topics such as the quantification of finds with uncertain dating (since each find will have its own particular density function).  Futher tools to evaluate the influence of events on one another for determining dates within in the chronology are discussed below (see [Evaluating Displacement](#evaluating-displacement)).
+Having a probabilistically determined date for artifacts that works directly from the basis of their archaeological relationships evades the need to account for chronological discrepancies, and moreover affords the ability to work entirely within a formal, mathematical environment when it comes to topics such as the quantification of finds with uncertain dating (since each find will have its own particular density function).  Futher tools to evaluate the influence of events on one another for determining dates within in the chronology are discussed below (see [Evaluating Displacement](#evaluating-displacement)).
 
 ## Usage
 
@@ -303,7 +303,7 @@ tpq_info <- constraint(coin1, coin2)
 taq_info <- constraint(destr)
 ```
 
-It can be noted that absolute constraints can belong to a type. Any artifact which carries absolute dating information (i.e., extrinsic to the joint conditional density) should be assigned as an absolute constraint. It assumed that if a _t.p.q_ has a type, it refers to the artifact's date of production, and is treated as such (see the section [Dates of the Production, Use, and Deposition of a Type](#dates-of-the-production-use-and-deposition of-a-type) below).
+It can be noted that absolute constraints can belong to a type. Any artifact which carries absolute dating information (i.e., extrinsic to the joint conditional density) should be assigned as an absolute constraint. It assumed that if a _t.p.q_ has a type, it refers to the artifact's date of production, and is treated as such (see the section [Dates of the Production, Use, and Deposition of a Type](#dates-related-to-artifacts-types) below).
 
 Absolute dates can take any form:
 
@@ -355,7 +355,7 @@ The core approach of `eratosthenes` is a Gibbs sampler, a common Markov Chain Mo
 There are two functions in `eratosthenes` for estimating dates:
 
 * `gibbs_ad()` estimates the marginal density of the date of events in sequences and absolute constraints (_t.p./a.q_).
-* `gibbs_ad_type()` estimates densities of the date of the production, use, and deposition of a specified artifact type, given seuqences and cosntraints.
+* `gibbs_ad_type()` estimates densities of the date of the production, use, and deposition of a specified artifact type, given sequences and constraints.
 
 See the section [Evaluating Displacement](#evaluating-displacement) below for tools on assessing the effective influence of events upon each other within the joint conditional density.
 
@@ -386,7 +386,7 @@ The output is a `list` object of class `marginals` containing the following obje
 
 Information on the `marginals` object can be accessed with `print()` and `summary()`. Density plots and density histograms of one more events can be produced using `plot()` and `histogram()` respectively (see packag documentation for details).
 
-### Dates of the Production, Use, and Deposition of a Type 
+### Dates Related to Artifact Types
 
 Determining the date of the production, use, and deposition of an artifact type uses the same method of Gibbs sampling discussed above, i.e., consistent batch means to determine convergence. Given that types are ideal constructs used to categorize artifacts, the notion of a "type" has flexibility. While only one "type" at a time can be estimated with `gibbs_ad_type()`, here, a "type" can be defined on the basis of:
 
@@ -488,7 +488,7 @@ sq_disp(result_type1, sequences = contexts, finds = artifacts,
 
 ## Bug Reports, Requests, and Contributions
 
-`eratosthenes` is licesned under GPL-3.0. If users experience bugs, errors, or problems with the software, or otherwise need guidance or help, please create an [issue](https://github.com/scollinselliott/eratosthenes/issues), describing the nature of problem with the input used that resulted in the error. Alternatively users can contact the package author and maintainer at [sce@utk.edu](mailto:sce@utk.edu). Users are welcome to suggest new features or improvements; contributions should be discussed with the package author first.
+`eratosthenes` is licensed under GPL-3.0. If users experience bugs, errors, or problems with the software, or otherwise need guidance or help, please create an [issue](https://github.com/scollinselliott/eratosthenes/issues), describing the nature of problem with the input used that resulted in the error. Alternatively users can contact the package author and maintainer at [sce@utk.edu](mailto:sce@utk.edu). Users are welcome to suggest new features or improvements; contributions should be discussed with the package author first.
 
 ## References
 
