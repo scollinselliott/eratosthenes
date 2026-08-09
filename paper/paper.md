@@ -55,7 +55,7 @@ $$
 
 # Application
 
-For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE (see `inst/eda20250628.rmd` in the package directory). Results are shown in \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _terminus ante quem_ (_t.a.q._) for the depositional date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
+For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE, contained in `inst/` in the package directory.  Results are shown in \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _terminus ante quem_ (_t.a.q._) for the depositional date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
 
 The sack of Carthage has also been a key point for dating a particular type of ceramic transport container, the [Dressel 1 amphora type](https://archaeologydataservice.ac.uk/archives/view/amphora_ahrb_2005/details.cfm?id=324). Since it has not be found in pre-destruction layers, the start of its production has been dated to the later part of the 2nd century BCE [@tchernia_vin_1986,42]. Rather than just relying on one site, however, absence from any context within the entire set of conditional events in `eda20250628` yields densities for its production, use, and deposition (\autoref{fig3}). 
 

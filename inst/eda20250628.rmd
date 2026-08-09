@@ -1,6 +1,6 @@
 
 ---
-bibliography: "REFERENCES.bib"
+bibliography: '`r system.file("REFERENCES.bib", package="eratosthenes")`'
 output: github_document
 ---
 
