@@ -55,7 +55,7 @@ $$
 
 # Application
 
-For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE, contained in `inst/` in the package directory.  Results are shown in \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _terminus ante quem_ (_t.a.q._) for the depositional date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
+For the purposes of illustration, an initial application was undertaken for a small sample of events in the Mediterranean from the last four centuries BCE (see `inst/eda20250628.rmd` in the package directory). Results are shown in \autoref{fig2} for a selection of two depositional contexts and five shipwrecks. One can note, for example, the effect of using the sack of Carthage in 146 BCE as a _terminus ante quem_ (_t.a.q._) for the depositional date of context Byrsa II B 19.2 at that site [@lancel_byrsa_1982, 194].
 
 The sack of Carthage has also been a key point for dating a particular type of ceramic transport container, the [Dressel 1 amphora type](https://archaeologydataservice.ac.uk/archives/view/amphora_ahrb_2005/details.cfm?id=324). Since it has not be found in pre-destruction layers, the start of its production has been dated to the later part of the 2nd century BCE [@tchernia_vin_1986,42]. Rather than just relying on one site, however, absence from any context within the entire set of conditional events in `eda20250628` yields densities for its production, use, and deposition (\autoref{fig3}). 
 
@@ -66,5 +66,9 @@ Current work in progress by the author which relies upon `eratosthenes` involves
 ![Marginal p.d.f.s of 2 depositional events and 5 shipwrecks from the Mediterraenan, given the joint conditional constructed in `inst/eda20250628.rmd`. The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
 
 ![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional contained constructed in `inst/eda20250628.rmd`.\label{fig3}](fig3.png)
+
+# Acknowledgments
+
+The author would like to thank the reviewers for their helpful comments and suggestions. Any errors remain those of the author.
 
 # References
