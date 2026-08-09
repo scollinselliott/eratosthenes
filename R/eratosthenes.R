@@ -67,8 +67,8 @@ synth_rank <- function(obj, ties = "average") {
 synth_rank.sequences <- function(obj, ties = "average") {
     res <- NULL
     lens <- sapply(obj, length)
-    if (any(lens < 2)) {
-        stop("events in input sequences must contain two or more elements", call. = FALSE)
+    if (any(lens < 1)) {
+        stop("events in input sequences must contain at least one element", call. = FALSE)
     }
 
     elements <- names(obj)

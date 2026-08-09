@@ -3,7 +3,7 @@ bibentry(
   title    = "eratosthenes: Archaeological Synchronism",
   author   = c(person(c("Stephen", "A."), "Collins-Elliott", role = c("aut", "cre"), email = "sce@utk.edu")),
   year     = "2025",
-  note     = "R package version 0.0.9",
+  note     = "R package version 0.1.0",
   url      = "https://github.com/scollinselliott/eratosthenes",
   key      = "collins-elliott_eratosthenes_2025"
 )
