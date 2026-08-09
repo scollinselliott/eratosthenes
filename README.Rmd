@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 # <img src="man/figures/logo.png" align="right" width="150px"/> eratosthenes: Archaeological Synchronism
 
 <!-- badges: start -->
-<a href="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020"><img src="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020/status.svg"></a>
 [![CRAN status](https://www.r-pkg.org/badges/version/eratosthenes)](https://CRAN.R-project.org/package=eratosthenes)
+<a href="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020"><img src="https://joss.theoj.org/papers/75ab124a2cbb3b7125a9458650544020/status.svg"></a>
 <!-- badges: end -->
 
 The `R` package `eratosthenes` aims to provide a general, flexible toolkit for archaeological chronology-building by incorporating, computationally, all relevant sources of information on uncertain archaeological or historical dates. Archaeological dates are subject to relational conditions (via seriation or stratigraphic relationships) and absolute constraints (such as radiocarbon dates, datable artifacts, or other known historical events, as _termini post_ or _ante quos_), which prompt the use of a joint conditional probability density to convey those relationships. The date of any one event can then be marginalized from that full, joint conditional distribution. `Rcpp` is used for faster sampling [@eddelbuettel_extending_2018].
