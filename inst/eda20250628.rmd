@@ -50,7 +50,7 @@ To create absolute constraints, _t.p.q._:
 ```{r, tpq}
 tpq_20250628 <- list()
 
-eratosthenes_rcdates <- read.csv("extdata/rc20250628.csv")
+eratosthenes_rcdates <- system.file("extdata", "rc20250628.csv", package = "eratosthenes")
 
 ## calibrate and insert rc dates into tpq
 for (i in 1:nrow(eratosthenes_rcdates)) {
