@@ -27,7 +27,7 @@ The `R` package `eratosthenes` (named after Eratosthenes of Cyrene, author of th
 
 Constructing chronologies via formal means is a major disciplinary goal, with a broad array of software developed to those ends. The draft of the [CRAN Task View: Archaeological Science](https://github.com/benmarwick/ctv-archaeology) maintained by Ben Marwick provides a section on chronological dating software in `R` [@r_core_team_r:_2024]. The calibration of $^{14}$C dates and the estimation of their posterior probability densities given constraints [@buck_bayesian_2025] are well served by `OxCal` [@bronk_ramsey_bayesian_2009] and `BCal` [@buck_bcal_1999], as well as `R` packages `oxcAAR` [@hinz_oxcaar_2021], `Bchron` [@haslett_simple_2008], `c14bazAAR` [@schmid_c14bazAAR_2019], and `rcarbon` [@crema_spatio-temporal_2017]. General chronological modeling is served by `Chronomodel` [@lanos_hierarchical_2017], which also centers on radiocarbon dating, and `ChronoLog` [@levy_chronological_2021], which focuses on discretized time intervals. The R package `ArchaeoPhases` [@philippe_analysis_2020] handles post-processing of samples form `OxCal`, `BCal`, and `ChronoModel`.  Other chronological software has focused on modeling count data over time, such as `kairos` [@frerebeau_kairos_2025] and  `baorista` [@crema_bayesian_2025], which focuses on counts of durative/interval events. 
 
-Given that there exist substantial software for calibrating radiocarbon dates, `eratosthenes` does not aim to perform this task. Likewise, the formal process of establishing relative sequences of contexts and finds via comparison, called seriation (or ordination), is a computationally difficult problem well served by many `R` packages, such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `boral` [@hui_boral_2016], `ecoCopula` [@popovic_fast_2022], `VGAM` [@yee_new_2004], and `lakhesis` [@collins-elliott_lakhesis_2026]. 
+Given that there exists substantial software for calibrating radiocarbon dates, `eratosthenes` does not aim to perform this task. Likewise, the formal process of establishing relative sequences of contexts and finds via comparison, called seriation (or ordination), is a computationally difficult problem well served by many `R` packages, such as `seriation` [@hahsler_getting_2008], `vegan` [@oksanen_vegan_2024], `boral` [@hui_boral_2016], `ecoCopula` [@popovic_fast_2022], `VGAM` [@yee_new_2004], and `lakhesis` [@collins-elliott_lakhesis_2026]. 
 
 Two needs which `eratosthenes` aims to satisfy are (1) estimation of artifact dates (production, use, deposition) via formal means and (2) tools for evaluating the dependence of events on each other, which are discussed in detail below. The approach taken by `eratosthenes`, in which different aspects of artifact dates are determined _a posteriori_ via contexual relationships, can be contrasted with other approaches, such as `cerardat` in the R `SPARTAAS` package [@bellanger_statistical_2012], which works from a single artifact date given as fixed _a priori_ input [see also @bellanger_perioclust_2021].
 
@@ -45,7 +45,7 @@ $$
 \delta^2(i,j) = (\tilde{x}_i^{(-j)} - \tilde{x}_i)^2.
 $$
 
-The omission of $j$ changes the date of $i$ by $\sqrt{\delta^2}$ amount of time (typically years). Conversely, the influence of an event $j$ upon all others is mesaured by mean squared displacement (MSD), which is the mean of all squared displacements when event $j$ has been omitted. Where $\Theta$ represents the set of all relative and absolute events, MSD is defined as
+The omission of $j$ changes the date of $i$ by $\sqrt{\delta^2}$ amount of time (typically years). Conversely, the influence of an event $j$ upon all others is measured by mean squared displacement (MSD), which is the mean of all squared displacements when event $j$ has been omitted. Where $\Theta$ represents the set of all relative and absolute events, MSD is defined as
 
 $$
 \text{MSD}(j) = \frac{1}{n-1} \sum_{i \in \Theta, i \neq j} \delta^2 (i,j).
@@ -63,9 +63,9 @@ The sack of Carthage has also been a key point for dating a particular type of c
 
 Current work in progress by the author which relies upon `eratosthenes` involves the synchronism of ceramics, coinage, radiocarbon dates, depositional/seriated sequences, and historical events for the central Mediterranean in the last four centuries BCE. Regular progress is tracked via `git` at [eratosthenes-data](https://github.com/scollinselliott/eratosthenes-data), with major releases uploaded to [Zenodo](https://doi.org/10.5281/zenodo.21580369) [@collins-elliott_probability_2026].
 
-![Marginal p.d.f.s of 2 depositional events and 5 shipwrecks from the Mediterraenan, given the joint conditional constructed in `inst/eda20250628.rmd`. The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
+![Marginal p.d.f.s of 2 depositional events and 5 shipwrecks from the Mediterranean, given the joint conditional constructed in `inst/eda20250628.rmd`. The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
 
-![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional contained constructed in `inst/eda20250628.rmd`.\label{fig3}](fig3.png)
+![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional constructed in `inst/eda20250628.rmd`.\label{fig3}](fig3.png)
 
 # Acknowledgments
 
