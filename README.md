@@ -924,7 +924,7 @@ Bronk Ramsey, C. 2009. “Bayesian Analysis of Radiocarbon Dates.”
 <div id="ref-buck_bayesian_1996" class="csl-entry">
 
 Buck, C. E., W. G. Cavanagh, and C. D. Litton. 1996. *Bayesian Approach
-to Interpreting Archaeological Data*. Chichester: John Wiley; Sons.
+to Interpreting Archaeological Data*. Chichester: John Wiley and Sons.
 
 </div>
 
