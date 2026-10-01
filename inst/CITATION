@@ -1,10 +1,12 @@
 bibentry(
-  bibtype  = "Manual",
-  title    = "eratosthenes: Archaeological Synchronism",
+  bibtype  = "Article",
+  title    = "eratosthenes: Synchronizing archaeological chronologies with a focus on artifact types",
   author   = c(person(c("Stephen", "A."), "Collins-Elliott", role = c("aut", "cre"), email = "sce@utk.edu")),
+  journal  = "Journal of Open Source Software",
   year     = "2026",
-  note     = "R package version 0.1.0",
-  url      = "https://github.com/scollinselliott/eratosthenes",
-  key      = "collins-elliott_eratosthenes_2025"
+  volume   = "11",
+  number   = "126",
+  pages    = "9260",
+  doi      = "10.21105/joss.09260",
+  key      = "collins-elliott_eratosthenes_2026"
 )
-

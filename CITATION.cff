@@ -1,0 +1,32 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Collins-Elliott
+  given-names: Stephen A.
+  orcid: "https://orcid.org/0000-0002-5642-6903"
+contact:
+- family-names: Collins-Elliott
+  given-names: Stephen A.
+  orcid: "https://orcid.org/0000-0002-5642-6903"
+doi: 10.5281/zenodo.23083622
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Collins-Elliott
+    given-names: Stephen A.
+    orcid: "https://orcid.org/0000-0002-5642-6903"
+  date-published: 2026-10-01
+  doi: 10.21105/joss.09260
+  issn: 2475-9066
+  issue: 126
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 9260
+  title: "eratosthenes: Synchronizing archaeological chronologies with a
+    focus on artifact types"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.09260"
+  volume: 11
+title: "eratosthenes: Synchronizing archaeological chronologies with a
+  focus on artifact types"
