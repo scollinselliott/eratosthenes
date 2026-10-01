@@ -69,6 +69,6 @@ Current work in progress by the author which relies upon `eratosthenes` involves
 
 # Acknowledgments
 
-The author would like to thank the reviewers for their helpful comments and suggestions. Any errors remain those of the author.
+The author would like to thank the reviewers and the editor for their helpful comments and suggestions. Any errors remain those of the author.
 
 # References
