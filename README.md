@@ -7,7 +7,6 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/eratosthenes)](https://CRAN.R-project.org/package=eratosthenes)
-
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.09260/status.svg)](https://doi.org/10.21105/joss.09260)
 <!-- badges: end -->
 
