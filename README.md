@@ -1020,9 +1020,10 @@ Calibration.” <https://doi.org/10.32614/CRAN.package.oxcAAR>.
 
 <div id="ref-hui_boral_2016" class="csl-entry">
 
-Hui, F. K. C. 2016. “Boral: Bayesian Ordination and Regression Analysis
-of Multivariate Abundance Data in R.” *Methods in Ecology and Evolution*
-7: 744–50. <https://doi.org/10.1111/2041-210X.12514>.
+Hui, F. K. C. 2016. “<span class="nocase">boral</span>: Bayesian
+Ordination and Regression Analysis of Multivariate Abundance Data in R.”
+*Methods in Ecology and Evolution* 7: 744–50.
+<https://doi.org/10.1111/2041-210X.12514>.
 
 </div>
 
@@ -1070,7 +1071,8 @@ Need for Independent Chronological Anchors.” *Antiquity* 96: 968–80.
 <div id="ref-oksanen_vegan_2024" class="csl-entry">
 
 Oksanen, J., G. L. Simpson, F. G Blanchet, R. Kindt, P. Legendre, P. R.
-Minchin, R. B. O’Hara, et al. 2024. “Vegan: Community Ecology Package.”
+Minchin, R. B. O’Hara, et al. 2024. “<span class="nocase">vegan</span>:
+Community Ecology Package.”
 <https://doi.org/10.32614/CRAN.package.vegan>.
 
 </div>
