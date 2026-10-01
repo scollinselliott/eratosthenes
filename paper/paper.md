@@ -63,7 +63,7 @@ The sack of Carthage has also been a key point for dating a particular type of c
 
 Current work in progress by the author which relies upon `eratosthenes` involves the synchronism of ceramics, coinage, radiocarbon dates, depositional/seriated sequences, and historical events for the central Mediterranean in the last four centuries BCE. Regular progress is tracked via `git` at [eratosthenes-data](https://github.com/scollinselliott/eratosthenes-data), with major releases uploaded to [Zenodo](https://doi.org/10.5281/zenodo.21580369) [@collins-elliott_probability_2026].
 
-![Marginal p.d.f.s of 7 events (2 depositional contexts and 5 shipwrecks) from the Mediterranean, given the joint conditional constructed in `inst/eda20250628.rmd`. The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
+![Marginal p.d.f.s of seven events (two depositional contexts and five shipwrecks) from the Mediterranean, given the joint conditional constructed in `inst/eda20250628.rmd`. The wreck Grand Congloué A is earlier than the traditional date: future datasets will work to revise sequencing and constraints.\label{fig2}](fig2.png)
 
 ![P.d.f.s of the production, use, and deposition of the Dressel 1B type amphora, using the "naive" production rule and given the joint conditional constructed in `inst/eda20250628.rmd`.\label{fig3}](fig3.png)
 
