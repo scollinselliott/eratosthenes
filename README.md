@@ -909,6 +909,15 @@ maintainer at <sce@utk.edu>. Users are welcome to suggest new features
 or improvements; contributions should be discussed with the package
 author first.
 
+## Citation
+
+To cite `eratosthenes`, please use the following reference:
+
+- Collins-Elliott, S.A. 2026. “eratosthenes: Synchronizing
+  archaeological chronologies with a focus on artifact types.” *Journal
+  of Open Source Software*, 11 (126): 9260. [doi:
+  10.21105/joss.09260](https://doi.org/10.21105/joss.09260).
+
 ## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"

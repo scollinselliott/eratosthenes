@@ -503,5 +503,11 @@ sq_disp(result_type1, sequences = contexts, finds = artifacts,
 
 `eratosthenes` is licensed under GPL-3.0. If users experience bugs, errors, or problems with the software, or otherwise need guidance or help, please create an [issue](https://github.com/scollinselliott/eratosthenes/issues), describing the nature of problem with the input used that resulted in the error. Alternatively users can contact the package author and maintainer at [sce@utk.edu](mailto:sce@utk.edu). Users are welcome to suggest new features or improvements; contributions should be discussed with the package author first.
 
+## Citation 
+
+To cite `eratosthenes`, please use the following reference:
+
+* Collins-Elliott, S.A. 2026. "eratosthenes: Synchronizing archaeological chronologies with a focus on artifact types." _Journal of Open Source Software_, 11 (126): 9260. [doi: 10.21105/joss.09260](https://doi.org/10.21105/joss.09260).
+
 ## References
 
