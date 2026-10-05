@@ -470,7 +470,9 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
     }
 
     posteriores <- quae_postea(sequences)
-    anteriores <- quae_antea(sequences)
+    # anteriores <- quae_antea(sequences)
+
+
 
     # # proceed_all from tpq, taq, relative, alpha, omega
     # proceed_all <- c()
@@ -1347,6 +1349,9 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
     if (!(is.null(taq) | inherits(taq, "constraints"))) {
         stop("input taq must be constraints object. See constraints().")
     }
+    if (omega_ < alpha_) {
+        stop("Error: omega_ < alpha_.")
+    }
     if (is.null(id) & is.null(type)) {
         stop("Either one or more id or types must be specified.")
     } else {
@@ -1406,23 +1411,42 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
 
     proceed <- synth_rank(sequences)
 
-    if (!is.list(tpq)) {
-        tpq <- list(list(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
+    if (!inherits(tpq, "constraints")) {
+        tpq <- constraints(absolute(id = "tpq_default", assoc = proceed[1], type = NULL, samples = alpha_))
     }
-    if (!is.list(taq)) {
-        taq <- list(list(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
+    if (!inherits(taq, "constraints")) {
+        taq <- constraints(absolute(id = "taq_default", assoc = proceed[length(proceed)], type = NULL, samples = omega_))
     }
+
 
     # proceed_all from tpq, taq, relative, alpha, omega
     proceed_all <- c()
 
     # total number of elements
-    elements <- length(tpq) + length(taq) + length(proceed) + 2
+    elements <- length(proceed) + 2
+    if (!is.null(tpq)) {
+        elements <- elements + length(tpq)
+    }
+    if (!is.null(taq)) {
+        elements <- elements + length(taq)
+    }
 
     # indices
-    tpq_idx <- 1:length(tpq)
-    taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
-    proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+    if (is.null(tpq) & is.null(taq)) {
+        proceed_idx <- 1:length(proceed) 
+    } else if (is.null(tpq) & !is.null(taq)) {
+        taq_idx <- 1:length(taq)
+        proceed_idx <- (1:length(proceed)) + length(taq)
+    } else if (!is.null(tpq) & is.null(taq)) {
+        tpq_idx <- 1:length(tpq)
+        proceed_idx <- (1:length(proceed)) + length(tpq)
+    } else {
+        tpq_idx <- 1:length(tpq)
+        taq_idx <- (length(tpq) + 1):(length(tpq) + length(taq))
+        proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
+    }
+
+    posteriores <- quae_postea(sequences)
 
     gibbs <- matrix(0, nrow = elements, ncol = size)
 
@@ -1433,11 +1457,18 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
         sequences[[i]] <- c("alpha", sequences[[i]], "omega")   
     }
 
+
     j <- 0
+    assoc_tpq <- numeric(length(tpq))
+    assoc_taq <- numeric(length(taq))
+    assoc_tpq_min <- numeric(length(tpq))
+    assoc_taq_max <- numeric(length(taq))
     for (i in 1:length(tpq)) {
         if (!(tpq[[i]]$assoc %in% proceed)) {
             stop(paste0("Context of tpq ", tpq[[i]]$id, " : ", tpq[[i]]$assoc, " is not given in relative sequences"))
         }
+        assoc_tpq[i] <- tpq[[i]]$assoc
+        assoc_tpq_min[i] <- min(tpq[[i]]$samples)
         sequences <- c(sequences, list(c(tpq[[i]]$id, tpq[[i]]$assoc))  )
         proceed_all <- c(proceed_all, tpq[[i]]$id )
         gibbs[j+1,1] <- min(tpq[[i]]$samples)          # initialize tpq with earliest possible
@@ -1447,10 +1478,40 @@ gibbs_ad_type.sequences <- function(sequences, finds = NULL, id = NULL, type = N
         if (!(taq[[i]]$assoc %in% proceed)) {
             stop(paste0("Context of taq ", taq[[i]]$id, " : ", taq[[i]]$assoc, " is not given in relative sequences"))
         }
+        assoc_taq[i] <- taq[[i]]$assoc
+        assoc_taq_max[i] <- max(taq[[i]]$samples)
         sequences <- c(sequences, list(c(taq[[i]]$assoc, taq[[i]]$id)) )
         proceed_all <- c(proceed_all, taq[[i]]$id )
         gibbs[j+1,1] <- max(taq[[i]]$samples)          # initialize taq with latest possible
         j <- j + 1
+    }
+    alpha_chk <- c(alpha_ > assoc_tpq_min, alpha_ > assoc_taq_max)
+    if (TRUE %in% alpha_chk) {
+        stop("Constraints exist before alpha_ (set alpha_ earlier than constraints).")
+    }
+    omega_chk <- c(omega_ < assoc_tpq_min, omega_ < assoc_taq_max)
+    if (TRUE %in% omega_chk) {
+        stop("Constraints exist later than omega_ (set omega_ later than constraints).")
+    }
+
+    if (quiet == FALSE) {
+        message("Checking that relative-absolute events comprise a valid system...")
+    }
+
+    for (i in 1:length(assoc_tpq)) {
+        cntxts <- c(posteriores[assoc_tpq[i]][[1]], assoc_tpq[i])
+        taq_max <- assoc_taq_max[which(assoc_taq %in% cntxts)]
+        if (length(taq_max) > 0) {
+            vld_chk <- c(assoc_tpq_min[i] < taq_max)
+            if (FALSE %in% vld_chk) {
+                if (quiet == FALSE) {
+                    cat("Absolute constraints conflict:\n")
+                    cat("tpq: ", assoc_tpq[i], "\n", sep=" ")
+                    cat("taq: ", assoc_taq[which(assoc_taq %in% cntxts)], "\n", sep=" ")
+                }
+                stop("Not a valid system of relative-absolute events.")
+            }
+        }
     }
 
     proceed_all <- c(proceed_all, proceed, "alpha", "omega")

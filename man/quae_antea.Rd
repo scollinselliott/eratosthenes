@@ -31,4 +31,7 @@ z <- events("C", "G")
 
 quae_antea(x, y, z)
 
+a <- sequences(x, y, z)
+quae_antea(a)
+
 }

@@ -168,6 +168,7 @@ test_that("gibbs_ad_type works", {
   expect_s3_class(result_type, c("type_marginals", "list"))
 
   expect_error(gibbs_ad_type(contexts, artifacts, id = c("find04", "find05"), tpq = tpq_info, taq = taq_info, rule = "foo"))
+  expect_error(gibbs_ad_type(contexts, artifacts, id = c("find04"), tpq = tpq_info, taq = taq_invalid_info))
 })
 
 test_that("msd works", {
