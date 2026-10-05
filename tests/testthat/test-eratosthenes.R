@@ -25,6 +25,12 @@ destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 tpq_info <- constraints(coin1, coin2)
 taq_info <- constraints(destr)
 
+# invalid relative-absolute system of events
+coin3 <- absolute(id = "coin3", assoc = "F", samples = 100)
+destr2 <- absolute(id = "destr2", assoc = "G", samples = -200)
+tpq_invalid_info <- constraints(coin1, coin2, coin3)
+taq_invalid_info <- constraints(destr, destr2)
+
 # events creation
 test_that("events works", {
     events_ <- events("A","B","C")
@@ -144,8 +150,14 @@ test_that("gibbs_ad works", {
 
   expect_s3_class(result, c("marginals", "list"))
   expect_s3_class(result_noconstraints, c("marginals", "list"))
+})
 
+test_that("gibbs_ad rejects invalid systems of events", {
   expect_error(gibbs_ad(contexts, alpha_ = 5000, omega_ = -5000))
+  expect_error(gibbs_ad(contexts, tpq = tpq_info, taq = taq_info, alpha_ = 50))
+  expect_error(gibbs_ad(contexts, tpq = tpq_info, taq = taq_info, omega_ = -50))
+  expect_error(gibbs_ad(contexts, tpq = tpq_invalid_info, taq = taq_info))
+  expect_error(gibbs_ad(contexts, tpq = tpq_info, taq = taq_invalid_info))
 })
 
 test_that("gibbs_ad_type works", {

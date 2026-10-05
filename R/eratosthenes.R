@@ -1,46 +1,3 @@
-# #' Sequence Check
-# #'
-# #' For a \code{list} of partial sequences (of \code{vector} objects), check to see that joint elements of each occur the same order. That is, for two sequences with elements \eqn{A, B, C, D, E} and \eqn{B, D, F, E}, all joint elements must occur in the same order to pass the check. Two sequences \eqn{A, B, C, D, E} and \eqn{A, F, D, C, E} would not pass this check as the elements \eqn{C} and \eqn{D} occur in different orders in either sequence.
-# #' 
-# #' Event names \code{alpha} and \code{omega} are reserved for the ultimate boundaries of the chronological framework and cannot be used in naming events in sequences. This function is automatically performed when creating a \code{sequences} object (see \code{\link[eratosthenes]{sequences}}).
-# #' 
-# #' @param obj A \code{list} of \code{vector} objects which represent a sequence.    
-# #' @examples 
-# #' x <- events("A", "B", "C", "D", "E")
-# #' y <- events("B", "D", "F", "E")
-# #' 
-# #' seq_check(x, y)
-# #' 
-# #' z <- events("B", "F", "C")
-# #' 
-# #' seq_check(x, y, z)
-# #' 
-# #' @returns \code{TRUE} or \code{FALSE}
-# #' 
-# #' @export
-# seq_check <- function(...) {
-#     UseMethod("seq_check")
-# }
-
-# #' @rdname seq_check
-# #' @export
-# seq_check.events <- function(...) {
-#     qp_ <- quae_postea(...)
-
-#     check <- TRUE
-#     for (i in names(qp_)) {
-#         if (i != "omega") {
-#             if (i %in% qp_[[i]]) {
-#                 check <- FALSE
-#             }
-#         }
-#     }
-
-#     return(check)
-# } 
-
-
-
 #' Synthetic Ranking
 #'
 #' Using a \code{sequences} object of two or more partial sequences, all of which observe the same order of elements, create a single "synthetic" ranking. This is accomplished by counting the total number of elements after running a recursive trace through all partial sequences (via \code{\link[eratosthenes]{quae_postea}}). If partial sequences are inconsistent in their rankings, a \code{NULL} value is returned.
@@ -234,6 +191,9 @@ quae_postea.sequences <- function(...) {
 #' z <- events("C", "G")
 #' 
 #' quae_antea(x, y, z)
+#' 
+#' a <- sequences(x, y, z)
+#' quae_antea(a)
 #' 
 #' @returns A \code{list} of \code{vector} objects, which contain the elements that occur before any one given element in the input sequences. 
 #'
@@ -469,6 +429,9 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
     if (size > max_samples) {
         stop("Error: size must be less than max_samples.")
     }
+    if (omega_ < alpha_) {
+        stop("Error: omega_ < alpha_.")
+    }
 
     proceed <- synth_rank(sequences)
 
@@ -506,6 +469,9 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
         proceed_idx <-  (1:length(proceed)) + (length(tpq) + length(taq))
     }
 
+    posteriores <- quae_postea(sequences)
+    anteriores <- quae_antea(sequences)
+
     # # proceed_all from tpq, taq, relative, alpha, omega
     # proceed_all <- c()
 
@@ -524,10 +490,16 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
     }
 
     j <- 0
+    assoc_tpq <- numeric(length(tpq))
+    assoc_taq <- numeric(length(taq))
+    assoc_tpq_min <- numeric(length(tpq))
+    assoc_taq_max <- numeric(length(taq))
     for (i in 1:length(tpq)) {
         if (!(tpq[[i]]$assoc %in% proceed)) {
             stop(paste0("Context of tpq ", tpq[[i]]$id, " : ", tpq[[i]]$assoc, " is not given in relative sequences"))
         }
+        assoc_tpq[i] <- tpq[[i]]$assoc
+        assoc_tpq_min[i] <- min(tpq[[i]]$samples)
         sequences <- c(sequences, list(c(tpq[[i]]$id, tpq[[i]]$assoc))  )
         proceed_all <- c(proceed_all, tpq[[i]]$id )
         gibbs[j+1,1] <- min(tpq[[i]]$samples)          # initialize tpq with earliest possible
@@ -537,11 +509,56 @@ gibbs_ad.sequences <- function(sequences, max_samples = 10^5, size = 10^3, mcse_
         if (!(taq[[i]]$assoc %in% proceed)) {
             stop(paste0("Context of taq ", taq[[i]]$id, " : ", taq[[i]]$assoc, " is not given in relative sequences"))
         }
+        assoc_taq[i] <- taq[[i]]$assoc
+        assoc_taq_max[i] <- max(taq[[i]]$samples)
         sequences <- c(sequences, list(c(taq[[i]]$assoc, taq[[i]]$id)) )
         proceed_all <- c(proceed_all, taq[[i]]$id )
         gibbs[j+1,1] <- max(taq[[i]]$samples)          # initialize taq with latest possible
         j <- j + 1
     }
+    alpha_chk <- c(alpha_ > assoc_tpq_min, alpha_ > assoc_taq_max)
+    if (TRUE %in% alpha_chk) {
+        stop("Constraints exist before alpha_ (set alpha_ earlier than constraints).")
+    }
+    omega_chk <- c(omega_ < assoc_tpq_min, omega_ < assoc_taq_max)
+    if (TRUE %in% omega_chk) {
+        stop("Constraints exist later than omega_ (set omega_ later than constraints).")
+    }
+
+    if (quiet == FALSE) {
+        message("Checking that relative-absolute events comprise a valid system...")
+    }
+
+    for (i in 1:length(assoc_tpq)) {
+        cntxts <- c(posteriores[assoc_tpq[i]][[1]], assoc_tpq[i])
+        taq_max <- assoc_taq_max[which(assoc_taq %in% cntxts)]
+        if (length(taq_max) > 0) {
+            vld_chk <- c(assoc_tpq_min[i] < taq_max)
+            if (FALSE %in% vld_chk) {
+                if (quiet == FALSE) {
+                    cat("Absolute constraints conflict:\n")
+                    cat("tpq: ", assoc_tpq[i], "\n", sep=" ")
+                    cat("taq: ", assoc_taq[which(assoc_taq %in% cntxts)], "\n", sep=" ")
+                }
+                stop("Not a valid system of relative-absolute events.")
+            }
+        }
+    }
+    # for (i in 1:length(assoc_taq)) {
+    #     cntxts <- c(anteriores[assoc_taq[i]][[1]], assoc_taq[i])
+    #     tpq_min <- assoc_tpq_min[which(assoc_tpq %in% cntxts)]
+    #     if (length(tpq_min) > 0) {
+    #         vld_chk <- c(assoc_taq_max[i] > tpq_min)
+    #         if (FALSE %in% vld_chk) {
+    #             if (quiet == FALSE) {
+    #                 cat("Absolute constraints conflict:\n")
+    #                 cat("tpq: ", assoc_tpq[which(assoc_tpq %in% cntxts)], "\n", sep=" ")
+    #                 cat("taq: ", assoc_taq[i], "\n", sep=" ")
+    #             }
+    #             stop("Not a valid system of relative-absolute events.")
+    #         }
+    #     }
+    # }
 
     proceed_all <- c(proceed_all, proceed, "alpha", "omega")
     gibbs[elements-1,1] <- alpha_
