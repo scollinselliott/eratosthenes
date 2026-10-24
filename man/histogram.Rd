@@ -46,7 +46,7 @@ histogram(
 )
 }
 \arguments{
-\item{x}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{type_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_type}]}.}
+\item{x}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{type_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_type}}.}
 
 \item{events}{If plotting a \code{marginals} object, a vector or element of the event names to plot. Maximum number of events is 12.}
 

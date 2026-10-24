@@ -904,7 +904,7 @@ traceplot.marginals <- function(x, events = NULL, xlim = NULL, ylim = NULL, xlab
 #' 
 #' See also also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 #' 
-#' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{type_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_type}]}.
+#' @param x A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}, or of class \code{type_marginals}, to plot the output of \code{\link[eratosthenes]{gibbs_ad_type}}.
 #' @param events If plotting a \code{marginals} object, a vector or element of the event names to plot. Maximum number of events is 12.
 #' @param aspect If plotting a \code{type_marginals} object, that is, the output of \code{\link[eratosthenes]{gibbs_ad_type}}, a vector of one or more of \code{c("production", "use", "deposition")}. The default is all three.
 #' @param breaks The number or method of breaks in the histogram. Default is \code{"Freedman-Diaconis"}. See \code{\link[graphics]{hist}} for more.
